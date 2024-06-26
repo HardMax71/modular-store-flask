@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">{{ _('Purchase Details') }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong class="me-2">{{ _('Order ID') }}:</strong> {{ purchase.id }}</p>
+                                <p class="mb-2"><strong
+                                        class="me-2">{{ _('Date') }}:</strong> {{ purchase.date.strftime('%Y-%m-%d %H:%M') }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong class="me-2">{{ _('Status') }}:</strong>
+                                    <span class="badge rounded-pill fs-5 px-3 py-2
+                                        {% if purchase.status == 'Completed' %}
+                                            bg-success
+                                        {% elif purchase.status == 'Pending' %}
+                                            bg-warning text-dark
+                                        {% else %}
+                                            bg-danger
+                                        {% endif %}">
+                                        {{ purchase.status }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>{{ _('Shipping Address') }}:</strong></p>
+                                <ul class="list-unstyled">
+                                    <li>{{ purchase.shipping_address.address_line1 }}</li>
+                                    {% if purchase.shipping_address.address_line2 %}
+                                        <li>{{ purchase.shipping_address.address_line2 }}</li>
+                                    {% endif %}
+                                    <li>{{ purchase.shipping_address.city }}, {{ purchase.shipping_address.state }} {{ purchase.shipping_address.zip_code }}</li>
+                                    <li>{{ purchase.shipping_address.country }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5 class="mb-4">{{ _('Items') }}:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>{{ _('Product') }}</th>
+                                    <th>{{ _('Quantity') }}</th>
+                                    <th>{{ _('Price') }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in purchase.items %}
+                                    <tr>
+                                        <td>{{ item.goods.samplename }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ '%.2f' | format(item.price) }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                {% set items_subtotal = purchase.items|sum(attribute='price') %}
+                                <p><strong>{{ _('Subtotal') }}:</strong> ${{ '%.2f' | format(items_subtotal) }}</p>
+                                <p><strong>{{ _('Discount') }}:</strong>
+                                    ${{ '%.2f' | format(purchase.discount_amount) }}</p>
+                                <p><strong>{{ _('Delivery Fee') }}:</strong>
+                                    ${{ '%.2f' | format(purchase.delivery_fee) }}</p>
+                            </div>
+                            <div class="col-md-6 text-md-right">
+                                <h4><strong>{{ _('Total Price') }}:</strong>
+                                    ${{ '%.2f' | format(items_subtotal - purchase.discount_amount + purchase.delivery_fee) }}
+                                </h4>
+                            </div>
+                        </div>
+                        {% if purchase.status == 'Pending' %}
+                            <hr>
+                            <div class="text-center">
+                                <form action="{{ url_for('cancel_order', purchase_id=purchase.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('{{ _('Are you sure you want to cancel this order?') }}')">{{ _('Cancel Order') }}</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                        <hr>
+                        <div class="text-center">
+                            <!-- Кнопка для возврата к списку покупок -->
+                            <a href="{{ url_for('purchase_history.purchase_history') }}"
+                               class="btn btn-secondary">{{ _('Back to Purchase List') }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

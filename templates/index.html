@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Home') }}
+{% endblock %}
+{% block body %}
+    <!-- Main Store Body -->
+    {% if session['user'] %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="{{ _('Close') }}">
+                <span aria-hidden="true">×</span>
+            </button>
+            <strong>{{ _('Welcome') }}, {{ session['user'] }}!</strong> {{ _('We hope you enjoy your shopping experience.') }}
+        </div>
+    {% endif %}
+    <!-- Product Filter Section -->
+    <section class="container my-5">
+        <div class="card border-0 bg-light">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-4 text-center">{{ _('Filter Products') }}</h4>
+                <form action="{{ url_for('filter.filter_route') }}" method="GET" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-primary text-white"><i
+                                            class="fas fa-list"></i></span>
+                                </div>
+                                <select class="custom-select" id="category" name="category_id" required>
+                                    <option value="" disabled
+                                            {% if not request.args.get('category_id') %}selected{% endif %}>{{ _('Choose Category') }}</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}"
+                                                {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">{{ _('Please select a category.') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-primary text-white"><i
+                                            class="fas fa-sort"></i></span>
+                                </div>
+                                <select class="custom-select" id="sort_by" name="sort_by" required>
+                                    <option value="" disabled
+                                            {% if not request.args.get('sort_by') %}selected{% endif %}>{{ _('Sort By') }}</option>
+                                    <option value="price_asc"
+                                            {% if request.args.get('sort_by') == 'price_asc' %}selected{% endif %}>
+                                        {{ _('Price: Low to High') }}
+                                    </option>
+                                    <option value="price_desc"
+                                            {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>
+                                        {{ _('Price: High to Low') }}
+                                    </option>
+                                    <option value="rating"
+                                            {% if request.args.get('sort_by') == 'rating' %}selected{% endif %}>
+                                        {{ _('Rating') }}
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback">{{ _('Please select a sorting option.') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-primary text-white"><i
+                                            class="fas fa-search"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="name_query" name="name_query"
+                                       value="{{ request.args.get('name_query', '') }}"
+                                       placeholder="{{ _('Product Name') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-primary text-white"><i
+                                            class="fas fa-tags"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="tag_query" name="tag_query"
+                                       value="{{ request.args.get('tag_query', '') }}" placeholder="{{ _('Tags') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3 d-flex align-items-center justify-content-end">
+                            <button type="submit" class="btn btn-primary">{{ _('Apply Filters') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promoted Products Section -->
+    {% if promoted_products|length > 0 %}
+        <section class="container my-5">
+            <h2 class="text-center mb-4">{{ _('Featured Products') }}</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for product in promoted_products %}
+                    <div class="col">
+                        <div class="card h-100 border-primary">
+                            <div class="badge badge-danger badge-pill position-absolute top-0 end-0 m-2">
+                                {% if product.onSale %}
+                                    {{ _('Sale') }}
+                                {% else %}
+                                    {{ _('Featured') }}
+                                {% endif %}
+                            </div>
+                            <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}" class="card-img-top"
+                                 alt="{{ product.samplename }}" loading="lazy">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.samplename }}</h5>
+                                <p class="card-text">{{ product.description[:100] }}...</p>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        {% if product.onSale %}
+                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(product.onSalePrice) }}</span>
+                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(product.price) }}</del></span>
+                                        {% else %}
+                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(product.price) }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {% if product.avg_rating %}
+                                            <span class="text-warning">
+                                        {% for i in range(1, 6) %}
+                                            <i class="fas fa-star{% if i > product.avg_rating %} text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </span>
+                                            <span class="ml-1">({{ product.avg_rating }})</span>
+                                        {% else %}
+                                            <span class="text-muted">{{ _('No ratings') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="tags">
+                                        {% if product.tags %}
+                                            {% for tag in product.tags %}
+                                                <span class="badge badge-secondary mr-2 px-3 py-2">{{ tag.name }}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {% if product.stock < 3 %}
+                                            <span class="badge badge-danger mr-2 px-3 py-2">{{ _('Low Stock') }}: {{ product.stock }}</span>
+                                        {% elif product.stock < 10 %}
+                                            <span class="badge badge-warning mr-2 px-3 py-2">{{ _('Hurry Up') }}: {{ product.stock }}</span>
+                                        {% else %}
+                                            <span class="badge badge-success mr-2 px-3 py-2">{{ _('In Stock') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer text-center">
+                                <a href="{{ url_for('main.goods_page', id=product.id) }}"
+                                   class="btn btn-outline-primary">{{ _('View Details') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Product List Section -->
+    <section class="container my-5">
+        {% if shirts|length > 0 %}
+            {% set start_index = (current_page - 1) * per_page + 1 %}
+            {% set end_index = start_index + shirts|length - 1 %}
+            <div class="mb-4 d-flex justify-content-between align-items-center">
+                <h3>{{ _('All Products') }}</h3>
+                <span>{{ _('Showing') }} {{ start_index }} - {{ end_index }} {{ _('of') }} {{ in_total }} {{ _('products') }}</span>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+                {% for shirt in shirts %}
+                    <div class="col mb-4">
+                         <div class="card h-100 shadow-sm hover-effect">
+                            <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}" class="card-img-top"
+                                 alt="{{ shirt.samplename }}" loading="lazy">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title mb-3">{{ shirt.samplename }}</h5>
+                                <p class="card-text text-muted mb-3">{{ shirt.description[:100] }}...</p>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        {% if shirt.onSale %}
+                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(shirt.onSalePrice) }}</span>
+                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(shirt.price) }}</del></span>
+                                        {% else %}
+                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(shirt.price) }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {% if shirt.avg_rating %}
+                                            <span class="text-warning">
+                                        {% for i in range(1, 6) %}
+                                            <i class="fas fa-star{% if i > shirt.avg_rating %} text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </span>
+                                            <span class="ml-1">({{ shirt.avg_rating }})</span>
+                                        {% else %}
+                                            <span class="text-muted">{{ _('No ratings') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-3 mb-4">
+                                    {% if shirt.tags %}
+                                        <div class="tags d-flex flex-wrap gap-2">
+                                            {% for tag in shirt.tags %}
+                                                <span class="badge bg-secondary text-white rounded-pill me-1 mb-1 px-3 py-2">{{ tag.name }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="stock-status">
+                                        {% if shirt.stock == 0 %}
+                                            <span class="badge bg-danger text-white fs-6 px-3 py-2">
+                                                <i class="fas fa-times-circle me-2"></i>{{ _('Out of Stock') }}
+                                            </span>
+                                        {% elif shirt.stock < 3 %}
+                                            <span class="badge bg-danger text-white fs-6 px-3 py-2">
+                                                <i class="fas fa-exclamation-circle me-2"></i>{{ _('Low Stock') }}: {{ shirt.stock }}
+                                            </span>
+                                        {% elif shirt.stock < 10 %}
+                                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                                <i class="fas fa-clock me-2"></i>{{ _('Hurry Up') }}: {{ shirt.stock }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success text-white fs-6 px-3 py-2">
+                                                <i class="fas fa-check-circle me-2"></i> {{ _('In Stock') }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="card-footer text-center">
+                                <a href="{{ url_for('main.goods_page', id=shirt.id) }}"
+                                   class="btn btn-primary">{{ _('View Details') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="col">
+                <p>{{ _('No products found.') }}</p>
+            </div>
+        {% endif %}
+
+        {% if total_pages > 1 %}
+            <nav aria-label="{{ _('Page navigation') }}" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if current_page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link bg-primary text-white" href="?page={{ current_page - 1 }}"
+                               aria-label="{{ _('Previous') }}">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for page in range(1, total_pages + 1) %}
+                        <li class="page-item {% if page == current_page %}active{% endif %}">
+                            <a class="page-link {% if page == current_page %}bg-primary text-white{% endif %}"
+                               href="?page={{ page }}">{{ page }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <li class="page-item">
+                            <a class="page-link bg-primary text-white" href="?page={{ current_page + 1 }}"
+                               aria-label="{{ _('Next') }}">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container">
+    <h1 class="mt-4">{{ _('Analytics') }}</h1>
+
+    <form method="POST" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="start_date">{{ _('Start Date') }}:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="end_date">{{ _('End Date') }}:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ _('Generate Analytics') }}</button>
+    </form>
+
+    {% if request_logs %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>{{ _('Analytics Metrics') }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="h4">{{ _('Total Requests') }}: {{ total_requests }}</p>
+                    <p class="h4">{{ _('Average Execution Time') }}: {{ average_execution_time }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>{{ _('Status Code Counts') }}:</h3>
+                    <ul class="list-group">
+                        {% for status_code, count in status_code_counts.items() %}
+                        <li class="list-group-item">{{ status_code }}: {{ count }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>
+                {{ _('Request Logs (Last 10)') }}
+                <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#request-logs-table" aria-expanded="false" aria-controls="request-logs-table">
+                    {{ _('Toggle Table') }}
+                </button>
+            </h2>
+        </div>
+        <div class="collapse" id="request-logs-table">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>{{ _('User') }}</th>
+                            <th>{{ _('IP Address') }}</th>
+                            <th>{{ _('Endpoint') }}</th>
+                            <th>{{ _('Method') }}</th>
+                            <th>{{ _('Status Code') }}</th>
+                            <th>{{ _('Execution Time') }}</th>
+                            <th>{{ _('Timestamp') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in request_logs %}
+                        <tr>
+                            <td>{{ log.user.username if log.user else _('Anonymous') }}</td>
+                            <td>{{ log.ip_address }}</td>
+                            <td>{{ log.endpoint }}</td>
+                            <td>{{ log.method }}</td>
+                            <td>{{ log.status_code }}</td>
+                            <td>{{ log.execution_time }}</td>
+                            <td>{{ log.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Profile') }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <img src="{{ url_for('static', filename='img/profile_pictures/' + user.profile_picture) if user.profile_picture else url_for('static', filename='img/user-icon.png') }}"
+                                 alt="Profile Picture" class="mr-3 rounded-circle lazy" width="150">
+                        <h5 class="card-title">{{ user.fname }} {{ user.lname }}</h5>
+                        <p class="card-text">{{ user.email }}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>{{ _('Login') }}:</strong> {{ user.username }}</li>
+                        <li class="list-group-item"><strong>{{ _('Phone') }}:</strong> {{ user.phone }}</li>
+                    </ul>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('profile.profile_info') }}">
+                            <div class="form-group">
+                                <label for="language">{{ _('Change Language') }}:</label>
+                                <select class="form-control" id="language" name="language">
+                                    {% for lang_code in languages %}
+                                        <option value="{{ lang_code }}"
+                                                {% if user.language == lang_code %}selected{% endif %}>{{ lang_names.get(lang_code, lang_code) }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" name="change_language">
+                                <i class="fas fa-globe"></i> {{ _('Apply') }}
+                            </button>
+                        </form>
+                        <div class="social-login">
+                            {% if user.social_accounts %}
+                                {% for social_account in user.social_accounts %}
+                                    <div class="mb-2">
+                                        {% if social_account.provider == 'facebook' %}
+                                            <i class="fab fa-facebook-f"></i> Facebook
+                                        {% elif social_account.provider == 'google' %}
+                                            <i class="fab fa-google"></i> Google
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>{{ _('No social media accounts connected.') }}</p>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('profile.facebook_login') }}" class="btn btn-primary btn-block disabled"
+                           style="opacity: 0.5; pointer-events: none;">
+                            <i class="fab fa-facebook-f"></i> {{ _('Connect with Facebook') }}
+                        </a>
+                        <a href="{{ url_for('profile.google_login') }}" class="btn btn-danger btn-block disabled"
+                           style="opacity: 0.5; pointer-events: none;">
+                            <i class="fab fa-google"></i> {{ _('Connect with Google') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#profile" data-toggle="tab"
+                                   data-tab="profile">{{ _('Profile') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#addresses" data-toggle="tab"
+                                   data-tab="addresses">{{ _('Addresses') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#wishlist" data-toggle="tab"
+                                   data-tab="wishlist">{{ _('Wishlist') }}</a>
+                            </li>
+                        </ul>
+                        <script>
+                            $(function () {
+                                $('.nav-tabs a').on('shown.bs.tab', function (event) {
+                                    var activeTab = $(event.target).data('tab');
+                                    localStorage.setItem('activeTab', activeTab);
+                                });
+                            });
+
+                            $(function () {
+                                var activeTab = localStorage.getItem('activeTab');
+                                if (activeTab) {
+                                    $('.nav-tabs a[data-tab="' + activeTab + '"]').tab('show');
+                                }
+                            });
+                        </script>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="profile">
+                                <h5 class="card-title">{{ _('Update Profile') }}</h5>
+                                <form method="POST" action="{{ url_for('profile.profile_info') }}"
+                                      enctype="multipart/form-data">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="fname">{{ _('First Name') }}</label>
+                                            <input type="text" class="form-control" id="fname" name="fname"
+                                                   value="{{ user.fname }}">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="lname">{{ _('Last Name') }}</label>
+                                            <input type="text" class="form-control" id="lname" name="lname"
+                                                   value="{{ user.lname }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">{{ _('Phone') }}</label>
+                                        <input type="text" class="form-control" id="phone" name="phone"
+                                               value="{{ user.phone }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="profile_picture"
+                                                   name="profile_picture" accept=".png,.jpg,.jpeg,.bmp">
+                                            <label class="custom-file-label" for="profile_picture">
+                                                {{ _('Choose profile picture (PNG, JPG, BMP)') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"
+                                            name="update_profile">{{ _('Update Profile') }}</button>
+                                </form>
+
+                                <hr>
+                                <div class="card">
+                                    <div class="card-header" id="headingNotifications">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                                    data-target="#collapseNotifications" aria-expanded="false"
+                                                    aria-controls="collapseNotifications">
+                                                {{ _('Notification Settings') }}
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapseNotifications" class="collapse"
+                                         aria-labelledby="headingNotifications" data-parent="#changeCredentials">
+                                        <div class="card-body">
+                                            <form method="POST"
+                                                  action="{{ url_for('profile.profile_info') }}">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                               id="notifications_enabled" name="notifications_enabled"
+                                                               {% if current_user.notifications_enabled %}checked{% endif %}>
+                                                        <label class="custom-control-label"
+                                                               for="notifications_enabled">{{ _('Enable Notifications') }}</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                               id="email_notifications_enabled"
+                                                               name="email_notifications_enabled"
+                                                               {% if current_user.email_notifications_enabled %}checked{% endif %}>
+                                                        <label class="custom-control-label"
+                                                               for="email_notifications_enabled">{{ _('Enable Email Notifications') }}</label>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary"
+                                                        name="update_notification_settings">{{ _('Update Notification Settings') }}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+
+                                <h5 class="card-title">{{ _('Change account parameters') }}</h5>
+                                <div class="accordion" id="changeCredentials">
+                                    <div class="card">
+                                        <div class="card-header" id="headingPhone">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link collapsed" type="button"
+                                                        data-toggle="collapse" data-target="#collapsePhone"
+                                                        aria-expanded="false" aria-controls="collapsePhone">
+                                                    {{ _('Change Phone Number') }}
+                                                </button>
+                                            </h2>
+                                        </div>
+                                        <div id="collapsePhone" class="collapse" aria-labelledby="headingPhone"
+                                             data-parent="#changeCredentials">
+                                            <div class="card-body">
+                                                <form method="POST" action="{{ url_for('profile.profile_info') }}">
+                                                    <div class="form-group">
+                                                        <label for="phone">{{ _('New Phone Number') }}</label>
+                                                        <input type="tel" class="form-control" id="phone" name="phone"
+                                                               required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary" name="change_phone">
+                                                        {{ _('Change Phone Number') }}
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header" id="headingEmail">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse"
+                                                        data-target="#collapseEmail" aria-expanded="false"
+                                                        aria-controls="collapseEmail">
+                                                    {{ _('Change Email') }}
+                                                </button>
+                                            </h2>
+                                        </div>
+                                        <div id="collapseEmail" class="collapse" aria-labelledby="headingEmail"
+                                             data-parent="#changeCredentials">
+                                            <div class="card-body">
+                                                <form method="POST" action="{{ url_for('profile.profile_info') }}">
+                                                    <div class="form-group">
+                                                        <label for="email">{{ _('New Email') }}</label>
+                                                        <input type="email" class="form-control" id="email" name="email"
+                                                               required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary" name="change_email">
+                                                        {{ _('Change Email') }}
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header" id="headingPassword">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link collapsed" type="button"
+                                                        data-toggle="collapse" data-target="#collapsePassword"
+                                                        aria-expanded="false" aria-controls="collapsePassword">
+                                                    {{ _('Change Password') }}
+                                                </button>
+                                            </h2>
+                                        </div>
+                                        <div id="collapsePassword" class="collapse" aria-labelledby="headingPassword"
+                                             data-parent="#changeCredentials">
+                                            <div class="card-body">
+                                                <form method="POST" action="{{ url_for('profile.profile_info') }}">
+                                                    <div class="form-group">
+                                                        <label for="current_password">{{ _('Current Password') }}</label>
+                                                        <input type="password" class="form-control"
+                                                               id="current_password" name="current_password" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="new_password">{{ _('New Password') }}</label>
+                                                        <input type="password" class="form-control" id="new_password"
+                                                               name="new_password" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="confirm_password">{{ _('Confirm New Password') }}</label>
+                                                        <input type="password" class="form-control"
+                                                               id="confirm_password" name="confirm_password" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary"
+                                                            name="change_password">{{ _('Change Password') }}
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="addresses">
+                                {% if user.addresses %}
+                                    <div class="row">
+                                        {% for address in user.addresses %}
+                                            <div class="col-md-6 mb-4  card-body">
+                                                <div class="card">
+                                                    <!-- Add border-dark here for darker borders -->
+                                                    <div class="card-body">
+                                                        <h6 class="card-title text-uppercase font-weight-bold">{{ address.address_line1 }}</h6>
+                                                        {% if address.address_line2 %}
+                                                            <p class="card-text"><small
+                                                                    class="text-muted">{{ address.address_line2 }}</small>
+                                                            </p>
+                                                        {% endif %}
+                                                        <p class="card-text">
+                                                            <strong>{{ _('City') }}:</strong> {{ address.city }}<br>
+                                                            <strong>{{ _('State') }}:</strong> {{ address.state }}<br>
+                                                            <strong>{{ _('ZIP Code') }}:</strong> {{ address.zip_code }}<br>
+                                                            <strong>{{ _('Country') }}:</strong> {{ address.country }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="card-footer bg-white">
+                                                        <a href="{{ url_for('profile.edit_address', address_id=address.id) }}"
+                                                           class="btn btn-primary btn-sm">{{ _('Edit') }}</a>
+                                                        <form action="{{ url_for('profile.delete_address', address_id=address.id) }}"
+                                                              method="POST" class="d-inline">
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                    onclick="return confirm('Are you sure you want to delete this address?')">
+                                                                {{ _('Delete') }}
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p>{{ _('No addresses found.') }}</p>
+                                {% endif %}
+                                <div class="text-center mt-4">
+                                    <a href="{{ url_for('profile.add_address') }}"
+                                       class="btn btn-success mt-3">{{ _('Add New Address') }}</a>
+                                </div>
+                            </div>
+
+
+                            <div class="tab-pane" id="wishlist">
+                                {% if user.wishlist_items %}
+                                    <div class="row">
+                                        {% for item in user.wishlist_items %}
+                                            <div class="col-md-4 mb-4">
+                                                <div class="card h-100">
+                                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
+                                                         class="card-img-top lazy" alt="{{ item.goods.samplename }}">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">{{ item.goods.samplename }}</h6>
+                                                        <p class="card-text text-truncate">{{ item.goods.description }}</p>
+                                                        <div class="d-flex flex-wrap">
+                                                            <a href="{{ url_for('main.goods_page', id=item.goods.id) }}"
+                                                               class="btn btn-primary btn-sm flex-shrink-1">{{ _('View') }}</a>
+                                                            <form action="{{ url_for('wishlists.wishlist') }}"
+                                                                  method="POST"
+                                                                  class="d-inline">
+                                                                <input type="hidden" name="goods_id"
+                                                                       value="{{ item.goods.id }}">
+                                                                <button type="submit"
+                                                                        class="btn btn-outline-danger btn-sm flex-shrink-1">
+                                                                    <i class="fas fa-heart"></i> {{ _('Remove') }}
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <a href="{{ url_for('wishlists.send_notifications') }}" class="btn btn-primary">
+                                            <i class="fas fa-bell"></i> {{ _('Send Wishlist Notifications') }}
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center">
+                                        <img src="{{ url_for('static', filename='img/empty_cart.png') }}"
+                                             alt="Empty Wishlist" class="img-fluid mb-4 lazy" style="max-width: 200px;">
+                                        <h6>{{ _('Your wishlist is empty.') }}</h6>
+                                        <p>{{ _('Explore our collection and add your favorite items to your wishlist!') }}</p>
+                                        <a href="{{ url_for('main.index') }}"
+                                           class="btn btn-primary">{{ _('Start Shopping') }}</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

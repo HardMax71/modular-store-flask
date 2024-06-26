@@ -1,0 +1,96 @@
+<header>
+    <nav class="navbar fixed-top navbar-light bg-light navbar-expand-lg py-3">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('carts.cart') }}"
+                       class="btn btn-primary d-flex align-items-center position-relative mr-4" id="cartPopover"
+                       data-toggle="popover" data-placement="bottom" data-html="true" data-content="">
+                        <i class="fas fa-shopping-cart fa-lg mr-2"></i>
+                        <div class="d-inline-block text-center">
+                            <div class="font-weight-bold"
+                                 id="header-total-items">{{ total_items|default(0, true) }} {{ _('item(s)') }}</div>
+                            <div class="font-weight-bold" id="header-total-price">
+                                ${{ '{:,.2f}'.format(total_amount|default(0, true)) }}</div>
+                        </div>
+                    </a>
+                {% endif %}
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <span class="shop-name text-dark">{{ config.SHOP_NAME }}</span>
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="{{ _('Toggle navigation') }}">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    {% if request.endpoint != 'profile' and request.endpoint != 'purchase_history' and request.endpoint != 'logout' %}
+                        <li class="nav-item">
+                            <form action="{{ url_for('main.search_route') }}" method="GET"
+                                  class="form-inline my-2 my-lg-0 mr-3 position-relative">
+                                <div class="input-group">
+                                    <input type="text" name="query" class="form-control" id="searchInput"
+                                           placeholder="{{ _('Search products...') }}" aria-label="{{ _('Search') }}"
+                                           aria-describedby="search-button" value="{{ request.args.get('query', '') }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="submit" id="search-button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="autocompleteResults" class="autocomplete-results">
+                                    <div id="autocompleteItems"></div>
+                                </div>
+                            </form>
+                        </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user-circle fa-lg"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item"
+                                   href="{{ url_for('profile.profile_info') }}">{{ _('Profile') }}</a>
+                                {% if current_user.is_admin %}
+                                    <a class="dropdown-item"
+                                       href="{{ url_for('admin.index') }}">{{ _('Admin Dashboard') }}</a>
+                                {% endif %}
+                                <a class="dropdown-item"
+                                   href="{{ url_for('tickets.list_tickets') }}">{{ _('Tickets') }}</a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('purchase_history.purchase_history') }}">{{ _('Purchase History') }}</a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('compare.compare_products') }}">{{ _('Product Comparison') }}</a>
+                                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('profile.notifications') }}" class="nav-link">
+                                <i class="fas fa-bell fa-lg"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>{% endif %}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">{{ _('Register') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">{{ _('Login') }}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<style>
+    .shop-name {
+        font-size: 1.5rem;
+    }
+</style>

@@ -1,0 +1,185 @@
+{% extends 'admin/master.html' %}
+
+{% block admin_content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12"><h1 class="display-4 text-center mb-4">{{ _('Admin Dashboard') }}</h1></div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">{{ _('Shop Management') }}</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-users fa-2x text-primary mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Users Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Manage user accounts and permissions.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('user.index_view') }}"
+                                   class="btn btn-primary btn-block mt-3">{{ _('Manage Users') }}</a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-box fa-2x text-success mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Products Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Manage your shop\'s products and inventory.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('goods.index_view') }}"
+                                   class="btn btn-success btn-block mt-3">{{ _('Manage Products') }}</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tags fa-2x text-info mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Categories Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Manage product categories and hierarchy.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('category.index_view') }}"
+                                   class="btn btn-info btn-block mt-3">{{ _('Manage Categories') }}</a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-shopping-cart fa-2x text-warning mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Orders Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('View and manage customer orders.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('purchase.index_view') }}"
+                                   class="btn btn-warning btn-block mt-3">{{ _('Manage Orders') }}</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-comments fa-2x text-secondary mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Reviews Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Moderate and manage product reviews.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('review.index_view') }}"
+                                   class="btn btn-secondary btn-block mt-3">{{ _('Manage Reviews') }}</a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-percentage fa-2x text-danger mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Discounts Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Create and manage discount codes.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('discount.index_view') }}"
+                                   class="btn btn-danger btn-block mt-3">{{ _('Manage Discounts') }}</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-bullhorn fa-2x text-primary mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Product Promotions Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Set up and manage product promotions.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('productpromotion.index_view') }}"
+                                   class="btn btn-primary btn-block mt-3">{{ _('Manage Promotions') }}</a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-truck fa-2x text-success mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Shipping Methods Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Configure and manage shipping options.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('shippingmethod.index_view') }}"
+                                   class="btn btn-success btn-block mt-3">{{ _('Manage Shipping') }}</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-ticket-alt fa-2x text-info mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Tickets Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('Manage customer support tickets.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('ticket.index_view') }}"
+                                   class="btn btn-info btn-block mt-3">{{ _('Manage Tickets') }}</a>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-comment-dots fa-2x text-warning mr-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ _('Ticket Messages Mgmt') }}</h5>
+                                        <p class="text-muted mb-0">{{ _('View and respond to ticket messages.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('ticketmessage.index_view') }}"
+                                   class="btn btn-warning btn-block mt-3">{{ _('Manage Messages') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">{{ _('Reports and Statistics Mgmt') }}</h4>
+                        <div class="d-flex align-items-center mb-4">
+                            <i class="fas fa-chart-bar fa-2x text-info mr-3"></i>
+                            <div>
+                                <h5 class="mb-0">{{ _('Statistics Mgmt') }}</h5>
+                                <p class="text-muted mb-0">{{ _('View shop statistics and metrics.') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('statistics.index') }}"
+                           class="btn btn-info btn-block mb-4">{{ _('View Statistics') }}</a>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-alt fa-2x text-secondary mr-3"></i>
+                            <div>
+                                <h5 class="mb-0">{{ _('Reports Mgmt') }}</h5>
+                                <p class="text-muted mb-0">{{ _('Generate and view various reports.') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('reports.index') }}"
+                           class="btn btn-secondary btn-block">{{ _('View Reports') }}</a>
+                        <div class="d-flex align-items-center mb-4">
+                            <i class="fas fa-chart-line fa-2x text-primary mr-3"></i>
+                            <div>
+                                <h5 class="mb-0">{{ _('Analytics Mgmt') }}</h5>
+                                <p class="text-muted mb-0">{{ _('View user behavior analytics and metrics.') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('analytics.index') }}"
+                           class="btn btn-primary btn-block mb-4">{{ _('View Analytics') }}</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning mr-3"></i>
+                            <div>
+                                <h5 class="mb-0">{{ _('Reported reviews Mgmt') }}</h5>
+                                <p class="text-muted mb-0">{{ _('Check reported reviews.') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('reportedreview.index_view') }}"
+                           class="btn btn-warning btn-block mt-3">{{ _('View Reports') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

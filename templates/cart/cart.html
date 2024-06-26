@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Shopping Cart') }}
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h2 class="text-center mb-4">{{ _('Shopping Cart') }}</h2>
+        <div id="shoppingCart">
+            {% if cart|length != 0 %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="text-center align-middle">#</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Item') }}</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Name') }}</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Options') }}</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Quantity') }}</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Unit Price') }}</th>
+                            <th scope="col" class="text-center align-middle">{{ _('Subtotal') }}</th>
+                            <th scope="col" class="text-center align-middle"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in cart %}
+                            <tr>
+                                <th scope="row" class="text-center align-middle">{{ loop.index }}</th>
+                                <td class="text-center align-middle">
+                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
+                                         width="100px"
+                                         loading="lazy" alt="{{ item.goods.samplename }}"
+                                         class="img-thumbnail cursor-pointer" data-toggle="modal"
+                                         data-target="#imageModal{{ loop.index }}">
+                                </td>
+                                <td class="text-center align-middle">{{ item.goods.samplename }}</td>
+                                <td class="text-center align-middle">
+                                    {% if item.variant_options and item.variant_options != '{}' %}
+                                        {% set variant_options = item.variant_options|from_json %}
+                                        {% if variant_options %}
+                                            {% for key, value in variant_options.items() %}
+                                                <span class="badge badge-pill badge-secondary mr-2">{{ key }}: {{ value }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="badge badge-pill badge-secondary mr-2">{{ _('No options selected') }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-pill badge-secondary mr-2">{{ _('No options selected') }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center align-middle">
+                                    <form action="{{ url_for('carts.update_cart_route') }}" method="post"
+                                          class="form-inline justify-content-center" onsubmit="return false;">
+                                        <input type="hidden" name="cart_item_id" value="{{ item.id }}"/>
+                                        <div class="input-group input-group-sm justify-content-center">
+                                            <div class="input-group-prepend">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                        onclick="updateQuantity(this, -1)">-
+                                                </button>
+                                            </div>
+                                            <input type="number" name="quantity" min="1" value="{{ item.quantity }}"
+                                                   class="form-control form-control-sm text-center"
+                                                   style="width: 60px;" onchange="updateQuantity(this)">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                        onclick="updateQuantity(this, 1)">+
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td class="text-center align-middle">{{ '${:,.2f}'.format(item.price) }}</td>
+                                <td class="text-center align-middle">{{ '${:,.2f}'.format(item.price * item.quantity) }}</td>
+                                <td class="text-center align-middle">
+                                    <form action="{{ url_for('carts.remove_from_cart_route', cart_item_id=item.id) }}">
+                                        <button type="submit" class="btn btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <!-- Image Modal -->
+                            <div class="modal fade" id="imageModal{{ loop.index }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="imageModalLabel{{ loop.index }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content border-0">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"
+                                                id="imageModalLabel{{ loop.index }}">{{ item.goods.samplename }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="{{ _('Close') }}">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body justify-content-center align-items-center">
+                                            <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
+                                                 alt="{{ item.goods.samplename }}" class="img-fluid lazy">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row justify-content-end">
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ _('Cart Summary') }}</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                    <tr>
+                                        <td>{{ _('Subtotal') }}:</td>
+                                        <td class="text-right" id="subtotal">{{ '${:,.2f}'.format(subtotal) }}</td>
+                                    </tr>
+                                    {% if discount_percentage > 0 %}
+                                        <tr>
+                                            <td>{{ _('Discount (%(percentage)d%%):' % {'percentage': discount_percentage }) }}</td>
+                                            <td class="text-right" id="discount">
+                                                -{{ '${:,.2f}'.format(subtotal * discount_percentage / 100) }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td><strong>{{ _('Total') }}:</strong></td>
+                                        <td class="text-right"
+                                            id="cart-total">{{ '${:,.2f}'.format(total_amount) }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <form action="{{ url_for('main.apply_discount') }}" method="post">
+                                    <div class="input-group mb-3">
+                                        <input type="text" name="discount_code" class="form-control"
+                                               placeholder="{{ _('Discount Code') }}">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-primary">{{ _('Apply') }}</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <a href="{{ url_for('main.index') }}"
+                                   class="btn btn-outline-primary btn-block mb-2">{{ _('Continue Shopping') }}</a>
+                                <a href="{{ url_for('carts.checkout') }}"
+                                   class="btn btn-primary btn-block">{{ _('Proceed to Checkout') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/empty_cart.png') }}" alt="{{ _('Empty Cart') }}"
+                         class="img-fluid mb-4 lazy" style="max-width: 200px;">
+                    <h3>{{ _('Your cart is empty!') }}</h3>
+                    <p class="lead">{{ _("Looks like you haven't added any items to your cart yet.") }}</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        {{ _('Start Shopping Now') }}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function updateQuantity(element, change = 0) {
+            const form = element.closest('form');
+            const quantityInput = form.querySelector('input[name="quantity"]');
+            let quantity = parseInt(quantityInput.value);
+            if (change !== 0) {
+                quantity += change;
+                if (quantity < 1) {
+                    alert("{{ _('Quantity cannot be less than 1. If you want to remove the item, please use the remove button.') }}");
+                    return;
+                }
+                quantityInput.value = quantity;
+            }
+
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status) {
+                        // Update the subtotal, discount, and total in the cart summary
+                        document.getElementById('subtotal').textContent = data.subtotal;
+                        const discountElement = document.getElementById('discount');
+                        if (discountElement) {
+                            discountElement.textContent = data.discount;
+                        }
+
+                        // update the cart total below subtotal
+                        document.getElementById('cart-total').textContent = data.cart_total;
+
+                        // Update cart summary above right
+                        document.getElementById('header-total-items').textContent = data.cart_items + " {{ _('item(s)') }}";
+                        document.getElementById('header-total-price').textContent = data.cart_total;
+
+                        // Update the subtotal in the table row
+                        const tableRow = element.closest('tr');
+                        const subtotalCell = tableRow.querySelector('td:nth-child(7)');
+                        subtotalCell.textContent = data.item_subtotal;
+
+                    } else {
+                        console.error('{{ _('Cant change amount!') }}');
+                        alert('{{ _('Cant change amount!') }}');
+                        quantityInput.value = data.current_quantity;
+                    }
+                })
+                .catch(error => {
+                    console.error('{{ _('Error') }}:', error);
+                });
+        }
+    </script>
+    <style>
+        .input-group {
+            justify-content: center;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .table thead th {
+            border-top: none;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .badge-pill {
+            padding-right: .6em;
+            padding-left: .6em;
+            border-radius: 10rem;
+        }
+    </style>
+{% endblock %}

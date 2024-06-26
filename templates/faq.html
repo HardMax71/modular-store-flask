@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ _('FAQ') }}{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="text-center mb-5">{{ _('FAQ') }}</h1>
+
+    <div class="accordion" id="faqAccordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        {{ _('How do I place an order?') }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#faqAccordion">
+                <div class="card-body">
+                    {{ _('To place an order, simply browse our products, select the items you wish to purchase, and add them to your cart. When you are ready to checkout, click on the cart icon and follow the prompts to complete your order.') }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        {{ _('What payment methods do you accept?') }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#faqAccordion">
+                <div class="card-body">
+                    {{ _('We accept various payment methods, including credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers. You can select your preferred payment method during the checkout process.') }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        {{ _('How long does shipping take?') }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#faqAccordion">
+                <div class="card-body">
+                    {{ _('Shipping times vary depending on your location and the shipping method you choose. Generally, orders are processed within 1-2 business days, and delivery can take anywhere from 3-7 business days for domestic orders and up to 2-4 weeks for international orders.') }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingFour">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        {{ _('What is your return policy?') }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#faqAccordion">
+                <div class="card-body">
+                    {{ _('We accept returns within 30 days of purchase for most items, provided they are in their original condition and packaging. Some items, such as personalized or custom-made products, may not be eligible for return. Please refer to our Return Policy page for more detailed information.') }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingFive">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        {{ _('How can I contact customer support?') }}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#faqAccordion">
+                <div class="card-body">
+                    {{ _('If you have any questions or concerns, our customer support team is here to help. You can reach us by email at support@example.com or by phone at (123) 456-7890. Our support hours are Monday through Friday, 9 AM to 5 PM EST.') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

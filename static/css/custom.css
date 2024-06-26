@@ -1,0 +1,137 @@
+.card:hover {
+    border-color: #6c757d;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.card {
+    margin-bottom: 1.5em;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+}
+
+.price {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.price:before {
+    content: '$';
+}
+
+.shirt {
+    margin-bottom: 15px;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.stepper-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #222;
+    max-width: 120px;
+    margin: 15px auto;
+}
+
+header {
+    margin-bottom: 60px;
+}
+
+.shirtCart {
+    width: 30px;
+}
+
+.add {
+    text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: all 0.3s ease;
+}
+
+.checkout {
+    text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.add:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+tr {
+    text-align: center;
+}
+
+.modal-header {
+    border-bottom: 0;
+}
+
+.counter {
+    font-size: 0.7em;
+    margin-left: 1em;
+    font-weight: bold;
+}
+
+.increment,
+.decrement {
+    height: 28px;
+    width: 28px;
+    border: 1px solid #6c757d;
+    text-align: center;
+    box-sizing: border-box;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #6c757d;
+    font-size: 24px;
+    line-height: 26px;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.decrement:hover,
+.increment:hover {
+    color: #28a745;
+    border-color: #28a745;
+}
+
+.decrement:active,
+.increment:active {
+    background-color: #28a745;
+    color: white;
+}
+
+.quantity {
+    height: 28px;
+    width: 56px;
+    text-align: center;
+    margin: 0 12px;
+    border-radius: 4px;
+    border: 1px solid #6c757d;
+    font-size: 1em;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #212529;
+    text-align: left;
+    background-color: #f8f9fa;
+}
+
+.bg-dark {
+    background-color: #343a40 !important;
+}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Create Ticket') }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">{{ _('Create Ticket') }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('tickets.create_ticket') }}">
+                <div class="form-group">
+                    <label for="title">{{ _('Title') }}</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">{{ _('Description') }}</label>
+                    <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="priority">{{ _('Priority') }}</label>
+                    <select class="form-control" id="priority" name="priority">
+                        <option value="low">{{ _('Low') }}</option>
+                        <option value="normal" selected>{{ _('Normal') }}</option>
+                        <option value="high">{{ _('High') }}</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ _('Create Ticket') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

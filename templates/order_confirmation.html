@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Order Confirmation') }}
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="mb-0">{{ _('Order Confirmation') }}</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">{{ _('Thank you for your purchase!') }}</h4>
+                            <p>{{ _('Your order has been successfully placed and will be processed shortly.') }}</p>
+                        </div>
+                        <h3 class="mb-4">{{ _('Order Details') }}</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <p><strong>{{ _('Order Number') }}:</strong> {{ purchase.id }}</p>
+                                <p><strong>{{ _('Order Date') }}:</strong> {{ purchase.date }}</p>
+                                <p><strong>{{ _('Shipping Method') }}:</strong> {{ purchase.shipping_method }}</p>
+                                <p><strong>{{ _('Payment Method') }}:</strong> {{ purchase.payment_method }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <p><strong>{{ _('Shipping Address') }}:</strong></p>
+                                <address>
+                                    {{ purchase.shipping_address.address_line1 }}<br>
+                                    {% if purchase.shipping_address.address_line2 %}
+                                        {{ purchase.shipping_address.address_line2 }}<br>
+                                    {% endif %}
+                                    {{ purchase.shipping_address.city }}, {{ purchase.shipping_address.state }} {{ purchase.shipping_address.zip_code }}<br>
+                                    {{ purchase.shipping_address.country }}
+                                </address>
+                            </div>
+                        </div>
+
+                        <h3 class="mb-4">{{ _('Order Items') }}</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Product') }}</th>
+                                        <th>{{ _('Quantity') }}</th>
+                                        <th>{{ _('Price') }}</th>
+                                        <th>{{ _('Subtotal') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in purchase.items %}
+                                        <tr>
+                                            <td>{{ item.goods.samplename }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>${{ item.price }}</td>
+                                            <td>${{ item.price * item.quantity }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>{{ _('Total Amount') }}:</strong></td>
+                                        <td>${{ total_amount }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg btn-block">{{ _('Continue Shopping') }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

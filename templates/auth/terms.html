@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.SHOP_NAME }} - Terms and Conditions{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Terms and Conditions</h2>
+                        <p class="text-muted">Last updated: {{ config.TERMS_LAST_UPDATED }}</p>
+
+                        <h4>1. Introduction</h4>
+                        <p>Welcome to {{ config.SHOP_NAME }}. These terms and conditions ("Terms") govern your use of our website located at <a href="{{ session.get('website_url', '#') }}" target="_blank">{{ session.get('website_url', 'https://example.com') }}</a> (the "Website"). By accessing or using the Website, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must not use the Website.</p>
+
+                        <h4>2. Intellectual Property</h4>
+                        <p>All content on the Website, including text, graphics, logos, images, and software, is the property of {{ config.SHOP_NAME }} and is protected by intellectual property laws. You may not use, reproduce, distribute, or modify any content from the Website without our prior written consent.</p>
+
+                        <h4>3. User Accounts</h4>
+                        <p>To access certain features of the Website, such as making purchases and leaving reviews, you may be required to create a user account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You agree to provide accurate and complete information when creating your account and to update your information as necessary.</p>
+
+                        <h4>4. Prohibited Conduct</h4>
+                        <p>When using the Website, you agree not to:</p>
+                        <ul>
+                            <li>Violate any applicable laws or regulations.</li>
+                            <li>Infringe upon the rights of others, including intellectual property rights.</li>
+                            <li>Upload or transmit any harmful, offensive, or inappropriate content.</li>
+                            <li>Interfere with or disrupt the Website or its servers.</li>
+                            <li>Attempt to gain unauthorized access to the Website or user accounts.</li>
+                            <li>Engage in any fraudulent or deceptive activities.</li>
+                            <li>Use the Website for any commercial purposes without our express written consent.</li>
+                        </ul>
+
+                        <h4>5. Product Information and Pricing</h4>
+                        <p>We strive to provide accurate and up-to-date information about our products, including descriptions, images, and pricing. However, we do not guarantee the completeness, accuracy, or reliability of any product information on the Website. Prices and availability of products are subject to change without notice.</p>
+
+                        <h4>6. Orders and Payments</h4>
+                        <p>By placing an order through the Website, you agree to provide accurate and complete payment information. We reserve the right to cancel or refuse any order at our discretion. All payments are processed securely through our designated payment gateway.</p>
+
+                        <h4>7. Shipping and Delivery</h4>
+                        <p>We will make reasonable efforts to ship your order promptly upon receipt of payment. However, we are not responsible for any delays or failures in delivery caused by circumstances beyond our control, such as adverse weather conditions, transportation disruptions, or supplier issues.</p>
+
+                        <h4>8. Returns and Refunds</h4>
+                        <p>If you are not satisfied with your purchase, you may be eligible for a return or refund in accordance with our <a href="{{ url_for('main.return_policy') }}">Return Policy</a>. Please refer to our Return Policy page for more information on the process and conditions for returning products.</p>
+
+                        <h4>9. Limitation of Liability</h4>
+                        <p>{{ config.SHOP_NAME }} shall not be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with the use of the Website. Our total liability to you for any claims arising from or related to the Website shall not exceed the amount paid by you, if any, for accessing the Website or purchasing products through the Website.</p>
+
+                        <h4>10. Indemnification</h4>
+                        <p>You agree to indemnify and hold {{ config.SHOP_NAME }} harmless from any claims, losses, liabilities, damages, expenses, or costs arising from your use of the Website, your violation of these Terms, or your infringement of any intellectual property rights.</p>
+
+                        <h4>11. Modifications to the Terms</h4>
+                        <p>We reserve the right to modify these Terms at any time. Any changes to the Terms will be effective immediately upon posting on the Website. It is your responsibility to review the Terms periodically for any updates or changes.</p>
+
+                        <h4>12. Governing Law</h4>
+                        <p>These Terms shall be governed by and construed in accordance with the laws of {{ config.JURISDICTION }}. Any legal action or proceeding relating to the Website or these Terms shall be brought exclusively in the courts of {{ config.JURISDICTION }}.</p>
+
+                        <h4>13. Contact Us</h4>
+                        <p>If you have any questions or concerns about these Terms, please contact us at <a href="mailto:{{ config.CONTACT_MAIL }}">{{ config.CONTACT_MAIL }}</a> or call us at <a href="tel:{{ config.CONTACT_PHONE }}">{{ config.CONTACT_PHONE }}</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

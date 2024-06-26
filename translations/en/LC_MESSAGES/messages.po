@@ -1,0 +1,1150 @@
+# English translations for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-06-11 17:26+0200\n"
+"PO-Revision-Date: 2024-03-12 14:25+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#~ msgid "Hope you have a pleasant experience shopping with us."
+#~ msgstr ""
+
+#~ msgid "Medium Stock"
+#~ msgstr ""
+
+#~ msgid "Stock"
+#~ msgstr ""
+
+#~ msgid "Error updating quantity:"
+#~ msgstr ""
+
+#~ msgid "Change Email or Password"
+#~ msgstr ""
+
+#~ msgid "Invalid or expired token."
+#~ msgstr ""
+
+#~ msgid "Choose profile picture"
+#~ msgstr ""
+
+#~ msgid "Return to start page?"
+#~ msgstr ""
+
+#~ msgid "Product not found"
+#~ msgstr ""
+
+#~ msgid "Product not found."
+#~ msgstr ""
+
+#~ msgid "You must be logged in to add items to your cart."
+#~ msgstr ""
+
+#~ msgid "Product removed from your wishlist."
+#~ msgstr ""
+
+#~ msgid "Product added to your wishlist!"
+#~ msgstr ""
+
+#~ msgid "Invalid action."
+#~ msgstr ""
+
+#~ msgid "Discount code applied successfully."
+#~ msgstr ""
+
+#~ msgid "You have already used this discount code."
+#~ msgstr ""
+
+#~ msgid "Invalid discount code."
+#~ msgstr ""
+
+#~ msgid "You do not have permission to access this page."
+#~ msgstr ""
+
+#~ msgid "Username already exists. Please choose a different one."
+#~ msgstr ""
+
+#~ msgid "Registration successful. Please log in."
+#~ msgstr ""
+
+#~ msgid "Login successful."
+#~ msgstr ""
+
+#~ msgid "Invalid username or password."
+#~ msgstr ""
+
+#~ msgid "You have been logged out."
+#~ msgstr ""
+
+#~ msgid "Sending email is disabled for now."
+#~ msgstr ""
+
+#~ msgid "No account found with that email."
+#~ msgstr ""
+
+#~ msgid "The password reset token has expired."
+#~ msgstr ""
+
+#~ msgid "Invalid token."
+#~ msgstr ""
+
+#~ msgid "Invalid user."
+#~ msgstr ""
+
+#~ msgid "Your password has been reset. You can now log in with the new password."
+#~ msgstr ""
+
+#~ msgid "Passwords do not match."
+#~ msgstr ""
+
+#~ msgid "Item removed from cart."
+#~ msgstr ""
+
+#~ msgid "Your cart is empty."
+#~ msgstr ""
+
+#~ msgid "Please add an address before proceeding to checkout."
+#~ msgstr ""
+
+#~ msgid "Purchase completed. Thank you for shopping with us!"
+#~ msgstr ""
+
+#~ msgid "Payment failed"
+#~ msgstr ""
+
+#~ msgid "Not enough stock available for this product."
+#~ msgstr ""
+
+#~ msgid "Item added to cart."
+#~ msgstr ""
+
+#~ msgid "Product removed from comparison."
+#~ msgstr ""
+
+#~ msgid "Product is not in comparison."
+#~ msgstr ""
+
+#~ msgid "No products in comparison."
+#~ msgstr ""
+
+#~ msgid "You can only compare up to 3 products at a time."
+#~ msgstr ""
+
+#~ msgid "Product added to comparison."
+#~ msgstr ""
+
+#~ msgid "Product is already in comparison."
+#~ msgstr ""
+
+#~ msgid "You must be logged in to view this page."
+#~ msgstr ""
+
+#~ msgid "Email changed successfully."
+#~ msgstr ""
+
+#~ msgid "This email is already in use."
+#~ msgstr ""
+
+#~ msgid "New email is either empty or same as previous one."
+#~ msgstr ""
+
+#~ msgid "Password changed successfully."
+#~ msgstr ""
+
+#~ msgid "The new password and confirmation do not match."
+#~ msgstr ""
+
+#~ msgid "Incorrect current password."
+#~ msgstr ""
+
+#~ msgid "Phone number successfully changed."
+#~ msgstr ""
+
+#~ msgid "Invalid phone number format."
+#~ msgstr ""
+
+#~ msgid "The new phone number matches the current one or is empty."
+#~ msgstr ""
+
+#~ msgid "Invalid file type. Only PNG, JPG, and BMP files are allowed."
+#~ msgstr ""
+
+#~ msgid "Profile updated successfully."
+#~ msgstr ""
+
+#~ msgid "Language changed successfully."
+#~ msgstr ""
+
+#~ msgid "Notification settings updated successfully."
+#~ msgstr ""
+
+#~ msgid "Invalid request."
+#~ msgstr ""
+
+#~ msgid "Notification not found."
+#~ msgstr ""
+
+#~ msgid "You do not have permission to mark this notification as read."
+#~ msgstr ""
+
+#~ msgid "This address has already been added."
+#~ msgstr ""
+
+#~ msgid "Address added successfully."
+#~ msgstr ""
+
+#~ msgid "Address not found."
+#~ msgstr ""
+
+#~ msgid "You do not have permission to edit this address."
+#~ msgstr ""
+
+#~ msgid "Address updated successfully."
+#~ msgstr ""
+
+#~ msgid "You do not have permission to delete this address."
+#~ msgstr ""
+
+#~ msgid "Address deleted successfully."
+#~ msgstr ""
+
+#~ msgid "You don't have permission to view this purchase."
+#~ msgstr ""
+
+#~ msgid "You don't have permission to cancel this order."
+#~ msgstr ""
+
+#~ msgid "This order cannot be cancelled."
+#~ msgstr ""
+
+#~ msgid "Order cancelled successfully."
+#~ msgstr ""
+
+#~ msgid "Review not found"
+#~ msgstr ""
+
+#~ msgid "Please provide an explanation for reporting the review."
+#~ msgstr ""
+
+#~ msgid "Review reported. Thank you for your feedback."
+#~ msgstr ""
+
+#~ msgid "You must purchase the product before reviewing it."
+#~ msgstr ""
+
+#~ msgid "You have already reviewed this product."
+#~ msgstr ""
+
+#~ msgid "Your review has been added!"
+#~ msgstr ""
+
+#~ msgid "Wishlist notifications sent successfully."
+#~ msgstr ""
+
+#~ msgid "Add Address"
+#~ msgstr ""
+
+#~ msgid "Add New Address"
+#~ msgstr ""
+
+#~ msgid "Address Line 1"
+#~ msgstr ""
+
+#~ msgid "Address Line 2 (Optional)"
+#~ msgstr ""
+
+#~ msgid "City"
+#~ msgstr ""
+
+#~ msgid "State"
+#~ msgstr ""
+
+#~ msgid "ZIP Code"
+#~ msgstr ""
+
+#~ msgid "Country"
+#~ msgstr ""
+
+#~ msgid "Contact Us"
+#~ msgstr ""
+
+#~ msgid "Get in Touch"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If you have any questions, concerns, "
+#~ "or feedback, please don't hesitate to"
+#~ " reach out to us. We're here to"
+#~ " help!"
+#~ msgstr ""
+
+#~ msgid "Email"
+#~ msgstr ""
+
+#~ msgid "Phone"
+#~ msgstr ""
+
+#~ msgid "Address"
+#~ msgstr ""
+
+#~ msgid "Our Location"
+#~ msgstr ""
+
+#~ msgid "Visit our store or reach out to us at:"
+#~ msgstr ""
+
+#~ msgid "Business Hours"
+#~ msgstr ""
+
+#~ msgid "Monday - Friday"
+#~ msgstr ""
+
+#~ msgid "Saturday"
+#~ msgstr ""
+
+#~ msgid "Sunday"
+#~ msgstr ""
+
+#~ msgid "Closed"
+#~ msgstr ""
+
+#~ msgid "Edit Address"
+#~ msgstr ""
+
+#~ msgid "Address Line 2"
+#~ msgstr ""
+
+#~ msgid "Save Changes"
+#~ msgstr ""
+
+#~ msgid "On Sale!"
+#~ msgstr ""
+
+#~ msgid "No tags provided"
+#~ msgstr ""
+
+#~ msgid "Out of Stock"
+#~ msgstr ""
+
+#~ msgid "Low Stock"
+#~ msgstr ""
+
+#~ msgid "Hurry Up"
+#~ msgstr ""
+
+#~ msgid "In Stock"
+#~ msgstr ""
+
+#~ msgid "Quantity:"
+#~ msgstr ""
+
+#~ msgid "Add to Cart"
+#~ msgstr ""
+
+#~ msgid "Remove from Wishlist"
+#~ msgstr ""
+
+#~ msgid "Add to Wishlist"
+#~ msgstr ""
+
+#~ msgid "Remove from Comparison"
+#~ msgstr ""
+
+#~ msgid "Add to Comparison"
+#~ msgstr ""
+
+#~ msgid "Share this product:"
+#~ msgstr ""
+
+#~ msgid "Reviews and Ratings"
+#~ msgstr ""
+
+#~ msgid "No Ratings"
+#~ msgstr ""
+
+#~ msgid "Be the first to rate this product!"
+#~ msgstr ""
+
+#~ msgid "Average Rating"
+#~ msgstr ""
+
+#~ msgid "Reviews"
+#~ msgstr ""
+
+#~ msgid "Date of Purchase:"
+#~ msgstr ""
+
+#~ msgid "Pros:"
+#~ msgstr ""
+
+#~ msgid "No pros provided."
+#~ msgstr ""
+
+#~ msgid "Cons:"
+#~ msgstr ""
+
+#~ msgid "No cons provided."
+#~ msgstr ""
+
+#~ msgid "Report"
+#~ msgstr ""
+
+#~ msgid "Explanation:"
+#~ msgstr ""
+
+#~ msgid "Submit Report"
+#~ msgstr ""
+
+#~ msgid "No reviews yet."
+#~ msgstr ""
+
+#~ msgid "Add Your Review"
+#~ msgstr ""
+
+#~ msgid "Rating:"
+#~ msgstr ""
+
+#~ msgid "Title:"
+#~ msgstr ""
+
+#~ msgid "Review:"
+#~ msgstr ""
+
+#~ msgid "Images:"
+#~ msgstr ""
+
+#~ msgid "Submit Review"
+#~ msgstr ""
+
+#~ msgid "Related Products"
+#~ msgstr ""
+
+#~ msgid "Personalized Recommendations"
+#~ msgstr ""
+
+#~ msgid "View Details"
+#~ msgstr ""
+
+#~ msgid "No related products found."
+#~ msgstr ""
+
+#~ msgid "Explore Our Collection"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Check out our wide range of "
+#~ "products and find something that suits"
+#~ " your style!"
+#~ msgstr ""
+
+#~ msgid "Browse Products"
+#~ msgstr ""
+
+#~ msgid "Cant Find What Youre Looking For?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If you have any specific requirements"
+#~ " or need assistance, feel free to "
+#~ "contact us."
+#~ msgstr ""
+
+#~ msgid "Purchase History"
+#~ msgstr ""
+
+#~ msgid "Order #%(id)d"
+#~ msgstr ""
+
+#~ msgid "Date:"
+#~ msgstr ""
+
+#~ msgid "Total Price:"
+#~ msgstr ""
+
+#~ msgid "Status:"
+#~ msgstr ""
+
+#~ msgid "Are you sure you want to cancel this order?"
+#~ msgstr ""
+
+#~ msgid "Cancel Order"
+#~ msgstr ""
+
+#~ msgid "No purchase history found."
+#~ msgstr ""
+
+#~ msgid "Home"
+#~ msgstr ""
+
+#~ msgid "Close"
+#~ msgstr ""
+
+#~ msgid "Welcome"
+#~ msgstr ""
+
+#~ msgid "We hope you enjoy your shopping experience."
+#~ msgstr ""
+
+#~ msgid "Filter Products"
+#~ msgstr ""
+
+#~ msgid "Choose Category"
+#~ msgstr ""
+
+#~ msgid "Please select a category."
+#~ msgstr ""
+
+#~ msgid "Sort By"
+#~ msgstr ""
+
+#~ msgid "Price: Low to High"
+#~ msgstr ""
+
+#~ msgid "Price: High to Low"
+#~ msgstr ""
+
+#~ msgid "Rating"
+#~ msgstr ""
+
+#~ msgid "Please select a sorting option."
+#~ msgstr ""
+
+#~ msgid "Product Name"
+#~ msgstr ""
+
+#~ msgid "Tags"
+#~ msgstr ""
+
+#~ msgid "Apply Filters"
+#~ msgstr ""
+
+#~ msgid "Featured Products"
+#~ msgstr ""
+
+#~ msgid "Sale"
+#~ msgstr ""
+
+#~ msgid "Featured"
+#~ msgstr ""
+
+#~ msgid "No ratings"
+#~ msgstr ""
+
+#~ msgid "All Products"
+#~ msgstr ""
+
+#~ msgid "Showing"
+#~ msgstr ""
+
+#~ msgid "of"
+#~ msgstr ""
+
+#~ msgid "products"
+#~ msgstr ""
+
+#~ msgid "No products found."
+#~ msgstr ""
+
+#~ msgid "Page navigation"
+#~ msgstr ""
+
+#~ msgid "Previous"
+#~ msgstr ""
+
+#~ msgid "Next"
+#~ msgstr ""
+
+#~ msgid "Notifications"
+#~ msgstr ""
+
+#~ msgid "Mark as Read"
+#~ msgstr ""
+
+#~ msgid "No Notifications"
+#~ msgstr ""
+
+#~ msgid "You have no notifications at the moment."
+#~ msgstr ""
+
+#~ msgid "Order Confirmation"
+#~ msgstr ""
+
+#~ msgid "Thank you for your purchase!"
+#~ msgstr ""
+
+#~ msgid "Your order has been successfully placed and will be processed shortly."
+#~ msgstr ""
+
+#~ msgid "Order Details"
+#~ msgstr ""
+
+#~ msgid "Order Number:"
+#~ msgstr ""
+
+#~ msgid "Order Date:"
+#~ msgstr ""
+
+#~ msgid "Shipping Method:"
+#~ msgstr ""
+
+#~ msgid "Payment Method:"
+#~ msgstr ""
+
+#~ msgid "Shipping Address:"
+#~ msgstr ""
+
+#~ msgid "Order Items"
+#~ msgstr ""
+
+#~ msgid "Product"
+#~ msgstr ""
+
+#~ msgid "Quantity"
+#~ msgstr ""
+
+#~ msgid "Price"
+#~ msgstr ""
+
+#~ msgid "Subtotal"
+#~ msgstr ""
+
+#~ msgid "Total Amount:"
+#~ msgstr ""
+
+#~ msgid "Continue Shopping"
+#~ msgstr ""
+
+#~ msgid "Product Comparison"
+#~ msgstr ""
+
+#~ msgid "Category"
+#~ msgstr ""
+
+#~ msgid "Actions"
+#~ msgstr ""
+
+#~ msgid "No Products to Compare"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Add products to the comparison list "
+#~ "to compare their features and prices."
+#~ msgstr ""
+
+#~ msgid "Profile"
+#~ msgstr ""
+
+#~ msgid "Username:"
+#~ msgstr ""
+
+#~ msgid "Phone:"
+#~ msgstr ""
+
+#~ msgid "Change Language:"
+#~ msgstr ""
+
+#~ msgid "Apply"
+#~ msgstr ""
+
+#~ msgid "No social media accounts connected."
+#~ msgstr ""
+
+#~ msgid "Connect with Facebook"
+#~ msgstr ""
+
+#~ msgid "Connect with Google"
+#~ msgstr ""
+
+#~ msgid "Addresses"
+#~ msgstr ""
+
+#~ msgid "Wishlist"
+#~ msgstr ""
+
+#~ msgid "Update Profile"
+#~ msgstr ""
+
+#~ msgid "First Name"
+#~ msgstr ""
+
+#~ msgid "Last Name"
+#~ msgstr ""
+
+#~ msgid "Choose profile picture (PNG, JPG, BMP)"
+#~ msgstr ""
+
+#~ msgid "Notification Settings"
+#~ msgstr ""
+
+#~ msgid "Enable Notifications"
+#~ msgstr ""
+
+#~ msgid "Enable Email Notifications"
+#~ msgstr ""
+
+#~ msgid "Update Notification Settings"
+#~ msgstr ""
+
+#~ msgid "Change account parameters"
+#~ msgstr ""
+
+#~ msgid "Change Phone Number"
+#~ msgstr ""
+
+#~ msgid "New Phone Number"
+#~ msgstr ""
+
+#~ msgid "Change Email"
+#~ msgstr ""
+
+#~ msgid "New Email"
+#~ msgstr ""
+
+#~ msgid "Change Password"
+#~ msgstr ""
+
+#~ msgid "Current Password"
+#~ msgstr ""
+
+#~ msgid "New Password"
+#~ msgstr ""
+
+#~ msgid "Confirm New Password"
+#~ msgstr ""
+
+#~ msgid "City:"
+#~ msgstr ""
+
+#~ msgid "State:"
+#~ msgstr ""
+
+#~ msgid "ZIP Code:"
+#~ msgstr ""
+
+#~ msgid "Country:"
+#~ msgstr ""
+
+#~ msgid "Edit"
+#~ msgstr ""
+
+#~ msgid "Delete"
+#~ msgstr ""
+
+#~ msgid "No addresses found."
+#~ msgstr ""
+
+#~ msgid "View"
+#~ msgstr ""
+
+#~ msgid "Remove"
+#~ msgstr ""
+
+#~ msgid "Send Wishlist Notifications"
+#~ msgstr ""
+
+#~ msgid "Your wishlist is empty."
+#~ msgstr ""
+
+#~ msgid "Explore our collection and add your favorite items to your wishlist!"
+#~ msgstr ""
+
+#~ msgid "Start Shopping"
+#~ msgstr ""
+
+#~ msgid "Purchase Details"
+#~ msgstr ""
+
+#~ msgid "Order ID:"
+#~ msgstr ""
+
+#~ msgid "Items:"
+#~ msgstr ""
+
+#~ msgid "Subtotal:"
+#~ msgstr ""
+
+#~ msgid "Discount:"
+#~ msgstr ""
+
+#~ msgid "Delivery Fee:"
+#~ msgstr ""
+
+#~ msgid "Recently Viewed Products"
+#~ msgstr ""
+
+#~ msgid "No Recently Viewed Products"
+#~ msgstr ""
+
+#~ msgid "You have not viewed any products recently."
+#~ msgstr ""
+
+#~ msgid "Start browsing our collection to see personalized recommendations."
+#~ msgstr ""
+
+#~ msgid "Recommended for You"
+#~ msgstr ""
+
+#~ msgid "No Recommendations Available"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We do not have enough information "
+#~ "to provide personalized recommendations at "
+#~ "the moment."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Continue browsing and making purchases "
+#~ "to receive tailored recommendations."
+#~ msgstr ""
+
+#~ msgid "Admin Dashboard"
+#~ msgstr ""
+
+#~ msgid "Shop Management"
+#~ msgstr ""
+
+#~ msgid "Users Mgmt"
+#~ msgstr ""
+
+#~ msgid "Manage user accounts and permissions."
+#~ msgstr ""
+
+#~ msgid "Manage Users"
+#~ msgstr ""
+
+#~ msgid "Products Mgmt"
+#~ msgstr ""
+
+#~ msgid "Manage your shop's products and inventory."
+#~ msgstr ""
+
+#~ msgid "Manage Products"
+#~ msgstr ""
+
+#~ msgid "Categories Mgmt"
+#~ msgstr ""
+
+#~ msgid "Manage product categories and hierarchy."
+#~ msgstr ""
+
+#~ msgid "Manage Categories"
+#~ msgstr ""
+
+#~ msgid "Orders Mgmt"
+#~ msgstr ""
+
+#~ msgid "View and manage customer orders."
+#~ msgstr ""
+
+#~ msgid "Manage Orders"
+#~ msgstr ""
+
+#~ msgid "Reviews Mgmt"
+#~ msgstr ""
+
+#~ msgid "Moderate and manage product reviews."
+#~ msgstr ""
+
+#~ msgid "Manage Reviews"
+#~ msgstr ""
+
+#~ msgid "Discounts Mgmt"
+#~ msgstr ""
+
+#~ msgid "Create and manage discount codes."
+#~ msgstr ""
+
+#~ msgid "Manage Discounts"
+#~ msgstr ""
+
+#~ msgid "Product Promotions Mgmt"
+#~ msgstr ""
+
+#~ msgid "Set up and manage product promotions."
+#~ msgstr ""
+
+#~ msgid "Manage Promotions"
+#~ msgstr ""
+
+#~ msgid "Shipping Methods Mgmt"
+#~ msgstr ""
+
+#~ msgid "Configure and manage shipping options."
+#~ msgstr ""
+
+#~ msgid "Manage Shipping"
+#~ msgstr ""
+
+#~ msgid "Reports and Statistics Mgmt"
+#~ msgstr ""
+
+#~ msgid "Statistics Mgmt"
+#~ msgstr ""
+
+#~ msgid "View shop statistics and metrics."
+#~ msgstr ""
+
+#~ msgid "View Statistics"
+#~ msgstr ""
+
+#~ msgid "Reports Mgmt"
+#~ msgstr ""
+
+#~ msgid "Generate and view various reports."
+#~ msgstr ""
+
+#~ msgid "View Reports"
+#~ msgstr ""
+
+#~ msgid "Analytics Mgmt"
+#~ msgstr ""
+
+#~ msgid "View user behavior analytics and metrics."
+#~ msgstr ""
+
+#~ msgid "View Analytics"
+#~ msgstr ""
+
+#~ msgid "Reported reviews Mgmt"
+#~ msgstr ""
+
+#~ msgid "Check reported reviews."
+#~ msgstr ""
+
+#~ msgid "Admin Panel"
+#~ msgstr ""
+
+#~ msgid "Reports"
+#~ msgstr ""
+
+#~ msgid "Select tables:"
+#~ msgstr ""
+
+#~ msgid "Select file format:"
+#~ msgstr ""
+
+#~ msgid "Generate Report"
+#~ msgstr ""
+
+#~ msgid "Statistics"
+#~ msgstr ""
+
+#~ msgid "Data Percentage:"
+#~ msgstr ""
+
+#~ msgid "Generate Statistics Report"
+#~ msgstr ""
+
+#~ msgid "Log In"
+#~ msgstr ""
+
+#~ msgid "Log In to Buy"
+#~ msgstr ""
+
+#~ msgid "Username"
+#~ msgstr ""
+
+#~ msgid "Password"
+#~ msgstr ""
+
+#~ msgid "Forgot your password?"
+#~ msgstr ""
+
+#~ msgid "Register"
+#~ msgstr ""
+
+#~ msgid "Create an Account"
+#~ msgstr ""
+
+#~ msgid "Confirm Password"
+#~ msgstr ""
+
+#~ msgid "I agree to the"
+#~ msgstr ""
+
+#~ msgid "Terms and Conditions"
+#~ msgstr ""
+
+#~ msgid "Clear"
+#~ msgstr ""
+
+#~ msgid "Already have an account?"
+#~ msgstr ""
+
+#~ msgid "Log in"
+#~ msgstr ""
+
+#~ msgid "Reset Password"
+#~ msgstr ""
+
+#~ msgid "Reset Your Password"
+#~ msgstr ""
+
+#~ msgid "Enter your email address below to receive a password reset link."
+#~ msgstr ""
+
+#~ msgid "Enter your email"
+#~ msgstr ""
+
+#~ msgid "Send Reset Link"
+#~ msgstr ""
+
+#~ msgid "Back to Login"
+#~ msgstr ""
+
+#~ msgid "Enter your new password"
+#~ msgstr ""
+
+#~ msgid "Confirm your new password"
+#~ msgstr ""
+
+#~ msgid "Shopping Cart"
+#~ msgstr ""
+
+#~ msgid "Item"
+#~ msgstr ""
+
+#~ msgid "Name"
+#~ msgstr ""
+
+#~ msgid "Options"
+#~ msgstr ""
+
+#~ msgid "Unit Price"
+#~ msgstr ""
+
+#~ msgid "Sub-Total"
+#~ msgstr ""
+
+#~ msgid "No options selected"
+#~ msgstr ""
+
+#~ msgid "Cart Summary"
+#~ msgstr ""
+
+#~ msgid "Total:"
+#~ msgstr ""
+
+#~ msgid "Discount Code"
+#~ msgstr ""
+
+#~ msgid "Proceed to Checkout"
+#~ msgstr ""
+
+#~ msgid "Empty Cart"
+#~ msgstr ""
+
+#~ msgid "Your cart is empty!"
+#~ msgstr ""
+
+#~ msgid "Looks like you haven't added any items to your cart yet."
+#~ msgstr ""
+
+#~ msgid "Start Shopping Now"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Quantity cannot be less than 1. If"
+#~ " you want to remove the item, "
+#~ "please use the remove button."
+#~ msgstr ""
+
+#~ msgid "item(s)"
+#~ msgstr ""
+
+#~ msgid "Cant change amount!"
+#~ msgstr ""
+
+#~ msgid "Error:"
+#~ msgstr ""
+
+#~ msgid "Checkout"
+#~ msgstr ""
+
+#~ msgid "Shipping Address"
+#~ msgstr ""
+
+#~ msgid "Shipping Method"
+#~ msgstr ""
+
+#~ msgid "Payment"
+#~ msgstr ""
+
+#~ msgid "Credit Card"
+#~ msgstr ""
+
+#~ msgid "Card Number"
+#~ msgstr ""
+
+#~ msgid "Enter a 16-digit card number without spaces."
+#~ msgstr ""
+
+#~ msgid "Expiration Month"
+#~ msgstr ""
+
+#~ msgid "Expiration Year"
+#~ msgstr ""
+
+#~ msgid "CVC"
+#~ msgstr ""
+
+#~ msgid "3-digit code at the back of your card."
+#~ msgstr ""
+
+#~ msgid "Place Order"
+#~ msgstr ""
+
+#~ msgid "Order Summary"
+#~ msgstr ""
+
+#~ msgid "Price:"
+#~ msgstr ""
+
+#~ msgid "Shipping:"
+#~ msgstr ""
+
+#~ msgid "Error page"
+#~ msgstr ""
+
+#~ msgid "Error!"
+#~ msgstr ""
+
+#~ msgid "Request URL:"
+#~ msgstr ""
+
+#~ msgid "Return to start page"
+#~ msgstr ""
+
+#~ msgid "We Accept:"
+#~ msgstr ""
+
+#~ msgid "Terms"
+#~ msgstr ""
+
+#~ msgid "Toggle navigation"
+#~ msgstr ""
+
+#~ msgid "Logout"
+#~ msgstr ""
+
+#~ msgid "Login"
+#~ msgstr ""
+
+#~ msgid "Search products..."
+#~ msgstr ""
+
+#~ msgid "Search"
+#~ msgstr ""
+

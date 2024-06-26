@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Admin Dashboard') }}{% endblock %}
+
+{% include 'website_parts/flashed_messages.html' %}
+
+{% block body %}
+    <div class="container mt-4">
+        {% block admin_content %}{% endblock %}
+    </div>
+{% endblock %}

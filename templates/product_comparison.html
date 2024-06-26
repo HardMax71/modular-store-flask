@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Product Comparison') }}{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h2 class="mb-4">{{ _('Product Comparison') }}</h2>
+        {% if products|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>{{ _('Product') }}</th>
+                        <th>{{ _('Price') }}</th>
+                        <th>{{ _('Category') }}</th>
+                        <th>{{ _('Rating') }}</th>
+                        <th>{{ _('Actions') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
+                                         alt="{{ product.samplename }}" class="img-thumbnail mr-3"
+                                         style="max-width: 100px; cursor: pointer;" data-toggle="modal"
+                                         data-target="#imageModal{{ product.id }}">
+                                    <div>
+                                        <h5 class="mb-1">{{ product.samplename }}</h5>
+                                        <p class="mb-0">
+                                            {{ product.description[:50] }}{% if product.description|length > 50 %}
+                                                ...{% endif %}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ '%.2f'|format(product.current_price) }}$</td>
+                            <td>{{ product.category.name }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if product.avg_rating and product.avg_rating > 0 %}
+                                        <div class="star-rating mr-2">
+                                            {% for i in range(1, 6) %}
+                                                <i class="fas fa-star{% if i > product.avg_rating %} text-muted{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span>({{ product.avg_rating }})</span>
+                                    {% else %}
+                                        <span class="text-muted">{{ _('No ratings') }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary btn-sm rounded-0 add-to-cart"
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm rounded-0 toggle-wishlist"
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    {% if product.id in comparison_list %}
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm rounded-0 remove-from-comparison"
+                                                data-product-id="{{ product.id }}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-info btn-sm rounded-0 add-to-comparison"
+                                                data-product-id="{{ product.id }}">
+                                            <i class="fas fa-balance-scale"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                <script>
+                                    document.querySelectorAll('.add-to-cart').forEach(button => {
+                                        button.addEventListener('click', function () {
+                                            const productId = this.getAttribute('data-product-id');
+                                            fetch('{{ url_for("main.add_to_cart_route") }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                                },
+                                                body: `goods_id=${productId}&quantity=1`
+                                            })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    // Show a toast or notification with data.message
+                                                    console.log(data.message);
+                                                    // Update cart count in the UI if necessary
+                                                })
+                                                .catch(error => console.error('Error:', error));
+                                        });
+                                    });
+
+                                    document.querySelectorAll('.toggle-wishlist').forEach(button => {
+                                        button.addEventListener('click', function () {
+                                            const productId = this.getAttribute('data-product-id');
+                                            fetch('{{ url_for("main.api_toggle_wishlist") }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({goods_id: productId})
+                                            })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    // Show a toast or notification with data.message
+                                                    console.log(data.message);
+                                                    // You can update the button appearance here if needed
+                                                })
+                                                .catch(error => console.error('Error:', error));
+                                        });
+                                    });
+
+                                    document.querySelectorAll('.add-to-comparison, .remove-from-comparison').forEach(button => {
+                                        button.addEventListener('click', function () {
+                                            const productId = this.getAttribute('data-product-id');
+                                            const isRemoving = this.classList.contains('remove-from-comparison');
+                                            const url = isRemoving ? '{{ url_for("compare.remove_from_comparison") }}' : '{{ url_for("main.add_to_comparison_route") }}';
+
+                                            fetch(url, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                                },
+                                                body: `goods_id=${productId}`
+                                            })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    // Show a toast or notification with data.message
+                                                    console.log(data.message);
+                                                    // Update the button appearance
+                                                    if (isRemoving) {
+                                                        this.classList.replace('btn-danger', 'btn-info');
+                                                        this.classList.replace('remove-from-comparison', 'add-to-comparison');
+                                                        this.innerHTML = '<i class="fas fa-balance-scale"></i>';
+                                                    } else {
+                                                        this.classList.replace('btn-info', 'btn-danger');
+                                                        this.classList.replace('add-to-comparison', 'remove-from-comparison');
+                                                        this.innerHTML = '<i class="fas fa-times"></i>';
+                                                    }
+                                                })
+                                                .catch(error => console.error('Error:', error));
+                                        });
+                                    });
+                                </script>
+                            </td>
+                        </tr>
+                        <!-- Image Modal -->
+                        <div class="modal fade" id="imageModal{{ product.id }}" tabindex="-1" role="dialog"
+                             aria-labelledby="imageModalLabel{{ product.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content border-0">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            id="imageModalLabel{{ product.id }}">{{ product.samplename }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body d-flex justify-content-center align-items-center">
+                                        <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
+                                             alt="{{ product.samplename }}" class="img-fluid">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <img src="{{ url_for('static', filename='img/empty_cart.png') }}" alt="No Products to Compare"
+                     class="img-fluid mb-4 lazy" style="max-width: 200px;">
+                <h4>{{ _('No Products to Compare') }}</h4>
+                <p>{{ _('Add products to the comparison list to compare their features and prices.') }}</p>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">{{ _('Continue Shopping') }}</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Edit Address') }}{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <h1 class="mb-4">{{ _('Edit Address') }}</h1>
+    <form method="POST" action="{{ url_for('profile.edit_address', address_id=address.id) }}">
+        <div class="form-group">
+            <label for="address_line1">{{ _('Address Line 1') }}</label>
+            <input type="text" class="form-control" id="address_line1" name="address_line1" value="{{ address.address_line1 }}" required>
+        </div>
+        <div class="form-group">
+            <label for="address_line2">{{ _('Address Line 2 (Optional)') }}</label>
+            <input type="text" class="form-control" id="address_line2" name="address_line2" value="{{ address.address_line2 }}">
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="city">{{ _('City') }}</label>
+                    <input type="text" class="form-control" id="city" name="city" value="{{ address.city }}" required>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="state">{{ _('State') }}</label>
+                    <input type="text" class="form-control" id="state" name="state" value="{{ address.state }}" required>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="zip_code">{{ _('ZIP Code') }}</label>
+                    <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ address.zip_code }}" required>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="country">{{ _('Country') }}</label>
+                    <input type="text" class="form-control" id="country" name="country" value="{{ address.country }}" required>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">{{ _('Save Changes') }}</button>
+    </form>
+</div>
+{% endblock %}

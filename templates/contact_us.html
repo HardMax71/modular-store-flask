@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ _('Contact Us') }} - {{ config.SHOP_NAME }}
+{% endblock %}
+
+{% block body %}
+    <section class="container my-5">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-lg h-100">
+                    <div class="card-body p-5">
+                        <h2 class="card-title mb-4">{{ _('Get in Touch') }}</h2>
+                        <p class="card-text lead">{{ _('If you have any questions, concerns, or feedback, please don\'t hesitate to reach out to us. We\'re here to help!') }}</p>
+                        <ul class="list-unstyled mt-4">
+                            <li class="mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-envelope mr-2 text-primary"></i>
+                                    <div>
+                                        <h5 class="mb-1">{{ _('Email') }}</h5>
+                                        <a href="mailto:{{ config.CONTACT_EMAIL }}" class="text-decoration-none">{{ config.CONTACT_EMAIL }}</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-phone mr-2 text-primary"></i>
+                                    <div>
+                                        <h5 class="mb-1">{{ _('Phone') }}</h5>
+                                        <a href="tel:{{ config.CONTACT_PHONE }}" class="text-decoration-none">{{ config.CONTACT_PHONE }}</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
+                                    <div>
+                                        <h5 class="mb-1">{{ _('Address') }}</h5>
+                                        <p class="mb-0">{{ config.JURISDICTION }}</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-lg h-100">
+                    <div class="card-body p-5">
+                        <h2 class="card-title mb-4">{{ _('Our Location') }}</h2>
+                        <p class="card-text lead">{{ _('Visit our store or reach out to us at') }}:</p>
+                        <ul class="list-unstyled mt-4">
+                            <li class="mb-4">
+                                <h5>{{ _('Address') }}</h5>
+                                <p>
+                                    {{ config.SHOP_NAME }}<br>
+                                    {{ config.JURISDICTION }}
+                                </p>
+                            </li>
+                            <li>
+                                <h5>{{ _('Business Hours') }}</h5>
+                                <p>
+                                    {{ _('Monday - Friday') }}: 9:00 AM - 6:00 PM<br>
+                                    {{ _('Saturday') }}: 10:00 AM - 4:00 PM<br>
+                                    {{ _('Sunday') }}: {{ _('Closed') }}
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-0">
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d96708.34194156103!2d-74.03927079747752!3d40.759040329405195!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1623345061452!5m2!1sen!2s" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.SHOP_NAME }} - Return Policy{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Return Policy</h2>
+                        <p class="text-muted">Last updated: {{ config.RETURN_POLICY_LAST_UPDATED }}</p>
+
+                        <h4>1. Eligibility for Returns</h4>
+                        <p>To be eligible for a return, your item must be unused, in the same condition that you received it, and in its original packaging. Certain items, due to their nature, may not be eligible for return. Please refer to the product description or contact us if you have any questions about the eligibility of a specific item.</p>
+
+                        <h4>2. Return Window</h4>
+                        <p>You have {{ config.RETURN_WINDOW }} days from the date of delivery to initiate a return. If you receive a defective or incorrect item, please contact us immediately so we can address the issue.</p>
+
+                        <h4>3. Return Process</h4>
+                        <p>To initiate a return, please email us at <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a> with your order number and the reason for your return. We will provide you with instructions on how to proceed with the return.</p>
+
+                        <h4>4. Refunds</h4>
+                        <p>Once we receive and inspect your returned item, we will send you an email to notify you that we have received your returned item. We will also notify you of the approval or rejection of your refund. If approved, your refund will be processed, and a credit will automatically be applied to your original method of payment within {{ config.REFUND_PROCESSING_DAYS }} business days.</p>
+
+                        <h4>5. Shipping Costs</h4>
+                        <p>You will be responsible for paying the shipping costs for returning your item. Shipping costs are non-refundable. If you receive a refund, the cost of return shipping will be deducted from your refund.</p>
+
+                        <h4>6. Contact Us</h4>
+                        <p>If you have any questions about our return policy or need assistance with a return, please contact us at <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a> or call us at <a href="tel:{{ config.RETURNS_PHONE }}">{{ config.RETURNS_PHONE }}</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

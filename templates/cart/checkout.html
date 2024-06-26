@@ -1,0 +1,127 @@
+Here is the rewritten HTML with the text moved into the specified form for Babel:
+
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Checkout') }}
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h2 class="mb-4">{{ _('Checkout') }}</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <form method="post">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Shipping Address') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for address in addresses %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="shipping_address"
+                                           id="address-{{ address.id }}" value="{{ address.id }}" required>
+                                    <label class="form-check-label" for="address-{{ address.id }}">
+                                        {{ address.address_line1 }}, {{ address.city }}, {{ address.state }} {{ address.zip_code }}, {{ address.country }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                            {#                            <a href="{{ url_for('add_address') }}" class="btn btn-link">{{ _('Add New Address') }}</a>#}
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Shipping Method') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for method in shipping_methods %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="shipping_method"
+                                           id="shipping-{{ method.id }}" value="{{ method.id }}" required
+                                           data-price="{{ method.price }}" onchange="updateTotal()">
+                                    <label class="form-check-label" for="shipping-{{ method.id }}">
+                                        {{ method.name }} - ${{ method.price }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Payment') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="credit-card"
+                                       value="credit_card" required>
+                                <label class="form-check-label" for="credit-card">{{ _('Credit Card') }}</label>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="card_number" class="form-label">{{ _('Card Number') }}</label>
+                                    <input type="text" name="card_number" id="card_number" class="form-control" required
+                                           pattern="\d{16}">
+                                    <small class="form-text text-muted">{{ _('Enter a 16-digit card number without spaces.') }}</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="exp_month" class="form-label">{{ _('Expiration Month') }}</label>
+                                    <input type="text" name="exp_month" id="exp_month" class="form-control" required
+                                           pattern="(0[1-9]|1[0-2])">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="exp_year" class="form-label">{{ _('Expiration Year') }}</label>
+                                    <input type="text" name="exp_year" id="exp_year" class="form-control" required
+                                           pattern="\d{4}">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <label for="cvc" class="form-label">{{ _('CVC') }}</label>
+                                    <input type="text" name="cvc" id="cvc" class="form-control" required
+                                           pattern="\d{3}">
+                                    <small class="form-text text-muted">{{ _('3-digit code at the back of your card.') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">{{ _('Place Order') }}</button>
+                </form>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ _('Order Summary') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for item in cart_items %}
+                                <li class="list-group-item">
+                                    {{ item.goods.samplename }}
+                                    - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}: ${{ item.price }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="mt-3">
+                            <p>{{ _('Subtotal') }}: ${{ subtotal }}</p>
+                            <p>{{ _('Shipping') }}: $<span id="shipping-price">{{ shipping_price }}</span></p>
+                            <h4>{{ _('Total') }}: $<span id="total-price">{{ total }}</span></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function updateTotal() {
+            const shippingPrice = parseFloat(document.querySelector('input[name="shipping_method"]:checked').dataset.price);
+            const subtotal = parseFloat('{{ subtotal }}');
+            const total = shippingPrice + subtotal;
+            document.querySelector('#shipping-price').textContent = shippingPrice;
+            document.querySelector('#total-price').textContent = total;
+        }
+    </script>
+{% endblock %}

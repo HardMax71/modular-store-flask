@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ shirt.samplename }} - {{ config.SHOP_NAME }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-0">
+                        <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}"
+                             class="card-img-top img-fluid"
+                             alt="{{ shirt.samplename }}" data-toggle="modal" data-target="#imageModal"
+                             style="cursor: pointer;">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h2 class="font-weight-bold mb-3">{{ shirt.samplename }}</h2>
+                    <p class="lead">{{ shirt.description }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if shirt.onSale %}
+                            <h4 class="text-danger font-weight-bold mb-0 mr-3">
+                                ${{ '{:,.2f}'.format(shirt.onSalePrice) }}</h4>
+                            <span class="badge badge-danger">{{ _('On Sale!') }}</span>
+                        {% else %}
+                            <h4 class="font-weight-bold mb-0">${{ '{:,.2f}'.format(shirt.price) }}</h4>
+                        {% endif %}
+                    </div>
+                    <style>
+                        .badge-large {
+                            font-size: 1rem;
+                            padding: 0.5rem 1rem;
+                            margin-right: 0.75rem;
+                            margin-bottom: 0.75rem;
+                            display: inline-block;
+                        }
+                    </style>
+
+                    <div class="mb-4">
+                        {% if tags %}
+                            <div class="d-flex flex-wrap">
+                                {% for tag in tags %}
+                                    <span class="badge bg-secondary text-white badge-large">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted fs-5">{{ _('No tags provided') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-4">
+                        {% if shirt.stock == 0 %}
+                            <span class="badge badge-danger font-weight-normal mr-2">{{ _('Out of Stock') }}</span>
+                        {% elif shirt.stock < 3 %}
+                            <span class="badge badge-danger font-weight-normal mr-2">{{ _('Low Stock') }}: {{ shirt.stock }}</span>
+                        {% elif shirt.stock < 10 %}
+                            <span class="badge badge-warning font-weight-normal mr-2">{{ _('Hurry Up') }}: {{ shirt.stock }}</span>
+                        {% else %}
+                            <span class="badge badge-success font-weight-normal mr-2">{{ _('In Stock') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        {% for variant_name in variant_names %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ variant_name }}" class="font-weight-bold">{{ variant_name }}:</label>
+                                <select class="form-control custom-select" id="{{ variant_name }}"
+                                        name="{{ variant_name }}">
+                                    {% for variant in variant_options[variant_name] %}
+                                        <option value="{{ variant }}">{{ variant }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="font-weight-bold">{{ _('Quantity') }}:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control text-center" id="quantity" name="quantity"
+                                       value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <form action="{{ url_for('carts.add_to_cart_route') }}" method="POST">
+                                    <input type="hidden" name="goods_id" value="{{ shirt.id }}">
+                                    <input type="hidden" name="quantity" id="hidden-quantity" value="1">
+                                    {% for variant_name in variant_names %}
+                                        <input type="hidden" name="variant_{{ variant_name }}"
+                                               id="hidden-variant-{{ variant_name }}"
+                                               value="{{ variant_options[variant_name][0] }}">
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-primary btn-block"
+                                            {% if shirt.stock == 0 %}disabled{% endif %}>
+                                        {{ _('Add to Cart') }}
+                                    </button>
+                                </form>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const quantityInput = document.getElementById('quantity');
+                                    const hiddenQuantity = document.getElementById('hidden-quantity');
+
+                                    quantityInput.addEventListener('change', function () {
+                                        hiddenQuantity.value = this.value;
+                                    });
+
+                                    {% for variant_name in variant_names %}
+                                        const variantSelect{{ loop.index }} = document.getElementById('{{ variant_name }}');
+                                        const hiddenVariant{{ loop.index }} = document.getElementById('hidden-variant-{{ variant_name }}');
+
+                                        // Set initial value
+                                        hiddenVariant{{ loop.index }}.value = variantSelect{{ loop.index }}.value;
+
+                                        variantSelect{{ loop.index }}.addEventListener('change', function () {
+                                            hiddenVariant{{ loop.index }}.value = this.value;
+                                        });
+                                    {% endfor %}
+                                });
+                            </script>
+
+                            <div class="col-md-6 mb-3">
+                                <form action="{{ url_for('main.toggle_wishlist') }}" method="POST">
+                                    <input type="hidden" name="goods_id" value="{{ shirt.id }}">
+                                    <button type="submit"
+                                            class="btn {% if in_wishlist %}btn-danger{% else %}btn-outline-secondary{% endif %} btn-block">
+                                        {% if in_wishlist %}
+                                            {{ _('Remove from Wishlist') }}
+                                        {% else %}
+                                            {{ _('Add to Wishlist') }}
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            {% if product_in_comparison %}
+                                <form action="{{ url_for('compare.remove_from_comparison') }}" method="POST">
+                                    <input type="hidden" name="goods_id" value="{{ shirt.id }}">
+                                    <button type="submit" class="btn btn-danger btn-block">
+                                        {{ _('Remove from Comparison') }}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form action="{{ url_for('compare.add_to_comparison') }}" method="POST">
+                                    <input type="hidden" name="goods_id" value="{{ shirt.id }}">
+                                    <button type="submit" class="btn btn-primary btn-block"
+                                            {% if shirt.stock == 0 %}disabled{% endif %}>
+                                        {{ _('Add to Comparison') }}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="social-sharing mt-4">
+                        <h5 class="font-weight-bold mb-3">{{ _('Share this product') }}:</h5>
+                        <div class="d-flex justify-content-center">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank"
+                               class="btn btn-primary btn-sm mr-2">
+                                <i class="fab fa-facebook-f"></i> Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ shirt.samplename }}"
+                               target="_blank" class="btn btn-info btn-sm mr-2">
+                                <i class="fab fa-twitter"></i> Twitter
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?url={{ request.url }}&title={{ shirt.samplename }}"
+                               target="_blank" class="btn btn-secondary btn-sm">
+                                <i class="fab fa-linkedin-in"></i> LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">{{ shirt.samplename }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body justify-content-center align-items-center">
+                        <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}"
+                             class="img-fluid"
+                             alt="{{ shirt.samplename }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section mt-5">
+            <h2>{{ _('Reviews and Ratings') }}</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            {% if average_rating == None or average_rating == 0 %}
+                                <div class="display-4 mb-3">{{ _('No ratings') }}</div>
+                                <p>{{ _('Be the first to rate this product!') }}</p>
+                            {% else %}
+                                <h4 class="card-title">{{ _('Average Rating') }}</h4>
+                                <div class="display-4 mb-3">{{ average_rating }}</div>
+                                <div class="star-rating">
+                                    {% for i in range(5, 0, -1) %}
+                                        <i class="fas fa-star{% if i > average_rating %} text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ _('Reviews') }}</h4>
+                            {% if reviews %}
+                                {% for review, user in reviews %}
+                                    <div class="media mb-4">
+                                        <img
+                                                src="{{ url_for('static', filename='img/profile_pictures/' + user.profile_picture) if user.profile_picture else url_for('static', filename='img/user-icon.png') }}"
+                                                alt="Profile Picture" class="mr-3 rounded-circle lazy" width="50">
+                                        <div class="media-body">
+                                            <div class="d-flex justify-content-between">
+                                                <h5 class="mt-0"><strong>{{ user.username }}</strong></h5>
+                                                <div class="star-rating">
+                                                    {% for i in range(5, 0, -1) %}
+                                                        <i class="fas fa-star{% if i > review.rating %} text-muted{% endif %}"></i>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <small
+                                                    class="text-muted">{{ _('Date of Purchase') }}:</small> {{ review.date.strftime('%Y-%m-%d') }}
+                                            <p class="mb-1 text-center"><strong>{{ review.title }}</strong></p>
+                                            <p class="mb-1">{{ review.review }}</p>
+                                            {#  TODO fix images #}
+                                            {#                                            {% if review.images %}#}
+                                            {#                                                <div class="review-images mb-2">#}
+                                            {#                                                    {% for image in review.images.split(',') %}#}
+                                            {#                                                        <img src="{{ url_for('static', filename='img/' + image) }}"#}
+                                            {#                                                             alt="Review Image" class="img-thumbnail mr-2">#}
+                                            {#                                                    {% endfor %}#}
+                                            {#                                                </div>#}
+                                            {#                                            {% endif %}#}
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <strong>{{ _('Pros') }}:</strong>
+                                                    {% if review.pros %}
+                                                        <ul>
+                                                            {% for pro in review.pros.split(',') %}
+                                                                <li>{{ pro.strip() }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p>{{ _('No pros provided.') }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>{{ _('Cons') }}:</strong>
+                                                    {% if review.cons %}
+                                                        <ul>
+                                                            {% for con in review.cons.split(',') %}
+                                                                <li>{{ con.strip() }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p>{{ _('No cons provided.') }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <form class="report-review-form d-inline">
+                                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                                        data-toggle="collapse"
+                                                        data-target="#reportCollapse{{ review.id }}">
+                                                    <i class="fas fa-flag mr-1"></i>{{ _('Report') }}
+                                                </button>
+                                                <div class="collapse mt-2" id="reportCollapse{{ review.id }}">
+                                                    <div class="card card-body">
+                                                        <div class="form-group">
+                                                            <label
+                                                                    for="explanation{{ review.id }}">{{ _('Explanation') }}:</label>
+                                                            <textarea class="form-control"
+                                                                      id="explanation{{ review.id }}"
+                                                                      name="explanation"
+                                                                      rows="3" required></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-danger"
+                                                                formaction="{{ url_for('reviews.report_review', review_id=review.id) }}"
+                                                                formmethod="POST">{{ _('Submit Report') }}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>{{ _('No reviews yet.') }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {% if user_has_purchased and no_review %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ _('Add Your Review') }}</h4>
+                        <form action="{{ url_for('reviews.add_review') }}" method="POST"
+                              enctype="multipart/form-data"
+                              class="review-form">
+                            <div class="form-group">
+                                <label for="rating">{{ _('Rating') }}:</label>
+                                <div class="star-rating">
+                                    {% for i in range(5, 0, -1) %}
+                                        <input type="radio" name="rating" id="rating-{{ i }}" value="{{ i }}"
+                                               required>
+                                        <label for="rating-{{ i }}"><i class="fas fa-star"></i></label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="title">{{ _('Title') }}:</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="review">{{ _('Review') }}:</label>
+                                <textarea class="form-control" id="review" name="review" rows="3"
+                                          required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="pros">{{ _('Pros') }}:</label>
+                                <textarea class="form-control" id="pros" name="pros" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="cons">{{ _('Cons') }}:</label>
+                                <textarea class="form-control" id="cons" name="cons" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="images">{{ _('Images') }}:</label>
+                                <input type="file" class="form-control-file" id="images" name="images" multiple>
+                            </div>
+                            <input type="hidden" name="goods_id" value="{{ shirt.id }}">
+                            <button type="submit" class="btn btn-primary">{{ _('Submit Review') }}</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="related-products-section mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-4"><h2>{{ _('Related Products') }}</h2>
+                <a
+                        href="{{ url_for('main.recommendations') }}"
+                        class="btn btn-secondary">{{ _('Personalized Recommendations') }}</a></div>
+            {% if related_products %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for related_product in related_products %}
+                        <div class="col">
+                            <div class="card h-100 shadow">
+                                <div class="position-relative">
+                                    <img
+                                            src="{{ url_for('static', filename='img/goods_pictures/' + related_product.image) }}"
+                                            class="card-img-top img-fluid lazy"
+                                            alt="{{ related_product.samplename }}"
+                                            style="object-fit: contain; width: 100%; height: 200px;">
+                                    {% if related_product.onSale %}
+                                        <span
+                                                class="badge bg-danger text-white position-absolute top-0 end-0 m-2">{{ _('On Sale!') }}</span> {% endif %}
+                                </div>
+                                <div class="card-body d-flex flex-column"><h5
+                                        class="card-title">{{ related_product.samplename }}</h5>
+                                    <p class="card-text flex-grow-1">{{ related_product.description[:100] }}...</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <div class="price-container"> {% if related_product.onSale %}
+                                            <span
+                                                    class="price text-danger fs-5">{{ '{:,.2f}'.format(related_product.onSalePrice) }}</span>
+                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(related_product.price) }}</del></span> {% else %}
+                                            <span
+                                                    class="price fs-5">{{ '{:,.2f}'.format(related_product.price) }}</span> {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center"><a
+                                        href="{{ url_for('main.goods_page', id=related_product.id) }}"
+                                        class="btn btn-primary">{{ _('View Details') }}</a></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-related-products">
+                    <p class="text-muted">{{ _('No related products found.') }}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-info" role="alert">
+                                <h4 class="alert-heading">{{ _('Explore Our Collection') }}</h4>
+                                <p>{{ _("Check out our wide range of products and find something that suits your style!") }}</p>
+                                <hr>
+                                <a href="{{ url_for('main.index') }}"
+                                   class="btn btn-primary">{{ _('Browse Products') }}</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ _('Cant Find What Youre Looking For?') }}</h5>
+                                    <p class="card-text">{{ _('If you have any specific requirements or need assistance, feel free to contact us.') }}</p>
+                                    <a href="{{ url_for('main.contact_us') }}"
+                                       class="btn btn-outline-secondary">{{ _('Contact Us') }}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <style>
+        .star-rating {
+            display: inline-block;
+            direction: rtl;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ccc;
+            font-size: 24px;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffca28;
+        }
+
+        .related-products-section {
+            margin-top: 60px;
+        }
+
+        .related-products-section h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .related-products-section .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .related-products-section .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .related-products-section .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .related-products-section .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .related-products-section .card-text {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .related-products-section .price {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 767px) {
+            .related-products-section .col-md-3 {
+                width: 50%;
+            }
+        }
+
+        .price-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .original-price {
+            font-size: 0.9rem;
+        }
+
+        .no-related-products {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .no-related-products .alert {
+            margin-bottom: 0;
+        }
+
+        .no-related-products .card {
+            height: 100%;
+        }
+    </style>
+{% endblock %}

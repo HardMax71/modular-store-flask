@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ config.SHOP_NAME }} - {{ _('Add Address') }}{% endblock %}
+
+{% block body %}
+    <div class="container my-4">
+        <h2 class="mb-4">{{ _('Add New Address') }}</h2>
+        <form method="POST" action="{{ url_for('profile.add_address') }}">
+            <div class="form-group">
+                <label for="address_line1">{{ _('Address Line 1') }}</label>
+                <input type="text" class="form-control" id="address_line1" name="address_line1"
+                       oninput="fetchAddressSuggestions()" list="addressSuggestions" autocomplete="off" required>
+                <datalist id="addressSuggestions"></datalist>
+            </div>
+            <div class="form-group">
+                <label for="address_line2">{{ _('Address Line 2 (Optional)') }}</label>
+                <input type="text" class="form-control" id="address_line2" name="address_line2">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 mb-3">
+                    <label for="city">{{ _('City') }}</label>
+                    <input type="text" class="form-control" id="city" name="city" required>
+                </div>
+                <div class="form-group col-md-4 mb-3">
+                    <label for="state">{{ _('State') }}</label>
+                    <input type="text" class="form-control" id="state" name="state" required>
+                </div>
+                <div class="form-group col-md-2 mb-3">
+                    <label for="zip_code">{{ _('ZIP Code') }}</label>
+                    <input type="text" class="form-control" id="zip_code" name="zip_code" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="country">{{ _('Country') }}</label>
+                <input type="text" class="form-control" id="country" name="country" required>
+            </div>
+            <input type="hidden" name="redirect" value="{{ request.args.get('next') or 'profile' }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Add Address') }}</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/add_address.js') }}"></script>
+{% endblock %}

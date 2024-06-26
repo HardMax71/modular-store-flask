@@ -1,0 +1,42 @@
+{% extends 'admin/master.html' %}
+
+{% block admin_content %}
+<div class="container mt-4">
+    <h2>{{ _('Reported Reviews') }}</h2>
+
+    {% if reported_reviews %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>{{ _('Review ID') }}</th>
+                    <th>{{ _('Reported By') }}</th>
+                    <th>{{ _('Explanation') }}</th>
+                    <th class="text-center">{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reported_review in reported_reviews %}
+                <tr>
+                    <td>{{ reported_review.review_id }}</td>
+                    <td>{{ reported_review.user.username }}</td>
+                    <td>{{ reported_review.explanation }}</td>
+                    <td class="text-center">
+                        <a href="{{ url_for('reviews.reported_review_detail', review_id=reported_review.review_id) }}" class="btn btn-primary btn-sm">{{ _('View') }}</a>
+                        <form method="POST" action="{{ url_for('reviews.leave_review', review_id=reported_review.review_id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm">{{ _('Leave') }}</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reviews.delete_review', review_id=reported_review.review_id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">{{ _('Delete') }}</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>{{ _('No reported reviews found.') }}</p>
+    {% endif %}
+</div>
+{% endblock %}

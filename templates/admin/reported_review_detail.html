@@ -1,0 +1,52 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mt-4 text-center">{{ _('Reported Review Detail') }}</h2>
+      <hr>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4 class="text-center">{{ _('Review') }}</h4>
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ review.title }}</h5>
+          <p class="card-text"><strong>{{ _('Review') }}:</strong> {{ review.review }}</p>
+          <p class="card-text"><strong>{{ _('Rating') }}:</strong> {{ review.rating }}</p>
+          <p class="card-text"><strong>{{ _('Pros') }}:</strong> {{ review.pros }}</p>
+          <p class="card-text"><strong>{{ _('Cons') }}:</strong> {{ review.cons }}</p>
+          <p class="card-text"><strong>{{ _('Date') }}:</strong> {{ review.date }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <h4 class="text-center">{{ _('Reported Review') }}</h4>
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="card-text"><strong>{{ _('Explanation') }}:</strong> {{ reported_review.explanation }}</p>
+          <p class="card-text"><strong>{{ _('Reported By') }}:</strong> {{ reported_review.user.username }}</p>
+          <p class="card-text"><strong>{{ _('Reported At') }}:</strong> {{ reported_review.created_at }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <form action="{{ url_for('leave_review', review_id=review.id) }}" method="post">
+        <button type="submit" class="btn btn-success btn-lg btn-block">{{ _('Leave Review') }}</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <form action="{{ url_for('delete_review', review_id=review.id) }}" method="post">
+        <button type="submit" class="btn btn-danger btn-lg btn-block">{{ _('Delete Review') }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Error page') }}
+{% endblock %}
+
+{% block body %}
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card shadow">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">{{ _('Error') }}!</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>{{ _('Request URL') }}:</strong> {{ request_url }}</p>
+                        <hr>
+                        <p class="mb-0">{{ error|replace('\n', '<br>') | safe }}</p>
+                        {% if traceback %}
+                            <hr>
+                            <h5>{{ _('Traceback') }}:</h5>
+                            <pre>{{ traceback }}</pre>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/" class="btn btn-primary">{{ _('Return to start page') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
