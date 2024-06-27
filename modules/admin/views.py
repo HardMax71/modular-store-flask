@@ -1,14 +1,23 @@
+import csv
 import io
+import json
 from datetime import datetime, time
+from io import StringIO, BytesIO
+from typing import List, Dict, Any
 
 import pandas as pd
-from flask import Blueprint, flash, redirect, url_for, request, send_file
-from flask_admin import Admin, AdminIndexView, expose, BaseView
+from flask import Blueprint, flash, redirect, url_for
+from flask import request, send_file
+from flask_admin import Admin, AdminIndexView
+from flask_admin import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import gettext as _
 from flask_login import current_user
 from markupsafe import Markup
-from sqlalchemy import func, inspect
+from openpyxl import Workbook
+from sqlalchemy import func
+from sqlalchemy import inspect, text
+from werkzeug.wrappers import Response
 from ydata_profiling import ProfileReport
 
 import config
@@ -141,39 +150,83 @@ class ReportsView(BaseView):
             tables = request.form.getlist('tables')
             file_format = request.form.get('file_format')
 
-            data_frames = []
-            for table in tables:
-                if table in table_names:
-                    df = pd.read_sql_table(table, db_session.bind)
-                    data_frames.append(df)
+            data = self.fetch_data(tables)
 
             if file_format == 'csv':
-                output = io.BytesIO()
-                for i, df in enumerate(data_frames):
-                    df.to_csv(output, index=False, header=True)
-                    if i < len(data_frames) - 1:
-                        output.write(b'\n')
-                output.seek(0)
-                return send_file(output, mimetype='text/csv', as_attachment=True, download_name='data.csv')
+                return self.generate_csv(data)
             elif file_format == 'json':
-                output = io.BytesIO()
-                for i, df in enumerate(data_frames):
-                    df.to_json(output, orient='records')
-                    if i < len(data_frames) - 1:
-                        output.write('\n')
-                output.seek(0)
-                return send_file(output, mimetype='application/json', as_attachment=True, download_name='data.json')
+                return self.generate_json(data)
             elif file_format == 'excel':
-                output = io.BytesIO()
-                writer = pd.ExcelWriter(output, engine='openpyxl')
-                for i, df in enumerate(data_frames):
-                    df.to_excel(writer, sheet_name=f'Sheet{i + 1}', index=False)
-                writer.close()
-                output.seek(0)
-                return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                 as_attachment=True, download_name='data.xlsx')
+                return self.generate_excel(data)
 
         return self.render('admin/reports.html', table_names=table_names)
+
+    def fetch_data(self, tables: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+        data = {}
+        for table in tables:
+            if table in get_table_names():
+                result = db_session.execute(text(f"SELECT * FROM {table}"))
+                columns = result.keys()
+                data[table] = [
+                    {col: self.decode_if_bytes(value) for col, value in zip(columns, row)}
+                    for row in result.fetchall()
+                ]
+        return data
+
+    @staticmethod
+    def decode_if_bytes(value: Any) -> Any:
+        return value.decode('utf-8') if isinstance(value, bytes) else value
+
+    def generate_csv(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+        output = StringIO()
+        for table, rows in data.items():
+            if rows:
+                writer = csv.DictWriter(output, fieldnames=rows[0].keys())
+                writer.writeheader()
+                writer.writerows(rows)
+                output.write('\n')
+        output.seek(0)
+        return send_file(
+            BytesIO(output.getvalue().encode('utf-8')),
+            mimetype='text/csv; charset=utf-8',
+            as_attachment=True,
+            download_name='data.csv'
+        )
+
+    def generate_json(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+        class CustomEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, bytes):
+                    return obj.decode('utf-8')
+                return super().default(obj)
+
+        output = json.dumps(data, ensure_ascii=False, indent=2, cls=CustomEncoder)
+        return send_file(
+            BytesIO(output.encode('utf-8')),
+            mimetype='application/json; charset=utf-8',
+            as_attachment=True,
+            download_name='data.json'
+        )
+
+    def generate_excel(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+        wb = Workbook()
+        wb.remove(wb.active)  # Remove default sheet
+        for table, rows in data.items():
+            ws = wb.create_sheet(title=table)
+            if rows:
+                headers = list(rows[0].keys())
+                ws.append(headers)
+                for row in rows:
+                    ws.append([row[header] for header in headers])
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='data.xlsx'
+        )
 
 
 class GoodsView(AdminView):

@@ -152,8 +152,13 @@ def checkout():
         except stripe.error.CardError as e:
             flash(_("Payment failed") + ":" + e.user_message, "danger")
 
-    return render_template("cart/checkout.html", cart_items=cart_items, shipping_methods=shipping_methods,
-                           addresses=addresses, subtotal=subtotal, shipping_price=shipping_price, total=total)
+    return render_template("cart/checkout.html",
+                           cart_items=cart_items,
+                           shipping_methods=shipping_methods,
+                           addresses=addresses,
+                           subtotal=subtotal,
+                           shipping_price=shipping_price,
+                           total=total)
 
 
 @cart_bp.route("/order-confirmation")
@@ -161,7 +166,9 @@ def checkout():
 def order_confirmation():
     latest_purchase = Purchase.query.filter_by(user_id=current_user.id).order_by(Purchase.id.desc()).first()
     total_amount = sum(item.price * item.quantity for item in latest_purchase.items)
-    return render_template("order_confirmation.html", purchase=latest_purchase, total_amount=total_amount)
+    return render_template("order_confirmation.html",
+                           purchase=latest_purchase,
+                           total_amount=total_amount)
 
 
 # Helper functions
@@ -249,7 +256,8 @@ def apply_discount_code(discount_code):
     if discount:
         current_date = datetime.now().date()
         if discount.start_date <= current_date <= discount.end_date:
-            user_discount = UserDiscount.query.filter_by(user_id=current_user.id, discount_id=discount.id).first()
+            user_discount = UserDiscount.query.filter_by(user_id=current_user.id,
+                                                         discount_id=discount.id).first()
             if user_discount:
                 return "already_used"
 

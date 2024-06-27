@@ -126,4 +126,4 @@ def reset_password_token(token):
 
 def init_auth(app, limiter):
     app.register_blueprint(auth_bp)
-    limiter.limit("10 per minute")(auth_bp)
+    limiter.limit(AppConfig.DEFAULT_LIMIT_RATE)(auth_bp)

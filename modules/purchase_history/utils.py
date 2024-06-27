@@ -129,4 +129,6 @@ def calculate_items_subtotal(items: List[PurchaseItem]) -> float:
 
 
 def send_order_confirmation_email(email: str):
-    send_email(email, 'Order Confirmation', 'Thank you for your order! Your order is being processed.')
+    send_email(email,
+               'Order Confirmation',
+               'Thank you for your order! Your order is being processed.')
