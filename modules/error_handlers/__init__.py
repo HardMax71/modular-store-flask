@@ -1,4 +1,5 @@
 from flask import Flask
+
 from .handlers import init_error_handlers
 
 

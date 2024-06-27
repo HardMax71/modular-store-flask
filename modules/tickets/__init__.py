@@ -1,4 +1,5 @@
 from flask import Flask
+
 from .views import init_tickets
 
 

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_limiter import Limiter
+
 from .views import init_auth
 
 

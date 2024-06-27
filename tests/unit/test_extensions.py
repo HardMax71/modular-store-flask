@@ -1,7 +1,10 @@
 import unittest
 from unittest.mock import patch, MagicMock
+
 from flask import Flask
-from extensions import get_locale, login_manager, init_extensions
+
+from extensions import get_locale, init_extensions
+
 
 class TestExtensionsUnit(unittest.TestCase):
     def setUp(self):
@@ -49,7 +52,8 @@ class TestExtensionsUnit(unittest.TestCase):
     @patch('extensions.scheduler.start')
     @patch('extensions.make_facebook_blueprint')
     @patch('extensions.make_google_blueprint')
-    def test_load_user_not_found(self, mock_google_bp, mock_facebook_bp, mock_scheduler_start, mock_user_model, mock_db_session):
+    def test_load_user_not_found(self, mock_google_bp, mock_facebook_bp, mock_scheduler_start, mock_user_model,
+                                 mock_db_session):
         init_extensions(self.app)  # This will set up the user_loader
 
         mock_user_model.query.get.return_value = None
@@ -60,6 +64,7 @@ class TestExtensionsUnit(unittest.TestCase):
         mock_user_model.query.get.assert_called_once_with(1)
         mock_db_session.refresh.assert_not_called()
         self.assertIsNone(result)
+
 
 if __name__ == '__main__':
     unittest.main()

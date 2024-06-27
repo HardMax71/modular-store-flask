@@ -1,6 +1,7 @@
 from flask import Flask
-from .views import init_reviews
+
 from .utils import has_purchased
+from .views import init_reviews
 
 
 def create_reviews_routes(app: Flask) -> None:

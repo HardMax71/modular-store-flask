@@ -1,11 +1,12 @@
 from flask import Flask
-from .views import init_wishlist
+
 from .utils import (
     get_variant_options,
     is_wishlist_item_exists,
     remove_from_wishlist,
     add_wishlist_item
 )
+from .views import init_wishlist
 
 
 def create_wishlist_routes(app: Flask) -> None:

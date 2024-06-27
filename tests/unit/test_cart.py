@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from modules.db.models import Cart, db_session, current_user
+from modules.db.models import Cart
 
 
 class TestCart(unittest.TestCase):

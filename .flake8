@@ -1,0 +1,22 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    .env,
+    .tox,
+    build,
+    dist,
+    *.egg-info,
+    migrations
+
+max-line-length = 120
+max-complexity = 10
+select = C,E,F,W,B,B950
+ignore = E203, E266, E501, W503
+
+# Ignore import errors in __init__.py files
+per-file-ignores =
+    __init__.py:F401
