@@ -15,7 +15,7 @@
                                 <small class="text-muted">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                             </div>
                             {% if not notification.read %}
-                                <form action="{{ url_for('mark_notification_as_read', notification_id=notification.id) }}" method="POST" class="mt-2 mt-md-0">
+                                <form action="{{ url_for('profile.mark_notification_as_read', notification_id=notification.id) }}" method="POST" class="mt-2 mt-md-0">
                                     <button type="submit" class="btn btn-sm btn-primary">{{ _('Mark as Read') }}</button>
                                 </form>
                             {% endif %}

@@ -1,7 +1,8 @@
 import random
 import unittest
 
-from flask import Flask, get_flashed_messages
+from flask import Flask
+from flask import render_template_string
 from flask_babel import Babel
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 from werkzeug.datastructures import Headers
@@ -9,7 +10,6 @@ from werkzeug.datastructures import Headers
 from config import AppConfig
 from modules.decorators import login_required_with_message, admin_required
 
-from flask import render_template_string, flash, get_flashed_messages
 
 # Helper function to render a template with flashed messages
 def render_with_messages(content):
@@ -31,6 +31,8 @@ def render_with_messages(content):
     </html>
     '''
     return render_template_string(template, content=content)
+
+
 class User(UserMixin):
     def __init__(self, id):
         self.id = id

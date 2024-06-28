@@ -53,10 +53,12 @@ def handle_change_password():
             current_user.password = generate_password_hash(new_password)
             db.session.commit()
             flash(_('Password changed successfully.'), 'success')
+            return True
         else:
             flash(_('The new password and confirmation do not match.'), 'danger')
     else:
         flash(_('Incorrect current password.'), 'danger')
+    return False
 
 
 def handle_change_phone():
