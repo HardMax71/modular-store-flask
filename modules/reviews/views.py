@@ -63,7 +63,7 @@ def add_review():
 
 @reviews_bp.route('/admin/reported-reviews')
 @login_required_with_message()
-@admin_required
+@admin_required()
 def reported_reviews():
     reported_reviews = ReportedReview.query.all()
     return render_template('admin/reported_reviews.html', reported_reviews=reported_reviews)
@@ -71,7 +71,7 @@ def reported_reviews():
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>')
 @login_required_with_message()
-@admin_required
+@admin_required()
 def reported_review_detail(review_id):
     reported_review = ReportedReview.query.filter_by(review_id=review_id).first()
     review = Review.query.get(review_id)
@@ -85,7 +85,7 @@ def reported_review_detail(review_id):
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>/leave', methods=['POST'])
 @login_required_with_message()
-@admin_required
+@admin_required()
 def leave_review(review_id):
     reported_reviews = ReportedReview.query.filter_by(review_id=review_id).all()
     for reported_review in reported_reviews:
@@ -97,7 +97,7 @@ def leave_review(review_id):
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>/delete', methods=['POST'])
 @login_required_with_message()
-@admin_required
+@admin_required()
 def delete_review(review_id):
     review = Review.query.get(review_id)
     reported_reviews = ReportedReview.query.filter_by(review_id=review_id).all()

@@ -55,7 +55,7 @@ class AdminView(ModelView):
 class MyAdminIndexView(AdminIndexView):
     @expose('/')
     @login_required_with_message()
-    @admin_required
+    @admin_required()
     def index(self):
         if not current_user.is_admin:
             flash(_('You do not have permission to access this page.'), 'danger')
@@ -106,7 +106,7 @@ class UserView(AdminView):
 class StatisticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
-    @admin_required
+    @admin_required()
     def index(self):
 
         table_names = get_table_names()
@@ -142,7 +142,7 @@ class StatisticsView(BaseView):
 class ReportsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
-    @admin_required
+    @admin_required()
     def index(self):
         table_names = get_table_names()
 
@@ -280,7 +280,7 @@ class CategoryView(AdminView):
 class AnalyticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
-    @admin_required
+    @admin_required()
     def index(self):
         if request.method == 'POST':
             start_date_str = request.form.get('start_date')
