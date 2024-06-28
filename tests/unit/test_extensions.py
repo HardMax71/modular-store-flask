@@ -1,5 +1,9 @@
+import random
 import unittest
-from unittest.mock import patch
+
+from flask import request
+from flask_login import login_user, logout_user
+from werkzeug.datastructures import LanguageAccept
 
 from app import create_app
 from config import AppConfig
@@ -11,19 +15,15 @@ from modules.extensions.utils import get_locale, load_user
 class TestExtensionsUnit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.scheduler_patch = patch('modules.extensions.scheduler.start')
-        cls.scheduler_mock = cls.scheduler_patch.start()
-
         AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-
         cls.app = create_app(AppConfig)
         cls.client = cls.app.test_client()
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
+        db.init_db()
 
     @classmethod
     def tearDownClass(cls):
-        cls.scheduler_patch.stop()
         db.session.remove()
         cls.app_context.pop()
 
@@ -33,19 +33,33 @@ class TestExtensionsUnit(unittest.TestCase):
     def tearDown(self):
         db.session.rollback()
 
-    @patch('modules.extensions.utils.current_user')
-    def test_get_locale_authenticated(self, mock_current_user):
-        mock_current_user.is_authenticated = True
-        mock_current_user.language = 'fr'
-        self.assertEqual(get_locale(), 'fr')
+    def test_get_locale_authenticated(self):
+        with self.app.test_request_context():
+            user = User(username=f'user_{random.randint(0, 123456)}',
+                        email=f'{random.randint(0, 123456)}@example.com',
+                        password=f'password_{random.randint(0, 123456)}',
+                        language='fr')
+            db.session.add(user)
+            db.session.commit()
 
-    @patch('modules.extensions.utils.current_user')
-    def test_get_locale_unauthenticated(self, mock_current_user):
-        mock_current_user.is_authenticated = False
-        self.assertEqual(get_locale(), AppConfig.DEFAULT_LANG)
+            login_user(user)
+            self.assertEqual(get_locale(), 'fr')
+            logout_user()
+
+    def test_get_locale_unauthenticated(self):
+        with self.app.test_request_context():
+            # Simulate an Accept-Language header
+            request.accept_languages = LanguageAccept([('en', 1), ('ru', 0.8)])
+            self.assertEqual(get_locale(), 'en')  # Cause default language is 'en'
+
+            # Test with a non-supported language
+            request.accept_languages = LanguageAccept([('fr', 1), ('de', 0.8)])
+            self.assertEqual(get_locale(), AppConfig.DEFAULT_LANG)  # Should fall back to default
 
     def test_load_user(self):
-        user = User(username='test_user', email='test@example.com', password='password')
+        user = User(username=f'user_{random.randint(0, 123456)}',
+                    email=f'{random.randint(0, 123456)}@example.com',
+                    password=f'password_{random.randint(0, 123456)}')
         db.session.add(user)
         db.session.commit()
 

@@ -227,7 +227,7 @@
                                     <div class="media mb-4">
                                         <img
                                                 src="{{ url_for('static', filename='img/profile_pictures/' + user.profile_picture) if user.profile_picture else url_for('static', filename='img/user-icon.png') }}"
-                                                alt="Profile Picture" class="mr-3 rounded-circle lazy" width="50">
+                                                alt="Profile Picture" class="mr-3 rounded-circle lazy img-fluid" width="50">
                                         <div class="media-body">
                                             <div class="d-flex justify-content-between">
                                                 <h5 class="mt-0"><strong>{{ user.username }}</strong></h5>

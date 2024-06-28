@@ -85,7 +85,7 @@
                 <div class="media mb-4">
                     {% if message.is_admin %}
                         <img src="{{ url_for('static', filename='img/user-icon.png') if not ticket.admin.profile_picture else url_for('static', filename='img/profile_pictures/' + ticket.admin.profile_picture) }}"
-                             class="mr-3 rounded-circle" alt="Admin Avatar" width="48">
+                             class="mr-3 rounded-circle img-fluid" alt="Admin Avatar" width="48">
                         <div class="media-body">
                             <h5 class="mt-0">
                                 {{ ticket.admin.username }}
@@ -95,7 +95,7 @@
                             <small class="text-muted">{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                         </div>
                     {% else %}
-                        <img src="{{ url_for('static', filename='img/user-icon.png') }}" class="mr-3 rounded-circle"
+                        <img src="{{ url_for('static', filename='img/user-icon.png') }}" class="mr-3 rounded-circle img-fluid"
                              alt="User Avatar" width="48">
                         <div class="media-body">
                             <h5 class="mt-0">{{ ticket.user.username }}</h5>

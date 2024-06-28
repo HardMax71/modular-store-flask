@@ -8,7 +8,7 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <img src="{{ url_for('static', filename='img/profile_pictures/' + user.profile_picture) if user.profile_picture else url_for('static', filename='img/user-icon.png') }}"
-                                 alt="Profile Picture" class="mr-3 rounded-circle lazy" width="150">
+                                 alt="Profile Picture" class="mr-3 rounded-circle lazy img-fluid" width="150">
                         <h5 class="card-title">{{ user.fname }} {{ user.lname }}</h5>
                         <p class="card-text">{{ user.email }}</p>
                     </div>
@@ -314,7 +314,7 @@
                                             <div class="col-md-4 mb-4">
                                                 <div class="card h-100">
                                                     <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
-                                                         class="card-img-top lazy" alt="{{ item.goods.samplename }}">
+                                                         class="card-img-top lazy img-fluid" alt="{{ item.goods.samplename }}">
                                                     <div class="card-body">
                                                         <h6 class="card-title">{{ item.goods.samplename }}</h6>
                                                         <p class="card-text text-truncate">{{ item.goods.description }}</p>
@@ -345,7 +345,7 @@
                                 {% else %}
                                     <div class="text-center">
                                         <img src="{{ url_for('static', filename='img/empty_cart.png') }}"
-                                             alt="Empty Wishlist" class="img-fluid mb-4 lazy" style="max-width: 200px;">
+                                             alt="Empty Wishlist" class="img-fluid mb-4 lazy img-fluid" style="max-width: 200px;">
                                         <h6>{{ _('Your wishlist is empty.') }}</h6>
                                         <p>{{ _('Explore our collection and add your favorite items to your wishlist!') }}</p>
                                         <a href="{{ url_for('main.index') }}"

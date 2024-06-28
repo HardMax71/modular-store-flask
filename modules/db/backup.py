@@ -29,4 +29,4 @@ def backup_database(backup_dir=AppConfig.BACKUP_DIR):
 
 # Run the backup function
 # backup_database()
-print('backup turned off in backup.py')
+# print('backup turned off in backup.py')

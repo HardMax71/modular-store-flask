@@ -14,7 +14,7 @@ html {% extends "base.html" %}
                         <div class="col">
                             <div class="card h-100 shadow">
                                 <img src="{{ url_for('static', filename='img/goods_pictures/' + product.goods.image) }}"
-                                     class="card-img-top" alt="{{ product.goods.samplename }}">
+                                     class="card-img-top img-fluid" alt="{{ product.goods.samplename }}">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title">{{ product.goods.samplename }}</h5>
                                     <p class="card-text flex-grow-1">{{ product.goods.description[:100] }}...</p>
@@ -44,7 +44,7 @@ html {% extends "base.html" %}
                             <div class="card h-100 shadow">
                                 <div class="position-relative">
                                     <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                                         class="card-img-top" alt="{{ product.samplename }}">
+                                         class="card-img-top img-fluid" alt="{{ product.samplename }}">
                                     {% if product.onSale %}
                                         <span class="badge bg-danger text-white position-absolute top-0 end-0 m-2">{{ _('On Sale!') }}</span>
                                     {% endif %}

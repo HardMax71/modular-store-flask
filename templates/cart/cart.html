@@ -31,7 +31,7 @@
                                     <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
                                          width="100px"
                                          loading="lazy" alt="{{ item.goods.samplename }}"
-                                         class="img-thumbnail cursor-pointer" data-toggle="modal"
+                                         class="img-thumbnail cursor-pointer img-fluid" data-toggle="modal"
                                          data-target="#imageModal{{ loop.index }}">
                                 </td>
                                 <td class="text-center align-middle">{{ item.goods.samplename }}</td>

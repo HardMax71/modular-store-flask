@@ -15,7 +15,7 @@ def send_email(to, subject, body):
     try:
         mail_to_send.send(msg)
         flash(_("Email sent successfully"), "success")
-    except Exception as e:
+    except Exception:
         flash(_("Error sending email"), "danger")
 
 
@@ -44,8 +44,8 @@ def send_wishlist_notifications():
         msg = Message(subject, recipients=[user.email], body=body)
         try:
             current_app.extensions['mail'].send(msg)
-        except Exception as e:
-            print(f"Error sending wishlist notifications: {e}")
+        except Exception:
+            flash(_("Error sending wishlist notification email"), "danger")
 
 
 def send_order_confirmation_email(email, name):
@@ -54,5 +54,5 @@ def send_order_confirmation_email(email, name):
     try:
         current_app.extensions['mail'].send(msg)
         flash(_("Order confirmation email sent successfully"), "success")
-    except Exception as e:
+    except Exception:
         flash(_("Error sending order confirmation email"), "danger")

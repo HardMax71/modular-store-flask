@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from flask_login import login_user
 from flask_mail import Mail
 
 from app import create_app
