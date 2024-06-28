@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 
 from flask import Flask
 
-from extensions import init_extensions
+from modules.extensions import init_extensions
 
 
 class TestExtensionsIntegration(unittest.TestCase):
@@ -17,10 +17,10 @@ class TestExtensionsIntegration(unittest.TestCase):
         self.app.config['GOOGLE_OAUTH_CLIENT_ID'] = 'fake_google_id'
         self.app.config['GOOGLE_OAUTH_CLIENT_SECRET'] = 'fake_google_secret'
 
-    @patch('extensions.BackgroundScheduler')
-    @patch('extensions.make_facebook_blueprint')
-    @patch('extensions.make_google_blueprint')
-    @patch('extensions.scheduler.start')
+    @patch('modules.extensions.BackgroundScheduler')
+    @patch('modules.extensions.make_facebook_blueprint')
+    @patch('modules.extensions.make_google_blueprint')
+    @patch('modules.extensions.scheduler.start')
     def test_init_extensions(self, mock_scheduler_start, mock_google_bp, mock_facebook_bp, mock_background_scheduler):
         mock_scheduler = MagicMock()
         mock_background_scheduler.return_value = mock_scheduler
@@ -45,17 +45,17 @@ class TestExtensionsIntegration(unittest.TestCase):
         mock_facebook_bp.assert_called_once()
         mock_google_bp.assert_called_once()
 
-    @patch('extensions.scheduler.start')
+    @patch('modules.extensions.scheduler.start')
     def test_babel_initialization(self, mock_scheduler_start):
         init_extensions(self.app)
         self.assertIn('babel', self.app.extensions)
 
-    @patch('extensions.scheduler.start')
+    @patch('modules.extensions.scheduler.start')
     def test_mail_initialization(self, mock_scheduler_start):
         init_extensions(self.app)
         self.assertIn('mail', self.app.extensions)
 
-    @patch('extensions.scheduler.start')
+    @patch('modules.extensions.scheduler.start')
     def test_cache_initialization(self, mock_scheduler_start):
         init_extensions(self.app)
         self.assertIn('cache', self.app.extensions)

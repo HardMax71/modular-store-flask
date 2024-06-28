@@ -1,6 +1,3 @@
-import os
-import shutil
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -9,32 +6,33 @@ from config import AppConfig
 
 Base = declarative_base()
 
-engine = create_engine(AppConfig.SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False})
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
-Base.query = db_session.query_property()
+class Database:
+    def __init__(self, app=None):
+        self.app = app
+        if app is not None:
+            self.init_app(app)
+        self.init_db()
+
+    def init_app(self, app):
+        app.teardown_appcontext(self.shutdown_session)
+
+    def create_engine(self):
+        return create_engine(AppConfig.SQLALCHEMY_DATABASE_URI,
+                             connect_args={"check_same_thread": False})
+
+    def create_session(self, engine):
+        session_factory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        return scoped_session(session_factory)
+
+    def shutdown_session(self, exception=None):
+        self.session.remove()
+
+    def init_db(self):
+        self.engine = self.create_engine()
+        self.session = self.create_session(self.engine)
+        Base.query = self.session.query_property()
+        Base.metadata.create_all(bind=self.engine)
 
 
-def ensure_data_db_exists(backup_dir=AppConfig.BACKUP_DIR, data_db_path=AppConfig.DB_PATH,
-                          db_file_name=AppConfig.DB_NAME):
-    if not os.path.exists(data_db_path):
-        os.makedirs(data_db_path)
-
-    data_db_file = os.path.join(data_db_path, db_file_name)
-
-    if os.path.isfile(data_db_file):
-        print("Database file already exists")
-        return
-
-    backup_files = [os.path.join(backup_dir, f) for f in os.listdir(backup_dir) if f.endswith(".db")]
-
-    if backup_files:
-        latest_backup = max(backup_files, key=os.path.getmtime)
-        shutil.copy(latest_backup, data_db_file)
-    else:
-        open(data_db_file, "a").close()
-
-
-def init_db():
-    ensure_data_db_exists()
-    Base.metadata.create_all(bind=engine)
+db = Database()

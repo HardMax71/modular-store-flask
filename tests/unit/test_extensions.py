@@ -1,69 +1,61 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-from flask import Flask
-
-from extensions import get_locale, init_extensions
+from app import create_app
+from config import AppConfig
+from modules.db.database import db
+from modules.db.models import User
+from modules.extensions.utils import get_locale, load_user
 
 
 class TestExtensionsUnit(unittest.TestCase):
-    def setUp(self):
-        self.app = Flask(__name__)
-        self.app.config['TESTING'] = True
-        self.app.config['BACKUP_DIR'] = '/tmp'
-        self.app.config['FACEBOOK_OAUTH_CLIENT_ID'] = 'fake_fb_id'
-        self.app.config['FACEBOOK_OAUTH_CLIENT_SECRET'] = 'fake_fb_secret'
-        self.app.config['GOOGLE_OAUTH_CLIENT_ID'] = 'fake_google_id'
-        self.app.config['GOOGLE_OAUTH_CLIENT_SECRET'] = 'fake_google_secret'
+    @classmethod
+    def setUpClass(cls):
+        cls.scheduler_patch = patch('modules.extensions.scheduler.start')
+        cls.scheduler_mock = cls.scheduler_patch.start()
 
-    @patch('extensions.current_user')
+        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+        cls.app = create_app(AppConfig)
+        cls.client = cls.app.test_client()
+        cls.app_context = cls.app.app_context()
+        cls.app_context.push()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.scheduler_patch.stop()
+        db.session.remove()
+        cls.app_context.pop()
+
+    def setUp(self):
+        db.session.begin(nested=True)
+
+    def tearDown(self):
+        db.session.rollback()
+
+    @patch('modules.extensions.utils.current_user')
     def test_get_locale_authenticated(self, mock_current_user):
         mock_current_user.is_authenticated = True
         mock_current_user.language = 'fr'
         self.assertEqual(get_locale(), 'fr')
 
-    @patch('extensions.current_user')
-    @patch('extensions.AppConfig')
-    def test_get_locale_unauthenticated(self, mock_app_config, mock_current_user):
+    @patch('modules.extensions.utils.current_user')
+    def test_get_locale_unauthenticated(self, mock_current_user):
         mock_current_user.is_authenticated = False
-        mock_app_config.DEFAULT_LANG = 'en'
-        self.assertEqual(get_locale(), 'en')
+        self.assertEqual(get_locale(), AppConfig.DEFAULT_LANG)
 
-    @patch('extensions.db_session')
-    @patch('modules.db.models.User')
-    @patch('extensions.scheduler.start')
-    @patch('extensions.make_facebook_blueprint')
-    @patch('extensions.make_google_blueprint')
-    def test_load_user(self, mock_google_bp, mock_facebook_bp, mock_scheduler_start, mock_user_model, mock_db_session):
-        init_extensions(self.app)  # This will set up the user_loader
+    def test_load_user(self):
+        user = User(username='test_user', email='test@example.com', password='password')
+        db.session.add(user)
+        db.session.commit()
 
-        mock_user = MagicMock()
-        mock_user_model.query.get.return_value = mock_user
+        loaded_user = load_user(user.id)
+        self.assertEqual(loaded_user, user)
 
-        user_loader = self.app.login_manager._user_callback
-        result = user_loader(1)
-
-        mock_user_model.query.get.assert_called_once_with(1)
-        mock_db_session.refresh.assert_called_once_with(mock_user)
-        self.assertEqual(result, mock_user)
-
-    @patch('extensions.db_session')
-    @patch('modules.db.models.User')
-    @patch('extensions.scheduler.start')
-    @patch('extensions.make_facebook_blueprint')
-    @patch('extensions.make_google_blueprint')
-    def test_load_user_not_found(self, mock_google_bp, mock_facebook_bp, mock_scheduler_start, mock_user_model,
-                                 mock_db_session):
-        init_extensions(self.app)  # This will set up the user_loader
-
-        mock_user_model.query.get.return_value = None
-
-        user_loader = self.app.login_manager._user_callback
-        result = user_loader(1)
-
-        mock_user_model.query.get.assert_called_once_with(1)
-        mock_db_session.refresh.assert_not_called()
-        self.assertIsNone(result)
+    def test_load_user_not_found(self):
+        non_existent_id = 9999  # Assuming this ID doesn't exist
+        loaded_user = load_user(non_existent_id)
+        self.assertIsNone(loaded_user)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ from flask_babel import gettext as _
 from flask_login import current_user
 
 from config import AppConfig
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import Review, ReportedReview
 from modules.decorators import login_required_with_message, admin_required
 from .utils import (
@@ -89,8 +89,8 @@ def reported_review_detail(review_id):
 def leave_review(review_id):
     reported_reviews = ReportedReview.query.filter_by(review_id=review_id).all()
     for reported_review in reported_reviews:
-        db_session.delete(reported_review)
-    db_session.commit()
+        db.session.delete(reported_review)
+    db.session.commit()
     flash(_('Review left as is.'), 'success')
     return redirect(url_for('reviews.reported_reviews'))
 
@@ -103,9 +103,9 @@ def delete_review(review_id):
     reported_reviews = ReportedReview.query.filter_by(review_id=review_id).all()
     if review and reported_reviews:
         for reported_review in reported_reviews:
-            db_session.delete(reported_review)
-        db_session.delete(review)
-        db_session.commit()
+            db.session.delete(reported_review)
+        db.session.delete(review)
+        db.session.commit()
         flash(_('Review and reported reviews deleted.'), 'success')
     else:
         flash(_('Review not found.'), 'danger')

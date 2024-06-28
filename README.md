@@ -4,8 +4,10 @@ Modular Store Flask is a comprehensive, feature-rich e-commerce platform built w
 a flexible and scalable solution for online stores, with a wide range of features to enhance both user experience and store management.
 
 [![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
-
 [![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
+
 
 ## Key Features
 

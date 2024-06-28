@@ -5,7 +5,7 @@ from flask_dance.contrib.google import google
 from flask_login import current_user, login_required
 
 from config import AppConfig
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import Address, Notification
 from modules.decorators import login_required_with_message
 from .utils import (
@@ -30,7 +30,7 @@ def profile_info():
 @profile_bp.route('/notifications')
 @login_required
 def notifications():
-    user_notifications = db_session.query(Notification).filter_by(user_id=current_user.id).order_by(
+    user_notifications = db.session.query(Notification).filter_by(user_id=current_user.id).order_by(
         Notification.created_at.desc()).all()
     return render_template('notifications.html',
                            notifications=user_notifications)
@@ -39,7 +39,7 @@ def notifications():
 @profile_bp.route('/notifications/<int:notification_id>/mark-as-read', methods=['POST'])
 @login_required
 def mark_notification_as_read(notification_id):
-    notification = db_session.query(Notification).get(notification_id)
+    notification = db.session.query(Notification).get(notification_id)
     if not notification:
         flash(_('Notification not found.'), 'danger')
         return redirect(url_for('profile.notifications'))
@@ -47,7 +47,7 @@ def mark_notification_as_read(notification_id):
         flash(_('You do not have permission to mark this notification as read.'), 'danger')
         return redirect(url_for('profile.profile_info'))
     notification.read = True
-    db_session.commit()
+    db.session.commit()
     return redirect(url_for('profile.notifications'))
 
 
@@ -64,15 +64,15 @@ def add_address():
             'country': request.form.get('country')
         }
 
-        existing_address = db_session.query(Address).filter_by(user_id=current_user.id, **address_data).first()
+        existing_address = db.session.query(Address).filter_by(user_id=current_user.id, **address_data).first()
 
         if existing_address:
             flash(_('This address has already been added.'), 'warning')
             return redirect(url_for('profile.profile_info'))
 
         new_address = Address(user_id=current_user.id, **address_data)
-        db_session.add(new_address)
-        db_session.commit()
+        db.session.add(new_address)
+        db.session.commit()
         flash(_('Address added successfully.'), 'success')
 
         return redirect(url_for('profile.profile_info'))
@@ -83,7 +83,7 @@ def add_address():
 @profile_bp.route('/addresses/edit/<int:address_id>', methods=['GET', 'POST'])
 @login_required
 def edit_address(address_id):
-    address = db_session.query(Address).get(address_id)
+    address = db.session.query(Address).get(address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
         return redirect(url_for('profile.profile_info'))
@@ -97,7 +97,7 @@ def edit_address(address_id):
         address.state = request.form['state']
         address.zip_code = request.form['zip_code']
         address.country = request.form['country']
-        db_session.commit()
+        db.session.commit()
         flash(_('Address updated successfully.'), 'success')
         return redirect(url_for('profile.profile_info'))
     return render_template('edit_address.html', address=address)
@@ -106,15 +106,15 @@ def edit_address(address_id):
 @profile_bp.route('/addresses/delete/<int:address_id>', methods=['POST'])
 @login_required
 def delete_address(address_id):
-    address = db_session.query(Address).get(address_id)
+    address = db.session.query(Address).get(address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
         return redirect(url_for('profile.profile_info'))
     if address.user_id != current_user.id:
         flash(_('You do not have permission to delete this address.'), 'danger')
     else:
-        db_session.delete(address)
-        db_session.commit()
+        db.session.delete(address)
+        db.session.commit()
         flash(_('Address deleted successfully.'), 'success')
     return redirect(url_for('profile.profile_info'))
 

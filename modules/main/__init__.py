@@ -11,7 +11,8 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from config import AppConfig
 from modules.carts import apply_discount_code
-from modules.db.models import db_session, Goods, Variant, Review, User, Wishlist, RecentlyViewedProduct, \
+from modules.db.database import db
+from modules.db.models import Goods, Variant, Review, User, Wishlist, RecentlyViewedProduct, \
     ComparisonHistory
 from modules.decorators import login_required_with_message
 from modules.filter import get_filter_options, filter_products, paginate_query, get_promoted_products, get_categories
@@ -59,7 +60,7 @@ def goods_page(id):
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
 
-    reviews = db_session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(Review.date.desc()).all()
+    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(Review.date.desc()).all()
     variants = Variant.query.filter_by(goods_id=id).all()
     variant_options = {variant.name: [v.value for v in variants if v.name == variant.name] for variant in variants}
 
@@ -71,8 +72,8 @@ def goods_page(id):
 
     if current_user.is_authenticated:
         user_has_purchased = has_purchased(user_id, id)
-        no_review = not db_session.query(exists().where(Review.user_id == user_id, Review.goods_id == id)).scalar()
-        in_wishlist = db_session.query(exists().where(Wishlist.user_id == user_id, Wishlist.goods_id == id)).scalar()
+        no_review = not db.session.query(exists().where(Review.user_id == user_id, Review.goods_id == id)).scalar()
+        in_wishlist = db.session.query(exists().where(Wishlist.user_id == user_id, Wishlist.goods_id == id)).scalar()
         update_recently_viewed_products(user_id, id)
 
         comparison_history = ComparisonHistory.query.options(selectinload(ComparisonHistory.user)).filter_by(
@@ -98,20 +99,20 @@ def toggle_wishlist():
         flash(_("Invalid product ID"), "error")
         return redirect(url_for('main.index'))
 
-    wishlist_item = db_session.query(Wishlist).filter_by(user_id=current_user.id, goods_id=goods_id).first()
+    wishlist_item = db.session.query(Wishlist).filter_by(user_id=current_user.id, goods_id=goods_id).first()
     if wishlist_item:
-        db_session.delete(wishlist_item)
+        db.session.delete(wishlist_item)
         message = _("Product removed from your wishlist.")
     else:
         new_wishlist_item = Wishlist(user_id=current_user.id, goods_id=goods_id)
-        db_session.add(new_wishlist_item)
+        db.session.add(new_wishlist_item)
         message = _("Product added to your wishlist!")
 
     try:
-        db_session.commit()
+        db.session.commit()
         flash(message, "success")
     except SQLAlchemyError:
-        db_session.rollback()
+        db.session.rollback()
         flash(_("An error occurred while updating your wishlist. Please try again."), "error")
 
     return redirect(request.referrer or url_for('main.goods_page', id=goods_id))

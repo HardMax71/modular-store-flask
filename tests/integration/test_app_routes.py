@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from app import create_app
 from config import AppConfig
-from modules.db.database import init_db, db_session
+from modules.db.database import db
 from modules.db.models import User
 
 
@@ -11,27 +11,27 @@ class TestAppRoutes(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Patch the scheduler.start() method
-        cls.scheduler_patch = patch('extensions.scheduler.start')
+        cls.scheduler_patch = patch('modules.extensions.scheduler.start')
         cls.scheduler_mock = cls.scheduler_patch.start()
 
+        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
         cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
         cls.client = cls.app.test_client()
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
-        init_db()
 
     @classmethod
     def tearDownClass(cls):
         cls.scheduler_patch.stop()
-        db_session.remove()
+        db.session.remove()
         cls.app_context.pop()
 
     def setUp(self):
-        db_session.begin(nested=True)
+        db.session.begin(nested=True)
 
     def tearDown(self):
-        db_session.rollback()
+        db.session.rollback()
 
     def get_csrf_token(self, route):
         response = self.client.get(route)
@@ -71,9 +71,9 @@ class TestAppRoutes(unittest.TestCase):
         self.assertEqual(user.email, 'testuser@example.com')
 
         # Deleting the user from the database
-        db_session.delete(user)
-        db_session.commit()
-        db_session.flush()
+        db.session.delete(user)
+        db.session.commit()
+        db.session.flush()
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ from flask_babel import gettext as _
 from flask_login import current_user
 
 from config import AppConfig
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import Goods, Cart, Discount, UserDiscount, ShippingMethod, Purchase
 from modules.decorators import login_required_with_message
 from modules.email import send_order_confirmation_email
@@ -134,7 +134,7 @@ def checkout():
             # )
 
             original_prices = {item.id: item.price for item in cart_items}
-            save_purchase_history(db=db_session,
+            save_purchase_history(db=db.session,
                                   cart_items=cart_items,
                                   original_prices=original_prices,
                                   shipping_address_id=shipping_address_id,
@@ -143,7 +143,7 @@ def checkout():
                                   payment_id=random.randint(100000, 999999))  # should be charge.id
             clear_cart()
             current_user.discount = 0
-            db_session.commit()
+            db.session.commit()
 
             send_order_confirmation_email(current_user.email, current_user.fname)
             flash(_("Purchase completed. Thank you for shopping with us!"), "success")
@@ -174,7 +174,7 @@ def order_confirmation():
 # Helper functions
 def clear_cart():
     Cart.query.filter_by(user_id=current_user.id).delete()
-    db_session.commit()
+    db.session.commit()
 
 
 def update_cart(cart_item_id: int, quantity: int) -> bool:
@@ -191,7 +191,7 @@ def update_cart(cart_item_id: int, quantity: int) -> bool:
                 remove_from_cart(cart_item_id)
                 goods.stock += cart_item.quantity
 
-            db_session.commit()
+            db.session.commit()
             return True
         else:
             flash(_("Not enough stock available for this product."), "danger")
@@ -202,8 +202,8 @@ def update_cart(cart_item_id: int, quantity: int) -> bool:
 def remove_from_cart(cart_item_id):
     cart_item = Cart.query.get(cart_item_id)
     if cart_item and cart_item.user_id == current_user.id:
-        db_session.delete(cart_item)
-        db_session.commit()
+        db.session.delete(cart_item)
+        db.session.commit()
 
 
 def add_to_cart(goods: Goods, quantity: int, variant_options: dict) -> bool:
@@ -243,10 +243,10 @@ def add_to_cart(goods: Goods, quantity: int, variant_options: dict) -> bool:
             price=price,
             variant_options=variant_options_str
         )
-        db_session.add(cart_item)
+        db.session.add(cart_item)
 
     goods.stock -= quantity
-    db_session.commit()
+    db.session.commit()
     flash(_("Item added to cart."), "success")
     return True
 
@@ -266,8 +266,8 @@ def apply_discount_code(discount_code):
                 discounted_price = item.price - (item.price * discount.percentage / 100)
                 item.price = discounted_price
             new_user_discount = UserDiscount(user_id=current_user.id, discount_id=discount.id)
-            db_session.add(new_user_discount)
-            db_session.commit()
+            db.session.add(new_user_discount)
+            db.session.commit()
             return "success"
     return "invalid"
 

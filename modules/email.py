@@ -3,16 +3,15 @@ from flask_login import current_user
 from flask_mail import Message
 
 from config import AppConfig
-from extensions import mail
 from modules.db.models import User
 
 
 def send_email(to, subject, body):
-    mail = current_app.extensions['mail']
+    mail_to_send = current_app.extensions['mail']
     msg = Message(subject, recipients=[to])
     msg.body = body
     try:
-        mail.send(msg)
+        mail_to_send.send(msg)
     except Exception as e:
         print(f"Error sending email: {e}")
 
@@ -41,7 +40,7 @@ def send_wishlist_notifications():
 
         msg = Message(subject, recipients=[user.email], body=body)
         try:
-            mail.send(msg)
+            current_app.extensions['mail'].send(msg)
         except Exception as e:
             print(f"Error sending wishlist notifications: {e}")
 
@@ -49,4 +48,4 @@ def send_wishlist_notifications():
 def send_order_confirmation_email(email, name):
     msg = Message('Order Confirmation', sender=AppConfig.CONTACT_EMAIL, recipients=[email])
     msg.body = f"Dear {name},\n\nThank you for your purchase. Your order has been received and will be processed shortly.\n\nBest regards,\nThe Store Team"
-    # mail.send(msg)
+    # current_app.extensions['mail'].send(msg)

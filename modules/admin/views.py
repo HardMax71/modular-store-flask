@@ -21,7 +21,7 @@ from werkzeug.wrappers import Response
 from ydata_profiling import ProfileReport
 
 import config
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import RequestLog, Ticket, User, Goods, Category, Purchase, Review, Wishlist, Tag, \
     ProductPromotion, Discount, ShippingMethod, ReportedReview, TicketMessage
 from modules.decorators import login_required_with_message, admin_required
@@ -31,7 +31,7 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
 def get_table_names():
-    inspector = inspect(db_session.bind)
+    inspector = inspect(db.session.bind)
     return inspector.get_table_names()
 
 
@@ -77,11 +77,11 @@ class TicketView(AdminView):
 
     @expose('/assign/<int:ticket_id>', methods=['POST'])
     def assign_ticket(self, ticket_id):
-        ticket = db_session.query(Ticket).get(ticket_id)
+        ticket = db.session.query(Ticket).get(ticket_id)
         if ticket:
             admin_id = request.form['admin_id']
             ticket.admin_id = admin_id
-            db_session.commit()
+            db.session.commit()
             flash(_('Ticket assigned successfully.'), 'success')
         else:
             flash(_('Ticket not found.'), 'danger')
@@ -119,7 +119,7 @@ class StatisticsView(BaseView):
             for table in tables:
                 if table in table_names:
                     query = f"SELECT * FROM {table} ORDER BY id DESC LIMIT (SELECT CAST(COUNT(*) * {data_percentage / 100.0} AS INTEGER) FROM {table})"
-                    df = pd.read_sql_query(query, db_session.bind)
+                    df = pd.read_sql_query(query, db.session.bind)
                     profile = ProfileReport(df, title=f"{table.capitalize()} Dataset")
                     profile_reports.append(profile)
 
@@ -165,7 +165,7 @@ class ReportsView(BaseView):
         data = {}
         for table in tables:
             if table in get_table_names():
-                result = db_session.execute(text(f"SELECT * FROM {table}"))
+                result = db.session.execute(text(f"SELECT * FROM {table}"))
                 columns = result.keys()
                 data[table] = [
                     {col: self.decode_if_bytes(value) for col, value in zip(columns, row)}
@@ -295,7 +295,7 @@ class AnalyticsView(BaseView):
             end_datetime = datetime.combine(end_date, time.max)
 
             # Retrieve request logs within the specified date range
-            request_logs_query = db_session.query(RequestLog).filter(
+            request_logs_query = db.session.query(RequestLog).filter(
                 RequestLog.timestamp >= start_datetime,
                 RequestLog.timestamp <= end_datetime
             )
@@ -385,19 +385,19 @@ class ReportedReviewView(AdminView):
 admin = Admin(name='Admin Panel', template_mode='bootstrap3', index_view=MyAdminIndexView())
 
 # Add views to admin
-admin.add_view(UserView(User, db_session, name='Users'))
-admin.add_view(GoodsView(Goods, db_session, name='Goods'))
-admin.add_view(CategoryView(Category, db_session, name='Categories'))
-admin.add_view(PurchaseView(Purchase, db_session, name='Purchases'))
-admin.add_view(ReviewView(Review, db_session, name='Reviews'))
-admin.add_view(WishlistView(Wishlist, db_session, name='Wishlists'))
-admin.add_view(TagView(Tag, db_session, name='Tags'))
-admin.add_view(ProductPromotionView(ProductPromotion, db_session, name='Promotions'))
-admin.add_view(DiscountView(Discount, db_session, name='Discounts'))
-admin.add_view(ShippingMethodView(ShippingMethod, db_session, name='Shipping Methods'))
-admin.add_view(ReportedReviewView(ReportedReview, db_session, name='Reported Reviews'))
-admin.add_view(TicketView(Ticket, db_session, name='Tickets'))
-admin.add_view(TicketMessageView(TicketMessage, db_session, name='Ticket Messages'))
+admin.add_view(UserView(User, db.session, name='Users'))
+admin.add_view(GoodsView(Goods, db.session, name='Goods'))
+admin.add_view(CategoryView(Category, db.session, name='Categories'))
+admin.add_view(PurchaseView(Purchase, db.session, name='Purchases'))
+admin.add_view(ReviewView(Review, db.session, name='Reviews'))
+admin.add_view(WishlistView(Wishlist, db.session, name='Wishlists'))
+admin.add_view(TagView(Tag, db.session, name='Tags'))
+admin.add_view(ProductPromotionView(ProductPromotion, db.session, name='Promotions'))
+admin.add_view(DiscountView(Discount, db.session, name='Discounts'))
+admin.add_view(ShippingMethodView(ShippingMethod, db.session, name='Shipping Methods'))
+admin.add_view(ReportedReviewView(ReportedReview, db.session, name='Reported Reviews'))
+admin.add_view(TicketView(Ticket, db.session, name='Tickets'))
+admin.add_view(TicketMessageView(TicketMessage, db.session, name='Ticket Messages'))
 admin.add_view(StatisticsView(name='Statistics', endpoint='statistics', category='Statistics'))
 admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports'))
 admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))

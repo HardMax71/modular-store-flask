@@ -3,24 +3,16 @@ from flask_babel import Babel
 from flask_dance.contrib.facebook import make_facebook_blueprint
 from flask_dance.contrib.google import make_google_blueprint
 from flask_login import LoginManager
-from flask_login import current_user
 from flask_mail import Mail
 
-from config import AppConfig
 from modules.cache import cache
 from modules.db.backup import backup_database
-from modules.db.database import db_session
+from .utils import get_locale, load_user
 
 babel = Babel()
 login_manager = LoginManager()
 mail = Mail()
 scheduler = BackgroundScheduler()
-
-
-def get_locale() -> str:
-    if current_user.is_authenticated:
-        return current_user.language
-    return AppConfig.DEFAULT_LANG
 
 
 def init_extensions(app):
@@ -31,7 +23,8 @@ def init_extensions(app):
 
     # Set up scheduler
     scheduler.add_job(backup_database, 'interval', minutes=30, args=[app.config['BACKUP_DIR']])
-    scheduler.start()
+    if not scheduler.running:
+        scheduler.start()
 
     # Register Flask-Dance blueprints
     facebook_bp = make_facebook_blueprint(
@@ -50,10 +43,7 @@ def init_extensions(app):
     )
     app.register_blueprint(google_bp, url_prefix='/google-login')
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        from modules.db.models import User
-        user = User.query.get(user_id)
-        if user:
-            db_session.refresh(user)
-        return user
+    login_manager.user_loader(load_user)
+
+
+__all__ = ['init_extensions', 'get_locale', 'scheduler', 'babel', 'login_manager', 'mail', 'cache']

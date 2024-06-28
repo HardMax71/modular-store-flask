@@ -7,11 +7,11 @@ from flask import redirect, url_for, g, session
 from flask_login import current_user
 
 from config import AppConfig
-from extensions import init_extensions
 from modules import init_modules
-from modules.db.database import init_db
-from modules.db.models import db_session, Cart, Notification
+from modules.db.database import db
+from modules.db.models import Cart, Notification
 from modules.error_handlers import create_error_handlers
+from modules.extensions import init_extensions
 from modules.logger import DatabaseLogger
 from modules.main import main_bp
 
@@ -27,24 +27,19 @@ def create_app(config_class=AppConfig):
     current_app = Flask(__name__)
     current_app.config.from_object(config_class)
 
-    # Initialize database
-    init_db()
+    with current_app.app_context():
+        db.init_app(current_app)
+        db.init_db()
 
-    # Set up logging
-    DatabaseLogger(current_app)
+        DatabaseLogger(current_app)
 
-    # Initialize extensions
-    init_extensions(current_app)
+        init_extensions(current_app)
 
-    # Set up error handling
-    create_error_handlers(current_app)
+        create_error_handlers(current_app)
 
-    # Register blueprints and initialize modules
-    init_modules(current_app)
-    current_app.register_blueprint(main_bp)
-
-    # Register request handlers
-    register_request_handlers(current_app)
+        init_modules(current_app)
+        current_app.register_blueprint(main_bp)
+        register_request_handlers(current_app)
 
     return current_app
 
@@ -52,13 +47,13 @@ def create_app(config_class=AppConfig):
 def register_request_handlers(current_app):
     @current_app.teardown_appcontext
     def shutdown_session(exception=None):
-        db_session.remove()
+        db.session.remove()
 
     @current_app.before_request
     def before_request():
-        db_session.permanent = True
+        db.session.permanent = True
         g.permanent_session_lifetime = AppConfig.PERMANENT_SESSION_LIFETIME
-        db_session.modified = True
+        db.session.modified = True
         g.total_items, g.total_amount, g.discount_percentage = Cart.cart_info()
 
         if current_user.is_authenticated:
@@ -84,7 +79,7 @@ def register_request_handlers(current_app):
         if 'last_active' in session:
             last_active = datetime.fromisoformat(session['last_active'])
             if (datetime.now() - last_active) > AppConfig.PERMANENT_SESSION_LIFETIME:
-                db_session.remove()
+                db.session.remove()
                 session.clear()
                 return redirect(url_for('auth.login'))
         session['last_active'] = datetime.now().isoformat()

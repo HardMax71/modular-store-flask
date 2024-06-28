@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from config import AppConfig
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import User, SocialAccount
 
 
@@ -33,10 +33,10 @@ def handle_profile_update():
 def handle_change_email():
     new_email = request.form['email'].strip()
     if new_email and new_email != current_user.email:
-        existing_user = db_session.query(User).filter_by(email=new_email).first()
+        existing_user = db.session.query(User).filter_by(email=new_email).first()
         if not existing_user:
             current_user.email = new_email
-            db_session.commit()
+            db.session.commit()
             flash(_('Email changed successfully.'), 'success')
         else:
             flash(_('This email is already in use.'), 'warning')
@@ -51,7 +51,7 @@ def handle_change_password():
     if check_password_hash(current_user.password, current_password):
         if new_password and new_password == confirm_password:
             current_user.password = generate_password_hash(new_password)
-            db_session.commit()
+            db.session.commit()
             flash(_('Password changed successfully.'), 'success')
         else:
             flash(_('The new password and confirmation do not match.'), 'danger')
@@ -68,7 +68,7 @@ def handle_change_phone():
                 raise NumberParseException(0, "Invalid phone number")
 
             current_user.phone = new_phone
-            db_session.commit()
+            db.session.commit()
             flash(_('Phone number successfully changed.'), 'success')
         except NumberParseException:
             flash(_('Invalid phone number format.'), 'danger')
@@ -92,21 +92,21 @@ def handle_update_profile():
                 current_user.profile_picture = filename
             else:
                 flash(_('Invalid file type. Only PNG, JPG, and BMP files are allowed.'), 'danger')
-    db_session.commit()
+    db.session.commit()
     flash(_('Profile updated successfully.'), 'success')
 
 
 def handle_change_language():
     language = request.form['language']
     current_user.language = language
-    db_session.commit()
+    db.session.commit()
     flash(_('Language changed successfully.'), 'success')
 
 
 def handle_update_notification_settings():
     current_user.notifications_enabled = 'notifications_enabled' in request.form
     current_user.email_notifications_enabled = 'email_notifications_enabled' in request.form
-    db_session.commit()
+    db.session.commit()
     flash(_('Notification settings updated successfully.'), 'success')
 
 
@@ -119,7 +119,7 @@ def handle_social_login(provider):
     username = account_info['name']
     email = account_info['email']
 
-    social_account = db_session.query(SocialAccount).filter_by(provider=provider.name, social_id=social_id).first()
+    social_account = db.session.query(SocialAccount).filter_by(provider=provider.name, social_id=social_id).first()
 
     if social_account:
         login_user(social_account.user)
@@ -128,12 +128,12 @@ def handle_social_login(provider):
         user = User(username=username,
                     email=email,
                     password=str(generate_password_hash(new_random_password)))
-        db_session.add(user)
-        db_session.commit()
+        db.session.add(user)
+        db.session.commit()
 
         social_account = SocialAccount(user_id=user.id, provider=provider.name, social_id=social_id)
-        db_session.add(social_account)
-        db_session.commit()
+        db.session.add(social_account)
+        db.session.commit()
 
         login_user(user)
 

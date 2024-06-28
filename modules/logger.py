@@ -4,7 +4,7 @@ from flask import current_app
 from flask import request
 from flask_login import current_user
 
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import RequestLog
 
 
@@ -36,6 +36,6 @@ class DatabaseLogger(object):
             'execution_time': execution_time
         }
         current_app.logger.info(f"Request: {log_data}")
-        db_session.add(RequestLog(**log_data))
-        db_session.commit()
+        db.session.add(RequestLog(**log_data))
+        db.session.commit()
         return response

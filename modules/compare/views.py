@@ -4,7 +4,7 @@ from flask import Blueprint, redirect, request, url_for, flash, render_template
 from flask_babel import gettext as _
 from flask_login import current_user
 
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import Goods, ComparisonHistory
 from modules.decorators import login_required_with_message
 
@@ -18,7 +18,7 @@ def compare_products():
 
     if comparison_history:
         product_ids = json.loads(comparison_history.product_ids)
-        products = db_session.query(Goods).filter(Goods.id.in_(product_ids)).all()
+        products = db.session.query(Goods).filter(Goods.id.in_(product_ids)).all()
     else:
         products = []
 
@@ -29,7 +29,7 @@ def compare_products():
 @login_required_with_message()
 def remove_from_comparison():
     goods_id = request.form.get("goods_id", type=int)
-    comparison_history = db_session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
+    comparison_history = db.session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
 
     if comparison_history:
         product_ids = json.loads(comparison_history.product_ids)
@@ -38,8 +38,8 @@ def remove_from_comparison():
             if product_ids:
                 comparison_history.product_ids = json.dumps(product_ids)
             else:
-                db_session.delete(comparison_history)
-            db_session.commit()
+                db.session.delete(comparison_history)
+            db.session.commit()
             flash(_("Product removed from comparison."), "success")
         else:
             flash(_("Product is not in comparison."), "info")
@@ -53,10 +53,10 @@ def remove_from_comparison():
 @login_required_with_message()
 def add_to_comparison():
     goods_id = request.form.get("goods_id", type=int)
-    product = db_session.query(Goods).get(goods_id)
+    product = db.session.query(Goods).get(goods_id)
 
     if product:
-        comparison_history = db_session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
+        comparison_history = db.session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
 
         if comparison_history:
             product_ids = json.loads(comparison_history.product_ids)
@@ -66,14 +66,14 @@ def add_to_comparison():
                 else:
                     product_ids.append(goods_id)
                     comparison_history.product_ids = json.dumps(product_ids)
-                    db_session.commit()
+                    db.session.commit()
                     flash(_("Product added to comparison."), "success")
             else:
                 flash(_("Product is already in comparison."), "info")
         else:
             new_comparison_history = ComparisonHistory(user_id=current_user.id, product_ids=json.dumps([goods_id]))
-            db_session.add(new_comparison_history)
-            db_session.commit()
+            db.session.add(new_comparison_history)
+            db.session.commit()
             flash(_("Product added to comparison."), "success")
     else:
         flash(_("Product not found"), "error")

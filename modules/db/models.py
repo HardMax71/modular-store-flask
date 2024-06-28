@@ -10,7 +10,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.sql import func
 
-from modules.db.database import Base, db_session
+from modules.db.database import Base, db
 
 
 class User(Base, UserMixin):
@@ -70,7 +70,7 @@ class User(Base, UserMixin):
         Get the user's wishlist notifications for items on sale and back in stock.
         """
 
-        wishlist_items = db_session.query(Wishlist).options(joinedload(Wishlist.goods)).filter_by(
+        wishlist_items = db.session.query(Wishlist).options(joinedload(Wishlist.goods)).filter_by(
             user_id=current_user.id).all()  # Eager loading
 
         on_sale_items = []
@@ -136,10 +136,10 @@ class Cart(Base):
         Update the stock of a goods item after a purchase.
         """
 
-        goods = db_session.query(Goods).get(goods_id)
+        goods = db.session.query(Goods).get(goods_id)
         if goods:
             goods.stock -= quantity
-            db_session.commit()
+            db.session.commit()
 
     @staticmethod
     def total_quantity() -> int:
@@ -149,7 +149,7 @@ class Cart(Base):
         if not current_user.is_authenticated:
             return 0
 
-        result = db_session.query(func.coalesce(func.sum(Cart.quantity), 0)) \
+        result = db.session.query(func.coalesce(func.sum(Cart.quantity), 0)) \
             .filter(Cart.user_id == current_user.id) \
             .scalar()
 
@@ -163,7 +163,7 @@ class Cart(Base):
         if not current_user.is_authenticated:
             return 0.0
 
-        result = db_session.query(func.coalesce(func.sum(Cart.price * Cart.quantity), 0.0)) \
+        result = db.session.query(func.coalesce(func.sum(Cart.price * Cart.quantity), 0.0)) \
             .filter(Cart.user_id == current_user.id) \
             .scalar()
 
@@ -184,7 +184,7 @@ class Cart(Base):
         if not current_user.is_authenticated:
             return 0, 0.0, 0.0
 
-        cart_items = db_session.query(
+        cart_items = db.session.query(
             func.sum(Cart.quantity).label('total_items'),
             func.sum(Cart.quantity * Cart.price).label('subtotal')
         ).filter_by(user_id=current_user.id).first()
@@ -193,7 +193,7 @@ class Cart(Base):
         subtotal: float = float(cart_items.subtotal or 0.0)
 
         current_date: date = datetime.now().date()
-        max_discount: float = db_session.query(func.max(Discount.percentage)).join(UserDiscount).filter(
+        max_discount: float = db.session.query(func.max(Discount.percentage)).join(UserDiscount).filter(
             UserDiscount.user_id == current_user.id,
             Discount.start_date <= current_date,
             Discount.end_date >= current_date
@@ -259,14 +259,24 @@ class Goods(Base):
         self._image = value
 
     def __str__(self):
-        return f'{self.samplename}: {self.description[:20]}..'
+        sample_description = (self.description[:20] + '..') if self.description else 'No description'
+        return f'{self.samplename}: {sample_description}'
 
-    @property
+    @hybrid_property
     def avg_rating(self) -> Optional[float]:
         if self.reviews:
-            avg_rating = db_session.query(func.avg(Review.rating)).filter_by(goods_id=self.id).scalar()
-            return avg_rating
+            return db.session.query(func.avg(Review.rating)).filter_by(goods_id=self.id).scalar() or 0
         return 0
+
+    @avg_rating.expression
+    def avg_rating(cls):
+        return func.coalesce(
+            db.session.query(func.avg(Review.rating))
+            .filter(Review.goods_id == cls.id)
+            .correlate(cls)
+            .scalar_subquery(),
+            0
+        )
 
     @hybrid_property
     def current_price(self):
@@ -332,10 +342,10 @@ class Purchase(Base):
         """
 
         for item in purchase.items:
-            goods = db_session.query(Goods).get(item.goods_id)
+            goods = db.session.query(Goods).get(item.goods_id)
             if goods:
                 goods.stock -= item.quantity
-        db_session.commit()
+        db.session.commit()
 
 
 class ShippingMethod(Base):

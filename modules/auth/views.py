@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import AppConfig
 from forms.forms import RegistrationForm, LoginForm
-from modules.db.database import db_session
+from modules.db.database import db
 from modules.db.models import User
 from modules.decorators import login_required_with_message
 
@@ -19,7 +19,7 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        existing_user = (db_session.query(User.id)
+        existing_user = (db.session.query(User.id)
                          .filter_by(username=form.username.data).first())
         if existing_user:
             flash(_("Username already exists. Please choose a different one."), "danger")
@@ -28,9 +28,9 @@ def register():
             new_user = User(username=form.username.data,
                             password=hashed_password,
                             email=form.email.data)
-            db_session.add(new_user)
-            db_session.commit()
-            db_session.flush()
+            db.session.add(new_user)
+            db.session.commit()
+            db.session.flush()
             flash(_("Registration successful. Please log in."), "success")
             return redirect(url_for('auth.login'))
     else:
@@ -44,9 +44,9 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = db_session.query(User).filter_by(username=form.username.data).first()
+        user = db.session.query(User).filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
-            db_session.refresh(user)
+            db.session.refresh(user)
             login_user(user)
             flash(_("Login successful."), "success")
             return redirect(url_for('main.index'))
@@ -115,7 +115,7 @@ def reset_password_token(token):
         confirm_password = request.form['confirm_password']
         if new_password == confirm_password:
             user.password = generate_password_hash(new_password)
-            db_session.commit()
+            db.session.commit()
             flash(_('Your password has been reset. You can now log in with the new password.'), 'success')
             return redirect(url_for('auth.login'))
         else:
