@@ -1,9 +1,10 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from datetime import timedelta
 
 from flask import Flask
 
-from modules.extensions import init_extensions
+from modules.db.backup import backup_database
+from modules.extensions import init_extensions, scheduler
 
 
 class TestExtensionsIntegration(unittest.TestCase):
@@ -16,15 +17,9 @@ class TestExtensionsIntegration(unittest.TestCase):
         self.app.config['FACEBOOK_OAUTH_CLIENT_SECRET'] = 'fake_fb_secret'
         self.app.config['GOOGLE_OAUTH_CLIENT_ID'] = 'fake_google_id'
         self.app.config['GOOGLE_OAUTH_CLIENT_SECRET'] = 'fake_google_secret'
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 
-    @patch('modules.extensions.BackgroundScheduler')
-    @patch('modules.extensions.make_facebook_blueprint')
-    @patch('modules.extensions.make_google_blueprint')
-    @patch('modules.extensions.scheduler.start')
-    def test_init_extensions(self, mock_scheduler_start, mock_google_bp, mock_facebook_bp, mock_background_scheduler):
-        mock_scheduler = MagicMock()
-        mock_background_scheduler.return_value = mock_scheduler
-
+    def test_init_extensions(self):
         init_extensions(self.app)
 
         # Check if all extensions are initialized
@@ -33,32 +28,35 @@ class TestExtensionsIntegration(unittest.TestCase):
         self.assertIn('mail', self.app.extensions)
         self.assertIn('cache', self.app.extensions)
 
-        # TODO Check how to test this: smh mock_scheduler isnt being called
-        # # Check if scheduler job is added
-        # mock_scheduler.add_job.assert_called_once_with(
-        #     backup_database, 'interval', minutes=30, args=[self.app.config['BACKUP_DIR']]
-        # )
-        # # Ensure scheduler.start() is called
-        # mock_scheduler.start.assert_called_once()
+        # Check if scheduler job is added
+        job = next((job for job in scheduler.get_jobs() if job.func == backup_database), None)
+        self.assertIsNotNone(job)
+        self.assertEqual(job.trigger.interval, timedelta(minutes=30))
+        self.assertEqual(job.args, (self.app.config['BACKUP_DIR'], ))
 
         # Check if Flask-Dance blueprints are registered
-        mock_facebook_bp.assert_called_once()
-        mock_google_bp.assert_called_once()
+        self.assertIn('facebook', self.app.blueprints)
+        self.assertIn('google', self.app.blueprints)
 
-    @patch('modules.extensions.scheduler.start')
-    def test_babel_initialization(self, mock_scheduler_start):
+    def test_babel_initialization(self):
         init_extensions(self.app)
         self.assertIn('babel', self.app.extensions)
 
-    @patch('modules.extensions.scheduler.start')
-    def test_mail_initialization(self, mock_scheduler_start):
+    def test_login_manager_initialization(self):
+        init_extensions(self.app)
+        self.assertTrue(hasattr(self.app, 'login_manager'))
+
+    def test_mail_initialization(self):
         init_extensions(self.app)
         self.assertIn('mail', self.app.extensions)
 
-    @patch('modules.extensions.scheduler.start')
-    def test_cache_initialization(self, mock_scheduler_start):
+    def test_cache_initialization(self):
         init_extensions(self.app)
         self.assertIn('cache', self.app.extensions)
+
+    def tearDown(self):
+        # Stop the scheduler to prevent it from running in the background
+        scheduler.shutdown()
 
 
 if __name__ == '__main__':

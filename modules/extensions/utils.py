@@ -2,6 +2,7 @@ from flask_login import current_user
 
 from config import AppConfig
 from modules.db.database import db
+from modules.db.models import User  # Move this import to the top
 
 
 def get_locale() -> str:
@@ -11,8 +12,7 @@ def get_locale() -> str:
 
 
 def load_user(user_id):
-    from modules.db.models import User
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if user:
         db.session.refresh(user)
     return user

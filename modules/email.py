@@ -1,4 +1,6 @@
 from flask import current_app
+from flask import flash
+from flask_babel import gettext as _
 from flask_login import current_user
 from flask_mail import Message
 
@@ -12,8 +14,9 @@ def send_email(to, subject, body):
     msg.body = body
     try:
         mail_to_send.send(msg)
+        flash(_("Email sent successfully"), "success")
     except Exception as e:
-        print(f"Error sending email: {e}")
+        flash(_("Error sending email"), "danger")
 
 
 def send_wishlist_notifications():
@@ -48,4 +51,8 @@ def send_wishlist_notifications():
 def send_order_confirmation_email(email, name):
     msg = Message('Order Confirmation', sender=AppConfig.CONTACT_EMAIL, recipients=[email])
     msg.body = f"Dear {name},\n\nThank you for your purchase. Your order has been received and will be processed shortly.\n\nBest regards,\nThe Store Team"
-    # current_app.extensions['mail'].send(msg)
+    try:
+        current_app.extensions['mail'].send(msg)
+        flash(_("Order confirmation email sent successfully"), "success")
+    except Exception as e:
+        flash(_("Error sending order confirmation email"), "danger")
