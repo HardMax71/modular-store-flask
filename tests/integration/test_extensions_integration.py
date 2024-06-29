@@ -1,12 +1,14 @@
 import unittest
 from datetime import timedelta
 
+from apscheduler.schedulers import SchedulerNotRunningError
 from flask import Flask
 
 from modules.db.backup import backup_database
 from modules.extensions import init_extensions, scheduler
 
 
+# dont inherit from BaseIntegrationTest cause need "clean" Flask app
 class TestExtensionsIntegration(unittest.TestCase):
 
     def setUp(self):
@@ -32,7 +34,7 @@ class TestExtensionsIntegration(unittest.TestCase):
         job = next((job for job in scheduler.get_jobs() if job.func == backup_database), None)
         self.assertIsNotNone(job)
         self.assertEqual(job.trigger.interval, timedelta(minutes=30))
-        self.assertEqual(job.args, (self.app.config['BACKUP_DIR'], ))
+        self.assertEqual(job.args, (self.app.config['BACKUP_DIR'],))
 
         # Check if Flask-Dance blueprints are registered
         self.assertIn('facebook', self.app.blueprints)
@@ -55,8 +57,10 @@ class TestExtensionsIntegration(unittest.TestCase):
         self.assertIn('cache', self.app.extensions)
 
     def tearDown(self):
-        # Stop the scheduler to prevent it from running in the background
-        scheduler.shutdown()
+        try:
+            scheduler.shutdown()
+        except SchedulerNotRunningError:
+            pass
 
 
 if __name__ == '__main__':

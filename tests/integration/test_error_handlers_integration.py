@@ -2,9 +2,10 @@ import unittest
 
 from app import create_app
 from config import AppConfig
+from tests.base_integration_test import BaseIntegrationTest
 
 
-class TestErrorHandlersIntegration(unittest.TestCase):
+class TestErrorHandlersIntegration(BaseIntegrationTest):
     @classmethod
     def setUpClass(cls):
         AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
@@ -20,10 +21,6 @@ class TestErrorHandlersIntegration(unittest.TestCase):
         cls.client = cls.app.test_client()
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.app_context.pop()
 
     def test_404_error(self):
         response = self.client.get('/nonexistent-page')

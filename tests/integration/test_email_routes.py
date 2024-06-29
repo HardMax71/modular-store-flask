@@ -1,79 +1,80 @@
 import unittest
-from unittest.mock import patch, MagicMock
 
+from flask_login import login_user
 from flask_mail import Mail
 
-from app import create_app
-from config import AppConfig
-from modules.db.database import db
-from modules.db.models import User
-from modules.email import send_wishlist_notifications
+from modules.db.models import Goods, Wishlist
+from modules.email import send_email, send_wishlist_notifications, send_order_confirmation_email
+from tests.base_integration_test import BaseIntegrationTest
+from tests.util import create_user
 
 
-class TestEmailRoutes(unittest.TestCase):
+class TestEmailFunctions(BaseIntegrationTest):
+
     @classmethod
     def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
+        super().setUpClass()
         cls.mail = Mail(cls.app)
-        cls.client = cls.app.test_client()
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
 
-        @cls.app.login_manager.user_loader
-        def load_user(user_id):
-            return User.query.get(user_id)
+    def test_send_email(self):
+        with self.app.test_request_context():
+            user = create_user(self)
+            self.session.add(user)
+            self.session.commit()
 
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        cls.app_context.pop()
+            login_user(user)
 
-    def setUp(self):
-        db.session.begin(nested=True)
+            with self.mail.record_messages() as outbox:
+                send_email(user.email, "Test Subject", "Test Body")
 
-    def tearDown(self):
-        db.session.rollback()
+                self.assertEqual(len(outbox), 1)
+                self.assertEqual(outbox[0].subject, "Test Subject")
+                self.assertEqual(outbox[0].recipients, [user.email])
+                self.assertEqual(outbox[0].body, "Test Body")
 
-        def test_send_email(self):
-            with self.app.app_context():
-                with patch.object(self.mail, 'send') as mock_send:
-                    response = self.client.post('/send-email', data={
-                        'to': 'test@example.com',
-                        'subject': 'Test Subject',
-                        'body': 'Test Body'
-                    })
-                    self.assertEqual(response.status_code, 200)
-                    mock_send.assert_called_once()
+    def test_send_wishlist_notifications(self):
+        with self.app.test_request_context():
+            user = create_user(self)
+            self.session.add(user)
+            self.session.commit()
 
-        @patch('flask_login.utils._get_user')
-        def test_send_wishlist_notifications(self, mock_current_user):
-            with self.app.app_context():
-                with patch('modules.db.models.User.get_wishlist_notifications') as mock_get_notifications:
-                    with patch.object(self.mail, 'send') as mock_send:
-                        mock_user = MagicMock()
-                        mock_user.id = 1
-                        mock_user.username = 'testuser'
-                        mock_user.email = 'test@example.com'
-                        mock_current_user.return_value = mock_user
+            goods_on_sale = Goods(samplename='On Sale Item', price=100, onSale=1, onSalePrice=50, stock=10)
+            goods_back_in_stock = Goods(samplename='Back in Stock Item', price=100, onSale=0, stock=10)
+            self.session.add_all([goods_on_sale, goods_back_in_stock])
+            self.session.commit()
 
-                        db.session.add(mock_user)
-                        db.session.commit()
+            wishlist_item1 = Wishlist(user_id=user.id, goods_id=goods_on_sale.id)
+            wishlist_item2 = Wishlist(user_id=user.id, goods_id=goods_back_in_stock.id)
+            self.session.add_all([wishlist_item1, wishlist_item2])
+            self.session.commit()
 
-                        mock_get_notifications.return_value = (['item1'], ['item2'])
-                        send_wishlist_notifications()
-                        self.assertTrue(mock_send.called)
+            login_user(user)
 
-        def test_send_order_confirmation_email(self):
-            with self.app.app_context():
-                with patch.object(self.mail, 'send') as mock_send:
-                    response = self.client.post('/send-order-confirmation-email', data={
-                        'email': 'test@example.com',
-                        'name': 'Test User'
-                    })
-                    self.assertEqual(response.status_code, 200)
-                    mock_send.assert_called_once()
+            with self.mail.record_messages() as outbox:
+                send_wishlist_notifications()
 
-    if __name__ == '__main__':
-        unittest.main()
+                self.assertEqual(len(outbox), 1)
+                self.assertEqual(outbox[0].subject, "Wishlist Items Update")
+                self.assertEqual(outbox[0].recipients, [user.email])
+                self.assertIn("On Sale Item", outbox[0].body)
+                self.assertIn("Back in Stock Item", outbox[0].body)
+
+    def test_send_order_confirmation_email(self):
+        with self.app.test_request_context():
+            user = create_user(self)
+            self.session.add(user)
+            self.session.commit()
+
+            login_user(user)
+
+            with self.mail.record_messages() as outbox:
+                send_order_confirmation_email(user.email, "Test User")
+
+                self.assertEqual(len(outbox), 1)
+                self.assertEqual(outbox[0].subject, "Order Confirmation")
+                self.assertEqual(outbox[0].recipients, [user.email])
+                self.assertIn("Thank you for your purchase", outbox[0].body)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,37 +1,24 @@
-import random
 import unittest
 
-from app import create_app
-from config import AppConfig
 from modules.db.database import db, Base
-from modules.db.models import RecentlyViewedProduct, Goods, UserPreference, Category, User, Review
+from modules.db.models import RecentlyViewedProduct, Goods, UserPreference, Category, Review
 from modules.recommendations import update_recently_viewed_products, get_related_products, get_recommended_products
+from tests.base_integration_test import BaseIntegrationTest
+from tests.util import create_user
 
 
-class TestRecommendationsIntegration(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
-
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        cls.app_context.pop()
+class TestRecommendationsIntegration(BaseIntegrationTest):
 
     def setUp(self):
+        super().setUp()
+
         # Clear all tables
         for table in reversed(Base.metadata.sorted_tables):
             db.session.execute(table.delete())
         db.session.commit()
 
         # Create test data
-        self.user = User(username=f'user_{random.randint(0, 123456)}',
-                         email=f'{random.randint(0, 123456)}@example.com',
-                         password=f'password_{random.randint(0, 123456)}')
+        self.user = create_user(self)
         self.category1 = Category(name='Category 1')
         self.category2 = Category(name='Category 2')
         self.goods1 = Goods(samplename='Goods 1', category=self.category1, description="1", stock=10)
@@ -39,9 +26,6 @@ class TestRecommendationsIntegration(unittest.TestCase):
 
         db.session.add_all([self.user, self.category1, self.category2, self.goods1, self.goods2])
         db.session.commit()
-
-    def tearDown(self):
-        db.session.rollback()
 
     def test_update_recently_viewed_products(self):
         update_recently_viewed_products(self.user.id, self.goods1.id)

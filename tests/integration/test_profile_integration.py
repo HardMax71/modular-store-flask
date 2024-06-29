@@ -1,63 +1,16 @@
-import random
 import unittest
 
 from flask import url_for
-from flask_login import LoginManager
 from flask_login import login_user
-from werkzeug.security import generate_password_hash
 
-from app import create_app
-from config import AppConfig
-from modules.db.database import db
 from modules.db.models import Address, Notification
-from modules.db.models import User
+from tests.base_integration_test import BaseIntegrationTest
+from tests.util import create_user
 
 
-class TestProfileRoutes(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
-        cls.app.config['WTF_CSRF_ENABLED'] = False
-
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
-
-        LoginManager().init_app(cls.app)
-
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        db.engine.dispose()
-        cls.app_context.pop()
-
-    def setUp(self):
-        self.client = self.app.test_client()
-        self.session = db.session
-        self.session.begin()
-
-    def tearDown(self):
-        self.session.rollback()
-        self.session.close()
-
-    def create_user(self, username: str = None, email: str = None, password: str = None):
-        if username is None:
-            username = f'user_{random.randint(0, 123456)}'
-        if email is None:
-            email = f'{random.randint(0, 123456)}@example.com'
-        if password is None:
-            password = f'password_{random.randint(0, 123456)}'
-
-        hashed_password = generate_password_hash(password)
-        user = User(username=username, email=email, password=hashed_password)
-        self.session.add(user)
-        self.session.commit()
-        return user
-
+class TestProfileRoutes(BaseIntegrationTest):
     def test_profile_info_route(self):
-        user = self.create_user()
+        user = create_user(self)
         with self.app.test_request_context():
             login_user(user)
             response = self.client.get(url_for('profile.profile_info'))
@@ -65,7 +18,7 @@ class TestProfileRoutes(unittest.TestCase):
             self.assertIn(b'Profile', response.data)
 
     def test_notifications_route(self):
-        user = self.create_user()
+        user = create_user(self)
         notification = Notification(user_id=user.id, message='Test notification')
         self.session.add(notification)
         self.session.commit()
@@ -77,7 +30,7 @@ class TestProfileRoutes(unittest.TestCase):
             self.assertIn(b'Test notification', response.data)
 
     def test_mark_notification_as_read(self):
-        user = self.create_user()
+        user = create_user(self)
         notification = Notification(user_id=user.id, message='Test notification', read=False)
         self.session.add(notification)
         self.session.commit()
@@ -90,7 +43,7 @@ class TestProfileRoutes(unittest.TestCase):
             self.assertTrue(updated_notification.read)
 
     def test_add_address_route(self):
-        user = self.create_user()
+        user = create_user(self)
         with self.app.test_request_context():
             login_user(user)
             response = self.client.post(url_for('profile.add_address'), data={
@@ -106,7 +59,7 @@ class TestProfileRoutes(unittest.TestCase):
             self.assertEqual(address.address_line1, '123 Test St')
 
     def test_edit_address_route(self):
-        user = self.create_user()
+        user = create_user(self)
         address = Address(user_id=user.id, address_line1='123 Old St', city='Old City', state='Old State',
                           zip_code='54321', country='Old Country')
         self.session.add(address)
@@ -128,7 +81,7 @@ class TestProfileRoutes(unittest.TestCase):
             self.assertEqual(address.city, 'New City')
 
     def test_delete_address_route(self):
-        user = self.create_user()
+        user = create_user(self)
         address = Address(user_id=user.id, address_line1='123 Delete St', city='Delete City', state='Delete State',
                           zip_code='12345', country='Delete Country')
         self.session.add(address)

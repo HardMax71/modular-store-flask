@@ -1,9 +1,10 @@
-import unittest
 import random
+import unittest
 from unittest.mock import patch, MagicMock
+
 from flask_login import LoginManager
 from flask_login import login_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 from app import create_app
 from config import AppConfig
@@ -14,6 +15,7 @@ from modules.profile.utils import (
     handle_update_profile, handle_change_language, handle_update_notification_settings,
     handle_social_login
 )
+
 
 class TestProfileUtils(unittest.TestCase):
     @classmethod
@@ -46,6 +48,7 @@ class TestProfileUtils(unittest.TestCase):
     def tearDown(self):
         self.session.rollback()
         self.session.close()
+
     def create_user(self, username: str = None, email: str = None, password: str = None):
         if username is None:
             username = f'user_{random.randint(0, 123456)}'
@@ -80,7 +83,7 @@ class TestProfileUtils(unittest.TestCase):
 
     def test_handle_change_email_already_in_use(self):
         user1 = self.create_user(email='user1@example.com')
-        user2 = self.create_user(email='user2@example.com')
+        _ = self.create_user(email='user2@example.com')
         with self.app.test_request_context(data={'email': 'user2@example.com'}):
             with self.app.test_client():
                 login_user(user1)
@@ -168,7 +171,8 @@ class TestProfileUtils(unittest.TestCase):
                 login_user(user)
                 with patch('modules.profile.utils.flash') as mock_flash:
                     handle_change_phone()
-                    mock_flash.assert_called_with('The new phone number matches the current one or is empty.', 'warning')
+                    mock_flash.assert_called_with('The new phone number matches the current one or is empty.',
+                                                  'warning')
 
     def test_handle_update_profile(self):
         user = self.create_user()
@@ -263,6 +267,7 @@ class TestProfileUtils(unittest.TestCase):
 
             mock_login_user.assert_called_with(new_user)
             mock_redirect.assert_called()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,37 +1,22 @@
 import unittest
 from unittest.mock import patch
 
-from app import create_app
-from config import AppConfig
 from modules.db.database import db
 from modules.db.models import User
+from tests.base_integration_test import BaseIntegrationTest
 
 
-class TestAppRoutes(unittest.TestCase):
+class TestAppRoutes(BaseIntegrationTest):
     @classmethod
     def setUpClass(cls):
         # Patch the scheduler.start() method
         cls.scheduler_patch = patch('modules.extensions.scheduler.start')
         cls.scheduler_mock = cls.scheduler_patch.start()
 
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-
-        cls.app = create_app(AppConfig)
-        cls.client = cls.app.test_client()
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.scheduler_patch.stop()
-        db.session.remove()
-        cls.app_context.pop()
+        super().setUpClass(init_login_manager=False, csrf_enabled=True)
 
     def setUp(self):
-        db.session.begin(nested=True)
-
-    def tearDown(self):
-        db.session.rollback()
+        super().setUp(with_test_client=False)
 
     def get_csrf_token(self, route):
         response = self.client.get(route)
@@ -39,7 +24,8 @@ class TestAppRoutes(unittest.TestCase):
         csrf_token = b'name="csrf_token" type="hidden" value="' in response.data
         if not csrf_token:
             raise ValueError("CSRF token not found in form")
-        token_start = response.data.index(b'name="csrf_token" type="hidden" value="') + len(b'name="csrf_token" type="hidden" value="')
+        token_start = response.data.index(b'name="csrf_token" type="hidden" value="') + len(
+            b'name="csrf_token" type="hidden" value="')
         token_end = response.data.index(b'"', token_start)
         return response.data[token_start:token_end]
 
