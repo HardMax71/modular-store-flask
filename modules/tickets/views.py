@@ -45,7 +45,7 @@ def update_ticket(ticket_id):
         flash(_('You do not have permission to perform this action.'), 'danger')
         return redirect(url_for('tickets.ticket_details', ticket_id=ticket_id))
 
-    ticket = db.session.query(Ticket).get(ticket_id)
+    ticket = db.session.get(Ticket, ticket_id)
     if not ticket:
         flash(_('Ticket not found.'), 'danger')
         return redirect(url_for('tickets.list_tickets'))
@@ -63,7 +63,7 @@ def update_ticket(ticket_id):
 @tickets_bp.route('/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required
 def ticket_details(ticket_id):
-    ticket = db.session.query(Ticket).get(ticket_id)
+    ticket = db.session.get(Ticket, ticket_id)
     if not ticket or (ticket.user_id != current_user.id and not current_user.is_admin):
         flash(_('Ticket not found or you do not have permission to view it.'), 'danger')
         return redirect(url_for('tickets.list_tickets'))

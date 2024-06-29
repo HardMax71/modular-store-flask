@@ -5,7 +5,7 @@ from flask_login import LoginManager
 
 from app import create_app
 from config import AppConfig
-from modules.db.database import db
+from modules.db.database import db, Base
 
 
 class BaseIntegrationTest(unittest.TestCase):
@@ -41,5 +41,6 @@ class BaseIntegrationTest(unittest.TestCase):
         self.session.begin()
 
     def tearDown(self):
-        self.session.rollback()
-        self.session.close()
+        self.session.remove()
+        Base.metadata.drop_all(bind=db.engine)
+        Base.metadata.create_all(bind=db.engine)
