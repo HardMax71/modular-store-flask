@@ -39,7 +39,7 @@ def notifications():
 @profile_bp.route('/notifications/<int:notification_id>/mark-as-read', methods=['POST'])
 @login_required
 def mark_notification_as_read(notification_id):
-    notification = db.session.query(Notification).get(notification_id)
+    notification = db.session.get(Notification, notification_id)
     if not notification:
         flash(_('Notification not found.'), 'danger')
         return redirect(url_for('profile.notifications'))
@@ -83,7 +83,7 @@ def add_address():
 @profile_bp.route('/addresses/edit/<int:address_id>', methods=['GET', 'POST'])
 @login_required
 def edit_address(address_id):
-    address = db.session.query(Address).get(address_id)
+    address = db.session.get(Address, address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
         return redirect(url_for('profile.profile_info'))
@@ -106,7 +106,7 @@ def edit_address(address_id):
 @profile_bp.route('/addresses/delete/<int:address_id>', methods=['POST'])
 @login_required
 def delete_address(address_id):
-    address = db.session.query(Address).get(address_id)
+    address = db.session.get(Address, address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
         return redirect(url_for('profile.profile_info'))

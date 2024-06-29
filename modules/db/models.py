@@ -40,7 +40,7 @@ class User(Base, UserMixin):
     wishlist_items = relationship('Wishlist', backref='user',
                                   lazy='dynamic')  # Consider using dynamic for collections that could be large
     notifications = relationship('Notification', backref='user', lazy='select')
-    social_accounts = relationship('SocialAccount', backref=backref('user_account', lazy='select'), lazy='select')
+    social_accounts = relationship('SocialAccount', back_populates='user', lazy='select')
 
     recently_viewed_products = relationship('RecentlyViewedProduct', backref='user', lazy='select')
     preferences = relationship('UserPreference', backref='user', lazy='select')
@@ -298,6 +298,8 @@ class SocialAccount(Base):
     provider = Column(String(50), nullable=False)
     social_id = Column(String(255), nullable=False)
     access_token = Column(String(255), nullable=False)
+
+    user = relationship('User', back_populates='social_accounts')
 
     def __str__(self):
         return self.social_id

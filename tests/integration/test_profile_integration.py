@@ -86,7 +86,7 @@ class TestProfileRoutes(unittest.TestCase):
             login_user(user)
             response = self.client.post(url_for('profile.mark_notification_as_read', notification_id=notification.id))
             self.assertEqual(response.status_code, 302)
-            updated_notification = self.session.query(Notification).get(notification.id)
+            updated_notification = self.session.get(Notification, notification.id)
             self.assertTrue(updated_notification.read)
 
     def test_add_address_route(self):

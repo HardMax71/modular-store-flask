@@ -33,7 +33,7 @@ def handle_profile_update():
 def handle_change_email():
     new_email = request.form['email'].strip()
     if new_email and new_email != current_user.email:
-        existing_user = db.session.query(User).filter_by(email=new_email).first()
+        existing_user = User.query.filter(User.email == new_email, User.id != current_user.id).first()
         if not existing_user:
             current_user.email = new_email
             db.session.commit()
@@ -133,10 +133,11 @@ def handle_social_login(provider):
         db.session.add(user)
         db.session.commit()
 
-        social_account = SocialAccount(user_id=user.id, provider=provider.name, social_id=social_id)
+        social_account = SocialAccount(user_id=user.id, provider=provider.name,
+                                       social_id=social_id, access_token=provider.token['access_token'])
         db.session.add(social_account)
         db.session.commit()
 
         login_user(user)
 
-    return redirect(url_for('profile.profile_info'))
+    return redirect(url_for('profile.profile_info', _external=True))

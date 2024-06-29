@@ -52,7 +52,8 @@ class TestDecorators(unittest.TestCase):
         login_manager = LoginManager()
         login_manager.init_app(cls.app)
 
-        babel = Babel(cls.app)
+        babel = Babel(cls.app)  # required by many tests below
+        print(babel)
 
         @login_manager.user_loader
         def load_user(user_id):
