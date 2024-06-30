@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
 
-from modules.db.database import db
 from modules.db.models import User
 from tests.base_test import BaseTest
 
@@ -57,9 +56,9 @@ class TestAppRoutes(BaseTest):
         self.assertEqual(user.email, 'testuser@example.com')
 
         # Deleting the user from the database
-        db.session.delete(user)
-        db.session.commit()
-        db.session.flush()
+        self.session.delete(user)
+        self.session.commit()
+        self.session.flush()
 
 
 if __name__ == '__main__':

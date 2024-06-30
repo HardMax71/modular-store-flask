@@ -38,12 +38,12 @@
 
   <div class="row mt-4">
     <div class="col-md-6">
-      <form action="{{ url_for('leave_review', review_id=review.id) }}" method="post">
+      <form action="{{ url_for('reviews.leave_review', review_id=review.id) }}" method="post">
         <button type="submit" class="btn btn-success btn-lg btn-block">{{ _('Leave Review') }}</button>
       </form>
     </div>
     <div class="col-md-6">
-      <form action="{{ url_for('delete_review', review_id=review.id) }}" method="post">
+      <form action="{{ url_for('reviews.delete_review', review_id=review.id) }}" method="post">
         <button type="submit" class="btn btn-danger btn-lg btn-block">{{ _('Delete Review') }}</button>
       </form>
     </div>

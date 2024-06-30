@@ -74,7 +74,7 @@ def reported_reviews():
 @admin_required()
 def reported_review_detail(review_id):
     reported_review = ReportedReview.query.filter_by(review_id=review_id).first()
-    review = Review.query.get(review_id)
+    review = db.session.get(Review, review_id)
 
     if reported_review and review:
         return render_template('admin/reported_review_detail.html', reported_review=reported_review, review=review)
@@ -99,7 +99,7 @@ def leave_review(review_id):
 @login_required_with_message()
 @admin_required()
 def delete_review(review_id):
-    review = Review.query.get(review_id)
+    review = db.session.get(Review, review_id)
     reported_reviews = ReportedReview.query.filter_by(review_id=review_id).all()
     if review and reported_reviews:
         for reported_review in reported_reviews:

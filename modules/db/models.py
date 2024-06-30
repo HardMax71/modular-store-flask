@@ -344,7 +344,7 @@ class Purchase(Base):
         """
 
         for item in purchase.items:
-            goods = db.session.query(Goods).get(item.goods_id)
+            goods = db.session.get(Goods, item.goods_id)
             if goods:
                 goods.stock -= item.quantity
         db.session.commit()
@@ -372,7 +372,7 @@ class PurchaseItem(Base):
         """
         Get the goods item associated with the purchase item.
         """
-        return Goods.query.get(self.goods_id)
+        return db.session.get(Goods, self.goods_id)
 
 
 class ReportedReview(Base):

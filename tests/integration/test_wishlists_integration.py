@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from flask_login import login_user
 
-from modules.db.database import db
 from modules.db.models import Wishlist, Goods
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -24,10 +23,6 @@ class TestWishlistsIntegration(BaseTest):
         super().setUpClass()
 
     def setUp(self):
-        self.client = self.app.test_client()
-        self.session = db.session
-        self.session.begin()
-
         # Reset mock email sender
         self.mock_email_sender.sent_notifications = False
 

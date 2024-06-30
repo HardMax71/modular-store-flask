@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from flask_login import login_user
 
-from modules.db.database import db, Base
 from modules.db.models import Goods, Category, Tag, ProductPromotion
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -15,22 +14,16 @@ class TestFilterViews(BaseTest):
         self.user = create_user(self)
         self.category = Category(name='Test Category')
         self.tag = Tag(name='Test Tag')
-        db.session.add_all([self.category, self.tag])
-        db.session.commit()
-
-    def tearDown(self):
-        super().tearDown()
-        db.session.remove()
-        Base.metadata.drop_all(bind=db.engine)
-        Base.metadata.create_all(bind=db.engine)
+        self.session.add_all([self.category, self.tag])
+        self.session.commit()
 
     def create_product(self, name, price, category, tags=None, stock=10):
         product = Goods(samplename=name, price=price,
                         category_id=category.id, stock=stock, description='Test Description')
         if tags:
             product.tags.extend(tags)
-        db.session.add(product)
-        db.session.commit()
+        self.session.add(product)
+        self.session.commit()
         return product
 
     def test_filter_products(self):
@@ -51,8 +44,8 @@ class TestFilterViews(BaseTest):
     def test_filter_by_category(self):
         self.create_product('Product 1', 10.0, self.category)
         category2 = Category(name='Another Category')
-        db.session.add(category2)
-        db.session.commit()
+        self.session.add(category2)
+        self.session.commit()
         self.create_product('Product 2', 20.0, category2)
 
         with self.app.test_request_context():
@@ -89,8 +82,8 @@ class TestFilterViews(BaseTest):
     def test_filter_by_tag(self):
         tag1 = Tag(name='Tag1')
         tag2 = Tag(name='Tag2')
-        db.session.add_all([tag1, tag2])
-        db.session.commit()
+        self.session.add_all([tag1, tag2])
+        self.session.commit()
 
         self.create_product('Product with Tag1', 10.0, self.category, [tag1])
         self.create_product('Product with Tag2', 20.0, self.category, [tag2])
@@ -121,8 +114,8 @@ class TestFilterViews(BaseTest):
                                      start_date=datetime.now() - timedelta(days=1),
                                      end_date=datetime.now() + timedelta(days=1),
                                      description='Test Promotion')
-        db.session.add(promotion)
-        db.session.commit()
+        self.session.add(promotion)
+        self.session.commit()
 
         with self.app.test_request_context():
             with self.app.test_client():

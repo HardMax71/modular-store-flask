@@ -2,7 +2,6 @@ import unittest
 
 from flask_login import login_user
 
-from modules.db.database import db
 from modules.db.models import Ticket
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -27,8 +26,8 @@ class TestTicketsViews(BaseTest):
             with self.app.test_client():
                 login_user(user)
                 ticket = Ticket(user_id=user.id, title='Test Ticket', description='Test Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.get('/tickets/')
                 self.assertEqual(response.status_code, 200)
@@ -39,8 +38,8 @@ class TestTicketsViews(BaseTest):
             with self.app.test_client():
                 login_user(admin_user)
                 ticket = Ticket(user_id=admin_user.id, title='Old Title', description='Old Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.post(f'/tickets/{ticket.id}/update', data={
                     'status': 'closed',
@@ -56,8 +55,8 @@ class TestTicketsViews(BaseTest):
             with self.app.test_client():
                 login_user(user)
                 ticket = Ticket(user_id=user.id, title='Test Ticket', description='Test Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.get(f'/tickets/{ticket.id}')
                 self.assertEqual(response.status_code, 200)
@@ -68,8 +67,8 @@ class TestTicketsViews(BaseTest):
             with self.app.test_client():
                 login_user(user)
                 ticket = Ticket(user_id=user.id, title='Test Ticket', description='Test Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.post(f'/tickets/{ticket.id}', data={
                     'message': 'Test Message'
@@ -83,8 +82,8 @@ class TestTicketsViews(BaseTest):
             with self.app.test_client():
                 login_user(other_user)
                 ticket = Ticket(user_id=user.id, title='Test Ticket', description='Test Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.get(f'/tickets/{ticket.id}')
                 self.assertEqual(response.status_code, 302)  # Redirected due to lack of permission
@@ -97,8 +96,8 @@ class TestTicketsViews(BaseTest):
                 login_user(admin_user)
 
                 ticket = Ticket(user_id=user.id, title='Test Ticket', description='Test Description')
-                db.session.add(ticket)
-                db.session.commit()
+                self.session.add(ticket)
+                self.session.commit()
 
                 response = self.client.get(f'/tickets/{ticket.id}')
                 self.assertEqual(response.status_code, 200)

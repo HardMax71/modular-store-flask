@@ -60,24 +60,17 @@
                                             data-product-id="{{ product.id }}">
                                         <i class="fas fa-heart"></i>
                                     </button>
-                                    {% if product.id in comparison_list %}
-                                        <button type="button"
-                                                class="btn btn-danger btn-sm rounded-0 remove-from-comparison"
-                                                data-product-id="{{ product.id }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-info btn-sm rounded-0 add-to-comparison"
-                                                data-product-id="{{ product.id }}">
-                                            <i class="fas fa-balance-scale"></i>
-                                        </button>
-                                    {% endif %}
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm rounded-0 remove-from-comparison"
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                                 <script>
                                     document.querySelectorAll('.add-to-cart').forEach(button => {
                                         button.addEventListener('click', function () {
                                             const productId = this.getAttribute('data-product-id');
-                                            fetch('{{ url_for("main.add_to_cart_route") }}', {
+                                            fetch('{{ url_for("carts.add_to_cart_route") }}', {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -97,7 +90,7 @@
                                     document.querySelectorAll('.toggle-wishlist').forEach(button => {
                                         button.addEventListener('click', function () {
                                             const productId = this.getAttribute('data-product-id');
-                                            fetch('{{ url_for("main.api_toggle_wishlist") }}', {
+                                            fetch('{{ url_for("main.toggle_wishlist") }}', {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/json',
@@ -114,37 +107,23 @@
                                         });
                                     });
 
-                                    document.querySelectorAll('.add-to-comparison, .remove-from-comparison').forEach(button => {
+                                    document.querySelectorAll('.remove-from-comparison').forEach(button => {
                                         button.addEventListener('click', function () {
                                             const productId = this.getAttribute('data-product-id');
-                                            const isRemoving = this.classList.contains('remove-from-comparison');
-                                            const url = isRemoving ? '{{ url_for("compare.remove_from_comparison") }}' : '{{ url_for("main.add_to_comparison_route") }}';
-
+                                            const url = '{{ url_for("compare.remove_from_comparison") }}';
                                             fetch(url, {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/x-www-form-urlencoded',
                                                 },
                                                 body: `goods_id=${productId}`
-                                            })
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    // Show a toast or notification with data.message
-                                                    console.log(data.message);
-                                                    // Update the button appearance
-                                                    if (isRemoving) {
-                                                        this.classList.replace('btn-danger', 'btn-info');
-                                                        this.classList.replace('remove-from-comparison', 'add-to-comparison');
-                                                        this.innerHTML = '<i class="fas fa-balance-scale"></i>';
-                                                    } else {
-                                                        this.classList.replace('btn-info', 'btn-danger');
-                                                        this.classList.replace('add-to-comparison', 'remove-from-comparison');
-                                                        this.innerHTML = '<i class="fas fa-times"></i>';
-                                                    }
+                                            }).then(data => {
+                                                     window.location.reload();
                                                 })
                                                 .catch(error => console.error('Error:', error));
                                         });
                                     });
+
                                 </script>
                             </td>
                         </tr>

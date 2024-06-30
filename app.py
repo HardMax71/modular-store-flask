@@ -13,7 +13,6 @@ from modules.db.models import Cart, Notification
 from modules.error_handlers import create_error_handlers
 from modules.extensions import init_extensions
 from modules.logger import DatabaseLogger
-from modules.main import main_bp
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,6 @@ def create_app(config_class=AppConfig):
         create_error_handlers(current_app)
 
         init_modules(current_app)
-        current_app.register_blueprint(main_bp)
         register_request_handlers(current_app)
 
     return current_app
@@ -56,7 +54,7 @@ def register_request_handlers(current_app):
         db.session.modified = True
         g.total_items, g.total_amount, g.discount_percentage = Cart.cart_info()
 
-        if current_user.is_authenticated:
+        if current_user and current_user.is_authenticated:
             g.mini_cart_items = Cart.query.filter_by(user_id=current_user.id).all()
             g.unread_notifications_count = Notification.query.filter_by(user_id=current_user.id,
                                                                         read=False).count()

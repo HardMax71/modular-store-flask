@@ -3,7 +3,6 @@ import unittest
 from flask import url_for
 from flask_login import login_user, logout_user
 
-from modules.db.database import db
 from modules.db.models import Purchase, PurchaseItem, ShippingMethod, Address, Goods, ShippingAddress
 from modules.purchase_history.utils import save_purchase_history
 from tests.base_test import BaseTest
@@ -21,21 +20,21 @@ class TestPurchaseHistoryIntegration(BaseTest):
         self.user = create_user(self)
         self.goods = Goods(samplename='Test Product', price=10.0)
         self.shipping_method = ShippingMethod(name='Standard', price=5.0)
-        db.session.add_all([self.user, self.goods, self.shipping_method])
-        db.session.commit()
+        self.session.add_all([self.user, self.goods, self.shipping_method])
+        self.session.commit()
 
         self.address = Address(
             user_id=self.user.id, address_line1='123 Test St', city='Test City',
             state='TS', zip_code='12345', country='Testland'
         )
-        db.session.add(self.address)
-        db.session.commit()
+        self.session.add(self.address)
+        self.session.commit()
 
         self.purchase = Purchase(user_id=self.user.id, total_price=15.0, discount_amount=0.0, delivery_fee=5.0,
                                  status='Pending', tracking_number='123', shipping_method='Standard',
                                  payment_method='Credit Card', payment_id=123)
-        db.session.add(self.purchase)
-        db.session.commit()
+        self.session.add(self.purchase)
+        self.session.commit()
 
         shipping_address = ShippingAddress(
             purchase_id=self.purchase.id, address_line1=self.address.address_line1,
@@ -43,15 +42,15 @@ class TestPurchaseHistoryIntegration(BaseTest):
             state=self.address.state, zip_code=self.address.zip_code,
             country=self.address.country
         )
-        db.session.add(shipping_address)
-        db.session.commit()
+        self.session.add(shipping_address)
+        self.session.commit()
 
     def test_purchase_history_flow(self):
         # Create a purchase
         purchase_item = PurchaseItem(goods_id=self.goods.id, purchase_id=self.purchase.id,
                                      quantity=1, price=self.goods.price)
-        db.session.add(purchase_item)
-        db.session.commit()
+        self.session.add(purchase_item)
+        self.session.commit()
 
         cart_items = [purchase_item]
         original_prices = {self.goods.id: self.goods.price}
@@ -59,7 +58,7 @@ class TestPurchaseHistoryIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
             save_purchase_history(
-                db.session, cart_items, original_prices,
+                self.session, cart_items, original_prices,
                 self.address.id, self.shipping_method.id, 'Credit Card', 123
             )
 
@@ -82,7 +81,7 @@ class TestPurchaseHistoryIntegration(BaseTest):
         self.assertIn(b'Order cancelled successfully', response.data)
 
         # Verify the order status has been updated
-        updated_purchase = db.session.get(Purchase, purchase.id)
+        updated_purchase = self.session.get(Purchase, purchase.id)
         self.assertEqual(updated_purchase.status, 'Cancelled')
 
     def test_unauthorized_access(self):
@@ -92,8 +91,8 @@ class TestPurchaseHistoryIntegration(BaseTest):
 
         purchase_item = PurchaseItem(goods_id=self.goods.id, purchase_id=self.purchase.id,
                                      quantity=1, price=self.goods.price)
-        db.session.add(purchase_item)
-        db.session.commit()
+        self.session.add(purchase_item)
+        self.session.commit()
 
         cart_items = [purchase_item]
         original_prices = {self.goods.id: self.goods.price}
@@ -102,7 +101,7 @@ class TestPurchaseHistoryIntegration(BaseTest):
             # saving purchase history under true owner
             login_user(true_other)
             save_purchase_history(
-                db.session, cart_items, original_prices,
+                self.session, cart_items, original_prices,
                 self.address.id, self.shipping_method.id, 'Credit Card', 456
             )
             logout_user()
