@@ -29,8 +29,11 @@
                                     <div>
                                         <h5 class="mb-1">{{ product.samplename }}</h5>
                                         <p class="mb-0">
-                                            {{ product.description[:50] }}{% if product.description|length > 50 %}
-                                                ...{% endif %}</p>
+                                            {% if product.description %}
+                                                {{ product.description[:50] }}{% if product.description|length > 50 %}
+                                                    {% endif %}
+                                            {% endif %}...
+                                        </p>
                                     </div>
                                 </div>
                             </td>
@@ -118,8 +121,8 @@
                                                 },
                                                 body: `goods_id=${productId}`
                                             }).then(data => {
-                                                     window.location.reload();
-                                                })
+                                                window.location.reload();
+                                            })
                                                 .catch(error => console.error('Error:', error));
                                         });
                                     });
