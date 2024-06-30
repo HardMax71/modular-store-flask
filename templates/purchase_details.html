@@ -81,7 +81,7 @@
                         {% if purchase.status == 'Pending' %}
                             <hr>
                             <div class="text-center">
-                                <form action="{{ url_for('cancel_order', purchase_id=purchase.id) }}" method="POST">
+                                <form action="{{ url_for('purchase_history.cancel_order', purchase_id=purchase.id) }}" method="POST">
                                     <button type="submit" class="btn btn-danger"
                                             onclick="return confirm('{{ _('Are you sure you want to cancel this order?') }}')">{{ _('Cancel Order') }}</button>
                                 </form>

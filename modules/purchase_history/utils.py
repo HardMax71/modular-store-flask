@@ -39,7 +39,7 @@ def save_purchase_history(
         total_price=total_price,
         discount_amount=discount_amount,
         delivery_fee=delivery_fee,
-        status="Completed",
+        status="Pending",  # changed from completed to pending, only admin may change status to completed
         tracking_number=tracking_number,
         shipping_method=shipping_method.name if shipping_method else None,
         payment_method=payment_method,
@@ -76,15 +76,15 @@ def get_purchase_history(db: Session) -> List[Purchase]:
 
 
 def get_purchase_by_id(db: Session, purchase_id: int) -> Optional[Purchase]:
-    return db.query(Purchase).get(purchase_id)
+    return db.get(Purchase, purchase_id)
 
 
 def get_shipping_method_by_id(db: Session, shipping_method_id: int) -> Optional[ShippingMethod]:
-    return db.query(ShippingMethod).get(shipping_method_id)
+    return db.get(ShippingMethod, shipping_method_id)
 
 
 def get_address_by_id(db: Session, address_id: int) -> Optional[Address]:
-    return db.query(Address).get(address_id)
+    return db.get(Address, address_id)
 
 
 def calculate_subtotal(cart_items: List[PurchaseItem], original_prices: Dict[int, float]) -> float:

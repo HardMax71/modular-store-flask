@@ -7,7 +7,7 @@ from modules.db.models import Review, Purchase, PurchaseItem, ReportedReview
 
 
 def get_review(review_id):
-    return Review.query.get(review_id)
+    return db.session.get(Review, review_id)
 
 
 def report_review_in_db(review_id, user_id, explanation):
