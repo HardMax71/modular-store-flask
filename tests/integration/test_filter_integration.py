@@ -5,11 +5,11 @@ from flask_login import login_user
 
 from modules.db.database import db, Base
 from modules.db.models import Goods, Category, Tag, ProductPromotion
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 from tests.util import create_user
 
 
-class TestFilterViews(BaseIntegrationTest):
+class TestFilterViews(BaseTest):
     def setUp(self):
         super().setUp()
         self.user = create_user(self)

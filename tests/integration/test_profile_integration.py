@@ -4,11 +4,11 @@ from flask import url_for
 from flask_login import login_user
 
 from modules.db.models import Address, Notification
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 from tests.util import create_user
 
 
-class TestProfileRoutes(BaseIntegrationTest):
+class TestProfileRoutes(BaseTest):
     def test_profile_info_route(self):
         user = create_user(self)
         with self.app.test_request_context():

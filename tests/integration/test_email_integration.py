@@ -1,57 +1,26 @@
 import unittest
-import random
 
 from flask_login import login_user
-
-from app import create_app
-from config import AppConfig
-from modules.db.database import db
-from modules.db.models import User, Goods, Wishlist
-from modules.email import send_email, send_wishlist_notifications, send_order_confirmation_email
 from flask_mail import Mail
 
+from modules.db.models import Goods, Wishlist
+from modules.email import send_email, send_wishlist_notifications, send_order_confirmation_email
+from tests.base_test import BaseTest
+from tests.util import create_user
 
-class TestEmailFunctions(unittest.TestCase):
+
+class TestEmailFunctionsIntegration(BaseTest):
 
     @classmethod
     def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
-        cls.app.config['WTF_CSRF_ENABLED'] = False
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
-        db.init_db()
+        super().setUpClass(init_login_manager=True,
+                           define_load_user=True)
 
         cls.mail = Mail(cls.app)
 
-        @cls.app.login_manager.user_loader
-        def load_user(user_id):
-            return db.session.get(User, user_id)
-
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        db.engine.dispose()
-        cls.app_context.pop()
-
-    def setUp(self):
-        self.client = self.app.test_client()
-        self.session = db.session
-        self.session.begin()
-
-    def tearDown(self):
-        self.session.rollback()
-        self.session.close()
-
     def test_send_email(self):
         with self.app.test_request_context():
-            user = User(username=f'user_{random.randint(0, 123456)}',
-                        email=f'{random.randint(0, 123456)}@example.com',
-                        password=f'password_{random.randint(0, 123456)}')
-            self.session.add(user)
-            self.session.commit()
-
+            user = create_user(self)
             login_user(user)
 
             with self.app.app_context():
@@ -65,11 +34,7 @@ class TestEmailFunctions(unittest.TestCase):
 
     def test_send_wishlist_notifications(self):
         with self.app.test_request_context():
-            user = User(username=f'user_{random.randint(0, 123456)}',
-                        email=f'{random.randint(0, 123456)}@example.com',
-                        password=f'password_{random.randint(0, 123456)}')
-            self.session.add(user)
-            self.session.commit()
+            user = create_user(self)
 
             goods_on_sale = Goods(samplename='On Sale Item', price=100, onSale=1, onSalePrice=50, stock=10)
             goods_back_in_stock = Goods(samplename='Back in Stock Item', price=100, onSale=0, stock=10)
@@ -95,9 +60,7 @@ class TestEmailFunctions(unittest.TestCase):
 
     def test_send_order_confirmation_email(self):
         with self.app.test_request_context():
-            user = User(username=f'user_{random.randint(0, 123456)}',
-                        email=f'{random.randint(0, 123456)}@example.com',
-                        password=f'password_{random.randint(0, 123456)}')
+            user = create_user(self)
             self.session.add(user)
             self.session.commit()
 

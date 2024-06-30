@@ -1,26 +1,28 @@
 import unittest
+from unittest.mock import patch
 
-from app import create_app
-from config import AppConfig
-from tests.base_integration_test import BaseIntegrationTest
+from werkzeug.exceptions import NotFound, InternalServerError
+
+from modules.error_handlers.handlers import handle_error, error_handlers_bp
+from tests.base_test import BaseTest
 
 
-class TestErrorHandlersIntegration(BaseIntegrationTest):
+class TestErrorHandlersIntegration(BaseTest):
     @classmethod
     def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
-        cls.app.config['WTF_CSRF_ENABLED'] = False
+        super().setUpClass(init_login_manager=False, define_load_user=True)
 
         # Add a route that deliberately raises an exception
         @cls.app.route('/trigger-error')
         def trigger_error():
             raise Exception("Deliberate 500 error")
 
-        cls.client = cls.app.test_client()
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
+    def test_init_error_handlers(self):
+        self.assertIn(400, self.app.error_handler_spec[None])
+        self.assertIn(404, self.app.error_handler_spec[None])
+        self.assertIn(500, self.app.error_handler_spec[None])
+        self.assertIn(error_handlers_bp.name, self.app.blueprints)
+        self.assertIsNotNone(error_handlers_bp.logger)
 
     def test_404_error(self):
         response = self.client.get('/nonexistent-page')
@@ -48,6 +50,24 @@ class TestErrorHandlersIntegration(BaseIntegrationTest):
     def test_error_includes_request_url(self):
         response = self.client.get('/nonexistent-page')
         self.assertIn(b'/nonexistent-page', response.data)
+
+    @patch('modules.error_handlers.handlers.render_template')
+    def test_handle_error_with_traceback(self, mock_render):
+        mock_render.return_value = 'Error page'
+        with self.app.test_request_context('/'):
+            exception = Exception("Test exception")
+            error = InternalServerError(original_exception=exception)
+            response, status_code = handle_error(error)
+            self.assertEqual(status_code, 500)
+            self.assertIn('traceback', mock_render.call_args[1])
+
+    @patch('modules.error_handlers.handlers.error_handlers_bp.logger.log')
+    def test_error_logging(self, mock_log):
+        with self.app.test_request_context('/'):
+            handle_error(NotFound())
+            mock_log.assert_called_once()
+            log_message = mock_log.call_args[1]['msg']
+            self.assertIn('Error type: 404', log_message)
 
 
 if __name__ == '__main__':

@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 from modules.db.database import db
 from modules.db.models import User
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 
 
-class TestAppRoutes(BaseIntegrationTest):
+class TestAppRoutes(BaseTest):
     @classmethod
     def setUpClass(cls):
         # Patch the scheduler.start() method

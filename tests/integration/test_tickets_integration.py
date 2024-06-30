@@ -4,11 +4,11 @@ from flask_login import login_user
 
 from modules.db.database import db
 from modules.db.models import Ticket
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 from tests.util import create_user
 
 
-class TestTicketsViews(BaseIntegrationTest):
+class TestTicketsViews(BaseTest):
     def test_create_ticket(self):
         user = create_user(self)
         with self.app.test_request_context():

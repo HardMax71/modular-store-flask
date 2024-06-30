@@ -5,7 +5,7 @@ from flask_login import login_user
 
 from modules.db.database import db
 from modules.db.models import Wishlist, Goods
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 from tests.util import create_user
 
 
@@ -17,7 +17,7 @@ class MockEmailSender:
         self.sent_notifications = True
 
 
-class TestWishlistsIntegration(BaseIntegrationTest):
+class TestWishlistsIntegration(BaseTest):
     @classmethod
     def setUpClass(cls):
         cls.mock_email_sender = MockEmailSender()

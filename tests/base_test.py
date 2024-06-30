@@ -6,13 +6,15 @@ from flask_login import LoginManager
 from app import create_app
 from config import AppConfig
 from modules.db.database import db, Base
+from modules.db.models import User
 
 
-class BaseIntegrationTest(unittest.TestCase):
+class BaseTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, init_login_manager: bool = True,
                    csrf_enabled: bool = False,
-                   server_name: str = 'localhost'):
+                   server_name: str = 'localhost',
+                   define_load_user: bool = False):
         AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
         cls.app = create_app(AppConfig)
         cls.app.config['TESTING'] = True
@@ -27,6 +29,11 @@ class BaseIntegrationTest(unittest.TestCase):
 
         if init_login_manager:
             LoginManager().init_app(cls.app)
+
+        if define_load_user:
+            @cls.app.login_manager.user_loader
+            def load_user(user_id):
+                return db.session.get(User, user_id)
 
     @classmethod
     def tearDownClass(cls):

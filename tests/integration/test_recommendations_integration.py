@@ -3,11 +3,11 @@ import unittest
 from modules.db.database import db, Base
 from modules.db.models import RecentlyViewedProduct, Goods, UserPreference, Category, Review
 from modules.recommendations import update_recently_viewed_products, get_related_products, get_recommended_products
-from tests.base_integration_test import BaseIntegrationTest
+from tests.base_test import BaseTest
 from tests.util import create_user
 
 
-class TestRecommendationsIntegration(BaseIntegrationTest):
+class TestRecommendationsIntegration(BaseTest):
 
     def setUp(self):
         super().setUp()
