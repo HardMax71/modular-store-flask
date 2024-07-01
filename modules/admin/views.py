@@ -71,7 +71,7 @@ class TicketView(AdminView):
 
     column_formatters = {
         _('actions'): lambda v, c, m, p: Markup(
-            f'<a href="{url_for("ticket_details", ticket_id=m.id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
+            f'<a href="{url_for("tickets.ticket_details", ticket_id=m.id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
     column_list = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
@@ -373,7 +373,7 @@ class ReportedReviewView(AdminView):
     form_excluded_columns = ['user', 'review']
     column_formatters = {
         _('actions'): lambda v, c, m, p: Markup(
-            f'<a href="{url_for("reported_review_detail", review_id=m.review_id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
+            f'<a href="{url_for("reviews.reported_review_detail", review_id=m.review_id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
     column_list = ['review_id', 'review.user.username', 'review.goods.samplename', 'explanation', 'created_at',
                    'actions']
