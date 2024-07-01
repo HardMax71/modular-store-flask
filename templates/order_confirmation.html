@@ -42,34 +42,35 @@
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
-                                    <tr>
-                                        <th>{{ _('Product') }}</th>
-                                        <th>{{ _('Quantity') }}</th>
-                                        <th>{{ _('Price') }}</th>
-                                        <th>{{ _('Subtotal') }}</th>
-                                    </tr>
+                                <tr>
+                                    <th>{{ _('Product') }}</th>
+                                    <th>{{ _('Quantity') }}</th>
+                                    <th>{{ _('Price') }}</th>
+                                    <th>{{ _('Subtotal') }}</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {% for item in purchase.items %}
-                                        <tr>
-                                            <td>{{ item.goods.samplename }}</td>
-                                            <td>{{ item.quantity }}</td>
-                                            <td>${{ item.price }}</td>
-                                            <td>${{ item.price * item.quantity }}</td>
-                                        </tr>
-                                    {% endfor %}
+                                {% for item in purchase.items %}
+                                    <tr>
+                                        <td>{{ item.goods.samplename }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ "%.2f"|format(item.price) }}</td>
+                                        <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                    </tr>
+                                {% endfor %}
                                 </tbody>
                                 <tfoot>
-                                    <tr>
-                                        <td colspan="3" class="text-right"><strong>{{ _('Total Amount') }}:</strong></td>
-                                        <td>${{ total_amount }}</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>{{ _('Total Amount') }}:</strong></td>
+                                    <td>${{ total_amount }}</td>
+                                </tr>
                                 </tfoot>
                             </table>
                         </div>
 
                         <div class="text-center mt-4">
-                            <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg btn-block">{{ _('Continue Shopping') }}</a>
+                            <a href="{{ url_for('main.index') }}"
+                               class="btn btn-primary btn-lg btn-block">{{ _('Continue Shopping') }}</a>
                         </div>
                     </div>
                 </div>

@@ -117,7 +117,7 @@
                                     </tr>
                                     {% if discount_percentage > 0 %}
                                         <tr>
-                                            <td>{{ _('Discount (%(percentage)d%%):' % {'percentage': discount_percentage }) }}</td>
+                                            <td>{{ _('Discount:') }} {{ discount_percentage }}%</td>
                                             <td class="text-right" id="discount">
                                                 -{{ '${:,.2f}'.format(subtotal * discount_percentage / 100) }}</td>
                                         </tr>

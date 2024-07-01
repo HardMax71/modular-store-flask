@@ -146,7 +146,7 @@ class Cart(Base):
         """
         Get the total quantity of items in the user's cart.
         """
-        if not current_user.is_authenticated:
+        if not current_user or not current_user.is_authenticated:
             return 0
 
         result = db.session.query(func.coalesce(func.sum(Cart.quantity), 0)) \
@@ -181,7 +181,7 @@ class Cart(Base):
                 - total_amount (float): The total amount after applying the maximum discount.
                 - max_discount (float): The maximum discount percentage available to the user.
         """
-        if not current_user.is_authenticated:
+        if not current_user or not current_user.is_authenticated:
             return 0, 0.0, 0.0
 
         cart_items = db.session.query(
