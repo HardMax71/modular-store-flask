@@ -9,7 +9,7 @@ from flask_login import current_user
 
 from config import AppConfig
 from modules.db.database import db
-from modules.db.models import Goods, Cart, Discount, UserDiscount, ShippingMethod, Purchase
+from modules.db.models import Goods, Cart, Discount, UserDiscount, ShippingMethod, Purchase, User
 from modules.decorators import login_required_with_message
 from modules.email import send_order_confirmation_email
 from modules.purchase_history import save_purchase_history
@@ -110,55 +110,160 @@ def checkout():
     total = subtotal + shipping_price
 
     if request.method == "POST":
-        shipping_address_id = request.form.get("shipping_address", int)
-        shipping_method_id = request.form.get("shipping_method", int)
-        payment_method = request.form.get("payment_method")
+        shipping_address_id = request.form.get("shipping_address")
+
+        shipping_method_id = request.form.get("shipping_method")
+        shipping_method = ShippingMethod.query.get(shipping_method_id)
+
+        if not shipping_address_id or not shipping_method_id:
+            flash(_("Please select both shipping address and shipping method."), "warning")
+            return redirect(url_for('carts.checkout'))
+
+        ################ ONLY FOR TEST PURPOSES ###########################
+        if AppConfig.STRIPE_SECRET_KEY == 'your_stripe_secret_key':
+            # Bypass Stripe payment process for testing/development
+            order = save_purchase_history(
+                db=db.session,
+                cart_items=cart_items,
+                original_prices={item.id: item.price for item in cart_items},
+                shipping_address_id=shipping_address_id,
+                shipping_method_id=shipping_method_id,
+                payment_method="test_payment",
+                payment_id="test_" + str(random.randint(10000, 99999))
+            )
+
+            clear_cart()
+            current_user.discount = 0
+            db.session.commit()
+
+            send_order_confirmation_email(current_user.email, current_user.fname)
+            flash(_("Test purchase completed. Thank you for shopping with us!"), "success")
+            return redirect(url_for('carts.payment_success', order_id=order.id))
+        ################ ONLY FOR TEST PURPOSES ###########################
+
+        # More details on Stripe: https://docs.stripe.com/testing
         stripe.api_key = AppConfig.STRIPE_SECRET_KEY
 
+        # Retrieve or create Stripe customer
+        current_user_stripe_customer_id = db.session.get(User, current_user.id).stripe_customer_id
         try:
-            # Stripe payment processing code here (currently commented out)
-            # token = stripe.Token.create(
-            #     card={
-            #         "number": request.form.get("card_number"),
-            #         "exp_month": request.form.get("exp_month"),
-            #         "exp_year": request.form.get("exp_year"),
-            #         "cvc": request.form.get("cvc")
-            #     },
-            # )
-            #
-            # charge = stripe.Charge.create(
-            #     amount=int(sum(item.price * item.quantity for item in cart_items) + shipping_method.price) * 100,
-            #     currency="usd",
-            #     source=token.id,
-            #     description="Purchase"
-            # )
+            customer = stripe.Customer.retrieve(current_user_stripe_customer_id)
+        except stripe.error.InvalidRequestError:
+            customer = stripe.Customer.create(
+                email=current_user.email,
+                name=f"{current_user.fname} {current_user.lname}",
+                metadata={"user_id": str(current_user.id)}
+            )
+            current_user.stripe_customer_id = customer.id
+            db.session.commit()
+        else:
+            stripe.Customer.modify(
+                current_user.stripe_customer_id,
+                email=current_user.email,
+                name=f"{current_user.fname} {current_user.lname}",
+                metadata={"user_id": str(current_user.id)}
+            )
 
+        # Create Stripe Checkout Session
+        try:
+            # items selected by user
+            line_items = [{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': item.goods.samplename,
+                    },
+                    'unit_amount': int(item.price * 100),
+                },
+                'quantity': item.quantity,
+            } for item in cart_items]
+
+            # Shipping costs
+            line_items.append({
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': f"Shipping: {shipping_method.name}",
+                    },
+                    'unit_amount': int(shipping_method.price * 100),
+                },
+                'quantity': 1,
+            })
+
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=line_items,
+                mode='payment',
+                customer=customer.id,
+                client_reference_id=str(current_user.id),
+                success_url=url_for('carts.payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=url_for('carts.payment_cancel', _external=True),
+                metadata={
+                    "shipping_address_id": shipping_address_id,
+                    "shipping_method_id": shipping_method_id,
+                }
+            )
+        except Exception as e:
+            flash(_("An error occurred while processing your payment: ") + str(e), "danger")
+            return redirect(url_for('carts.checkout'))
+
+        return redirect(checkout_session.url, code=303)
+
+    return render_template(
+        "cart/checkout.html",
+        cart_items=cart_items,
+        shipping_methods=shipping_methods,
+        addresses=addresses,
+        subtotal=subtotal,
+        shipping_price=shipping_price,
+        total=total
+    )
+
+
+@cart_bp.route("/payment_success")
+@login_required_with_message()
+def payment_success():
+    session_id = request.args.get('session_id')
+    stripe.api_key = AppConfig.STRIPE_SECRET_KEY
+
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        if session.payment_status == 'paid':
+            cart_items = Cart.query.filter_by(user_id=current_user.id).all()
             original_prices = {item.id: item.price for item in cart_items}
-            save_purchase_history(db=db.session,
-                                  cart_items=cart_items,
-                                  original_prices=original_prices,
-                                  shipping_address_id=shipping_address_id,
-                                  shipping_method_id=shipping_method_id,
-                                  payment_method=payment_method,
-                                  payment_id=random.randint(100000, 999999))  # should be charge.id
+
+            order = save_purchase_history(
+                db=db.session,
+                cart_items=cart_items,
+                original_prices=original_prices,
+                shipping_address_id=session.metadata.get('shipping_address_id'),
+                shipping_method_id=session.metadata.get('shipping_method_id'),
+                payment_method="stripe",
+                payment_id=session.payment_intent
+            )
+
             clear_cart()
             current_user.discount = 0
             db.session.commit()
 
             send_order_confirmation_email(current_user.email, current_user.fname)
             flash(_("Purchase completed. Thank you for shopping with us!"), "success")
-            return redirect(url_for('carts.order_confirmation'))
+            return render_template("cart/success.html", order=order)
+        else:
+            flash(_("Payment was not successful. Please try again."), "danger")
+            return redirect(url_for('carts.checkout'))
 
-        except stripe.error.CardError as e:
-            flash(_("Payment failed") + ":" + e.user_message, "danger")
+    except stripe.error.StripeError as e:
+        flash(_("An error occurred while processing your payment: ") + str(e), "danger")
+        return redirect(url_for('carts.checkout'))
 
-    return render_template("cart/checkout.html",
-                           cart_items=cart_items,
-                           shipping_methods=shipping_methods,
-                           addresses=addresses,
-                           subtotal=subtotal,
-                           shipping_price=shipping_price,
-                           total=total)
+
+@cart_bp.route("/payment_cancel")
+@login_required_with_message()
+def payment_cancel():
+    flash(_("Payment was cancelled. Please try again or contact support if you continue to have issues."), "warning")
+    return render_template("cart/cancel.html")
 
 
 @cart_bp.route("/order-confirmation")

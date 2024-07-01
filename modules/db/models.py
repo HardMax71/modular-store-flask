@@ -28,6 +28,8 @@ class User(Base, UserMixin):
     phone = Column(Text)
     _profile_picture = Column(Text, default='user-icon.png')
     language = Column(String(5), default='en')
+    # non-existing default value will raise error from stripe side (expecting value of type `str` / `unicode`)
+    stripe_customer_id = Column(Text, default='nonexistent_stripe_customer_id')
     notifications_enabled = Column(Boolean, default=True)
     email_notifications_enabled = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
@@ -324,7 +326,7 @@ class Purchase(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    date = Column(Date, nullable=False, default=func.current_date())
+    date = Column(DateTime, nullable=False, default=func.now())
     total_price = Column(Float, nullable=False)
     discount_amount = Column(Float, nullable=False, default=0)
     delivery_fee = Column(Float, nullable=False, default=0)

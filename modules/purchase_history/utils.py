@@ -16,7 +16,7 @@ def save_purchase_history(
         shipping_method_id: int,
         payment_method: str,
         payment_id: int
-) -> None:
+) -> Purchase:
     if not cart_items:
         return
 
@@ -65,6 +65,8 @@ def save_purchase_history(
     db.commit()
     Purchase.update_stock(new_purchase)
     send_order_confirmation_email(current_user.email)
+
+    return new_purchase
 
 
 def get_purchase_history(db: Session) -> List[Purchase]:

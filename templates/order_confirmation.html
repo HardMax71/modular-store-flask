@@ -62,7 +62,7 @@
                                 <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-right"><strong>{{ _('Total Amount') }}:</strong></td>
-                                    <td>${{ total_amount }}</td>
+                                    <td>${{ "%.2f"|format(total_amount) }}</td>
                                 </tr>
                                 </tfoot>
                             </table>

@@ -44,7 +44,8 @@ class AppConfig:
     MAIL_USERNAME = 'your_email@example.com'
     MAIL_PASSWORD = 'your_email_password'
 
-    STRIPE_SECRET_KEY: str = 'your_stripe_public_key'
+    STRIPE_SECRET_KEY: str = 'your_stripe_secret_key'
+    STRIPE_PUBLIC_KEY: str = 'your_stripe_public_key'
 
     LOCALE_PATH = os.getenv('LOCALE_PATH', './translations/')
     GETTEXT_DOMAIN = os.getenv('GETTEXT_DOMAIN', 'messages')

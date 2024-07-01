@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Payment Cancelled') }}
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h2 class="mb-4">{{ _('Payment Cancelled') }}</h2>
+    <div class="alert alert-warning" role="alert">
+        {{ _('Your payment was cancelled. No charges were made.') }}
+    </div>
+    <p>{{ _('Forgot to add something to your cart? Shop around then come back to pay!') }}</p>
+    <a href="{{ url_for('carts.cart') }}" class="btn btn-primary">{{ _('Return to Cart') }}</a>
+</div>
+{% endblock %}

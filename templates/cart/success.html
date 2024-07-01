@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ config.SHOP_NAME }} - {{ _('Order Confirmation') }}
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">{{ _('Thank You for Your Order!') }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle mr-2"></i>{{ _('Your order has been successfully placed and is being processed.') }}
+                    </div>
+                    <p class="card-text">{{ _('Order Number') }}: <strong>#{{ order.id }}</strong></p>
+                    <p class="card-text">{{ _('Order Date') }}: {{ order.date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p class="card-text">{{ _('Total Amount') }}: ${{ "%.2f"|format(order.total_price) }}</p>
+
+                    <h5 class="mt-4">{{ _('Order Details') }}</h5>
+                    <ul class="list-group mb-3">
+                        {% for item in order.items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ item.goods.samplename }}
+                                <span class="badge bg-primary rounded-pill">{{ item.quantity }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <p class="card-text">
+                        {{ _('We appreciate your business! If you have any questions, please email') }}
+                        <a href="mailto:{{ config.CONTACT_EMAIL }}">{{ config.CONTACT_EMAIL }}</a>.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart mr-2"></i>{{ _('Continue Shopping') }}
+                    </a>
+                    <a href="{{ url_for('carts.order_confirmation', order_id=order.id) }}" class="btn btn-outline-secondary float-right">
+                        <i class="fas fa-file-alt mr-2"></i>{{ _('View Order Details') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

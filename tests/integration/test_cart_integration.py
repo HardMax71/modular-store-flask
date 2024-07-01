@@ -149,7 +149,7 @@ class TestCartIntegration(BaseTest):
             'cvc': '123'
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Purchase completed', response.data)
+        self.assertIn(b'Test purchase completed', response.data)
 
         # Check that the cart is cleared
         cart_items = Cart.query.filter_by(user_id=self.user.id).all()
