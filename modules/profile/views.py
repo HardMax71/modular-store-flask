@@ -121,12 +121,12 @@ def delete_address(address_id):
 
 @profile_bp.route('/facebook-login')
 def facebook_login():
-    return handle_social_login(facebook)
+    return handle_social_login(facebook, name='facebook')
 
 
 @profile_bp.route('/google-login')
 def google_login():
-    return handle_social_login(google)
+    return handle_social_login(google, name='google')
 
 
 def init_profile(app):

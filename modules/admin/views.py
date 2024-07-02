@@ -77,7 +77,7 @@ class TicketView(AdminView):
 
     @expose('/assign/<int:ticket_id>', methods=['POST'])
     def assign_ticket(self, ticket_id):
-        ticket = db.session.query(Ticket).get(ticket_id)
+        ticket = db.session.get(Ticket, ticket_id)
         if ticket:
             admin_id = request.form['admin_id']
             ticket.admin_id = admin_id
@@ -382,7 +382,7 @@ class ReportedReviewView(AdminView):
 ############
 
 # Create Admin instance
-admin = Admin(name='Admin Panel', template_mode='bootstrap3', index_view=MyAdminIndexView())
+admin = Admin(name='Admin Panel', template_mode='bootstrap4', index_view=MyAdminIndexView())
 
 # Add views to admin
 admin.add_view(UserView(User, db.session, name='Users'))

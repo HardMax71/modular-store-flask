@@ -94,6 +94,13 @@ Visit `http://localhost:5000` in your browser to see the application running.
 
 ## Project Structure
 
+Each module listed below is per se a package, with:
+- `__init__.py`: Initializes the module and registers routes and views (in a blueprint).
+
+Also may contain any of the following files:
+- `views.py`: Contains the route definitions and view functions.
+- `utils.py`: Contains utility functions specific to the module.
+
 ```
 modular-store-flask/
 │
@@ -142,7 +149,7 @@ modular-store-flask/
 │
 ├── translations/          # Internationalization files
 │
-└── tests/                 # TODO: Unit and integration tests
+└── tests/                 # Unit and integration tests
     ├── unit/
     └── integration/
 ```

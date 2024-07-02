@@ -3,7 +3,7 @@ import os
 import phonenumbers
 from flask import request, flash, redirect, url_for
 from flask_babel import gettext as _
-from flask_login import current_user, login_user
+from flask_login import current_user
 from phonenumbers import NumberParseException
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -112,32 +112,39 @@ def handle_update_notification_settings():
     flash(_('Notification settings updated successfully.'), 'success')
 
 
-def handle_social_login(provider):
+def handle_social_login(provider, name: str = None):
     if not provider.authorized:
-        return redirect(url_for(f'{provider.name}.login'))
+        return redirect(url_for(f'{name}.login'))
 
-    account_info = provider.get('/me?fields=id,name,email').json()
+    resp = provider.get('/me?fields=id,name,email')
+    if not resp.ok:
+        flash(f'Failed to fetch user info from {name.capitalize()}', 'error')
+        return redirect(url_for('profile.profile_info'))
+
+    account_info = resp.json()
     social_id = account_info['id']
-    username = account_info['name']
-    email = account_info['email']
 
-    social_account = db.session.query(SocialAccount).filter_by(provider=provider.name, social_id=social_id).first()
+    # Check if this social account is already connected to any user
+    existing_social_account = db.session.query(SocialAccount).filter_by(
+        provider=name,
+        social_id=social_id
+    ).first()
 
-    if social_account:
-        login_user(social_account.user)
+    if existing_social_account:
+        if existing_social_account.user_id == current_user.id:
+            flash(f'This {name.capitalize()} account is already connected to your profile.', 'info')
+        else:
+            flash(f'This {name.capitalize()} account is already connected to another user.', 'error')
     else:
-        new_random_password = os.urandom(16).hex()
-        user = User(username=username,
-                    email=email,
-                    password=str(generate_password_hash(new_random_password)))
-        db.session.add(user)
+        # Connect the social account to the current user
+        new_social_account = SocialAccount(
+            user_id=current_user.id,
+            provider=name,
+            social_id=social_id,
+            access_token=provider.token['access_token']
+        )
+        db.session.add(new_social_account)
         db.session.commit()
+        flash(f'{name.capitalize()} account successfully connected to your profile.', 'success')
 
-        social_account = SocialAccount(user_id=user.id, provider=provider.name,
-                                       social_id=social_id, access_token=provider.token['access_token'])
-        db.session.add(social_account)
-        db.session.commit()
-
-        login_user(user)
-
-    return redirect(url_for('profile.profile_info', _external=True))
+    return redirect(url_for('profile.profile_info'))

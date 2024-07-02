@@ -46,13 +46,11 @@
                                 <p>{{ _('No social media accounts connected.') }}</p>
                             {% endif %}
                         </div>
-                        <a href="{{ url_for('profile.facebook_login') }}" class="btn btn-primary btn-block disabled"
-                           style="opacity: 0.5; pointer-events: none;">
-                            <i class="fab fa-facebook-f"></i> {{ _('Connect with Facebook') }}
+                        <a href="{{ url_for('profile.facebook_login') }}" class="btn btn-primary btn-block">
+                            <i class="fab fa-facebook-f"></i> {{ _('Connect Facebook account') }}
                         </a>
-                        <a href="{{ url_for('profile.google_login') }}" class="btn btn-danger btn-block disabled"
-                           style="opacity: 0.5; pointer-events: none;">
-                            <i class="fab fa-google"></i> {{ _('Connect with Google') }}
+                        <a href="{{ url_for('profile.google_login') }}" class="btn btn-danger btn-block">
+                            <i class="fab fa-google"></i> {{ _('Connect Google account') }}
                         </a>
                     </div>
                 </div>

@@ -55,7 +55,7 @@ def search_route():
 
 @main_bp.route("/goods/<int:id>")
 def goods_page(id):
-    shirt = Goods.query.options(joinedload(Goods.category), joinedload(Goods.tags)).get(id)
+    shirt = db.session.query(Goods).options(joinedload(Goods.category), joinedload(Goods.tags)).filter_by(id=id).first()
     if not shirt:
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
@@ -123,7 +123,7 @@ def toggle_wishlist():
 def recommendations():
     user_id = current_user.id
     recently_viewed_products = RecentlyViewedProduct.query.filter_by(user_id=user_id).order_by(
-        RecentlyViewedProduct.timestamp.desc()).limit(5).all()
+        RecentlyViewedProduct.timestamp.desc()).limit(4).all()
     recs = get_recommended_products(user_id)
     return render_template("recommendations.html", recently_viewed_products=recently_viewed_products,
                            recommendations=recs)

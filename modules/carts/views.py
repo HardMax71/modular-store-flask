@@ -35,7 +35,7 @@ def add_to_cart_route():
             variant_name = key.split('variant_')[1]
             variant_options[variant_name] = value
 
-    goods = Goods.query.get(goods_id)
+    goods = db.session.get(Goods, goods_id)
     if goods:
         add_to_cart(goods, quantity, variant_options)
     else:
@@ -67,7 +67,7 @@ def update_cart_route():
         total_items, total_amount, discount_percentage = Cart.cart_info()
         cart_items = Cart.total_quantity()
 
-        cart_item = Cart.query.get(cart_item_id)
+        cart_item = db.session.get(Cart, cart_item_id)
         item_subtotal = cart_item.price * cart_item.quantity
 
         return jsonify({
@@ -113,7 +113,7 @@ def checkout():
         shipping_address_id = request.form.get("shipping_address")
 
         shipping_method_id = request.form.get("shipping_method")
-        shipping_method = ShippingMethod.query.get(shipping_method_id)
+        shipping_method = db.session.get(ShippingMethod, shipping_method_id)
 
         if not shipping_address_id or not shipping_method_id:
             flash(_("Please select both shipping address and shipping method."), "warning")
@@ -283,9 +283,9 @@ def clear_cart():
 
 
 def update_cart(cart_item_id: int, quantity: int) -> bool:
-    cart_item = Cart.query.get(cart_item_id)
+    cart_item = db.session.get(Cart, cart_item_id)
     if cart_item and cart_item.user_id == current_user.id:
-        goods = Goods.query.get(cart_item.goods_id)
+        goods = db.session.get(Goods, cart_item.goods_id)
         stock_difference = quantity - cart_item.quantity
 
         if goods.stock >= stock_difference:
@@ -305,7 +305,7 @@ def update_cart(cart_item_id: int, quantity: int) -> bool:
 
 
 def remove_from_cart(cart_item_id):
-    cart_item = Cart.query.get(cart_item_id)
+    cart_item = db.session.get(Cart, cart_item_id)
     if cart_item and cart_item.user_id == current_user.id:
         db.session.delete(cart_item)
         db.session.commit()

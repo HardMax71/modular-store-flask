@@ -53,7 +53,7 @@ def remove_from_comparison():
 @login_required_with_message()
 def add_to_comparison():
     goods_id = request.form.get("goods_id", type=int)
-    product = db.session.query(Goods).get(goods_id)
+    product = db.session.get(Goods, goods_id)
 
     if product:
         comparison_history = db.session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()

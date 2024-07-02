@@ -2,6 +2,7 @@ import random
 import unittest
 from unittest.mock import patch, MagicMock
 
+from flask import url_for
 from flask_login import LoginManager
 from flask_login import login_user
 from werkzeug.security import generate_password_hash
@@ -214,10 +215,42 @@ class TestProfileUtils(unittest.TestCase):
                 self.assertTrue(updated_user.email_notifications_enabled)
 
     @patch('modules.profile.utils.redirect')
-    @patch('modules.profile.utils.login_user')
-    def test_handle_social_login_existing_user(self, mock_login_user, mock_redirect):
+    def test_handle_social_login_connect_new_account(self, mock_redirect):
         with self.app.test_request_context():
             user = self.create_user()
+            login_user(user)  # Simulate logged-in user
+
+            mock_provider = MagicMock()
+            mock_provider.name = 'facebook'
+            mock_provider.authorized = True
+            mock_provider.token = {'access_token': 'new_access_token'}
+            mock_provider.get.return_value.json.return_value = {
+                'id': '12345',
+                'name': 'John Doe',
+                'email': 'john@example.com'
+            }
+
+            with patch('modules.profile.utils.flash') as mock_flash:
+                handle_social_login(mock_provider, name='facebook')
+
+                self.assertEqual(SocialAccount.query.count(), 1)
+                new_social_account = SocialAccount.query.first()
+
+                self.assertEqual(new_social_account.user_id, user.id)
+                self.assertEqual(new_social_account.provider, 'facebook')
+                self.assertEqual(new_social_account.social_id, '12345')
+                self.assertEqual(new_social_account.access_token, 'new_access_token')
+
+                mock_flash.assert_called_with('Facebook account successfully connected to your profile.', 'success')
+                mock_redirect.assert_called_with(url_for('profile.profile_info'))
+
+    @patch('modules.profile.utils.redirect')
+    def test_handle_social_login_already_connected(self, mock_redirect):
+        with self.app.test_request_context():
+            user = self.create_user()
+            login_user(user)  # Simulate logged-in user
+
+            # Create an existing social account for the user
             social_account = SocialAccount(user_id=user.id, provider='facebook', social_id='12345',
                                            access_token='existing_token')
             self.session.add(social_account)
@@ -233,40 +266,13 @@ class TestProfileUtils(unittest.TestCase):
                 'email': 'john@example.com'
             }
 
-            handle_social_login(mock_provider)
-            mock_login_user.assert_called_with(user)
-            mock_redirect.assert_called()
+            with patch('modules.profile.utils.flash') as mock_flash:
+                handle_social_login(mock_provider, name='facebook')
 
-    @patch('modules.profile.utils.redirect')
-    @patch('modules.profile.utils.login_user')
-    def test_handle_social_login_new_user(self, mock_login_user, mock_redirect):
-        with self.app.test_request_context():
-            mock_provider = MagicMock()
-            mock_provider.name = 'facebook'
-            mock_provider.authorized = True
-            mock_provider.token = {'access_token': 'new_access_token'}
-            mock_provider.get.return_value.json.return_value = {
-                'id': '12345',
-                'name': 'John Doe',
-                'email': 'john@example.com'
-            }
+                self.assertEqual(SocialAccount.query.count(), 1)  # No new account should be created
 
-            handle_social_login(mock_provider)
-
-            self.assertEqual(User.query.count(), 1)
-            self.assertEqual(SocialAccount.query.count(), 1)
-
-            new_user = User.query.first()
-            new_social_account = SocialAccount.query.first()
-
-            self.assertEqual(new_user.username, 'John Doe')
-            self.assertEqual(new_user.email, 'john@example.com')
-            self.assertEqual(new_social_account.provider, 'facebook')
-            self.assertEqual(new_social_account.social_id, '12345')
-            self.assertEqual(new_social_account.access_token, 'new_access_token')
-
-            mock_login_user.assert_called_with(new_user)
-            mock_redirect.assert_called()
+                mock_flash.assert_called_with('This Facebook account is already connected to your profile.', 'info')
+                mock_redirect.assert_called_with(url_for('profile.profile_info'))
 
 
 if __name__ == '__main__':

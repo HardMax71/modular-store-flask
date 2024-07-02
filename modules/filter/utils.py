@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List, Tuple
 
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, select
 from sqlalchemy.orm import Query
 
 from config import AppConfig
@@ -23,9 +23,9 @@ def filter_products(
         query = query.filter(Goods.samplename.ilike(f'%{name_query}%'))
 
     if category_query:
-        subcategories = Category.query.with_entities(Category.id).filter(
+        subcategories = select(Category.id).where(
             or_(Category.id == category_query, Category.parent_id == category_query)
-        ).subquery()
+        ).scalar_subquery()
         query = query.filter(Goods.category_id.in_(subcategories))
 
     if tag_query:

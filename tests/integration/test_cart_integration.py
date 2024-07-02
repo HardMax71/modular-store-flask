@@ -117,7 +117,7 @@ class TestCartIntegration(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Item removed from cart', response.data)
 
-        removed_item = Cart.query.get(cart_item.id)
+        removed_item = self.session.get(Cart, cart_item.id)
         self.assertIsNone(removed_item)
 
     def test_checkout_get(self):
