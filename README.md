@@ -1,28 +1,34 @@
-# Modular Store Flask
+<div align="center">
+  <img src="https://raw.githubusercontent.com/HardMax71/modular-store-flask/main/static/img/icon.png" alt="Modular Store Flask Logo" width="100" height="100">
 
-Modular Store Flask is a comprehensive, feature-rich e-commerce platform built with Flask. This project aims to provide
-a flexible and scalable solution for online stores, with a wide range of features to enhance both user experience and
-store management.
+  # Modular Store Flask
 
-[![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
-[![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
+  A comprehensive, feature-rich e-commerce platform built with Flask
 
-## Key Features
+  [![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
+  [![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
+  [![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://monkfish-app-mbn3z.ondigitalocean.app/)
 
-- **Product Catalog**: Robust product management with categories, search, and filtering options
-- **Shopping Cart**: Seamless shopping experience with cart management and discount applications
-- **User Management**: Secure user authentication, profiles, and order history
-- **Order Processing**: Streamlined checkout process with multiple payment and shipping options
-- **Admin Dashboard**: Comprehensive tools for product, order, and user management
-- **Responsive Design**: Mobile-friendly interface for shopping on any device
-- **Internationalization**: Support for multiple languages and currencies
-- **Wishlist**: Allow users to save products for future purchase
-- **Reviews and Ratings**: Enable customers to share their experiences and opinions
-- **Personalized Recommendations**: Suggest products based on user behavior and preferences
-- **Analytics and Reporting**: Gain insights into sales and user behavior
-- **Security Features**: Implement best practices for e-commerce security
+  [Demo](https://monkfish-app-mbn3z.ondigitalocean.app/) | [Documentation](#) | [Report Bug](https://github.com/HardMax71/modular-store-flask/issues) | [Request Feature](https://github.com/HardMax71/modular-store-flask/issues)
+
+</div>
+
+## About The Project
+
+Modular Store Flask is a state-of-the-art e-commerce solution designed to provide a flexible and scalable platform for online stores. Built with Flask, it offers a wide range of features to enhance both user experience and store management.
+
+### Key Features
+
+- 🛒 **Robust Shopping Cart System**: Seamless shopping experience with real-time updates.
+- 🔍 **Advanced Product Search & Filtering**: Help customers find exactly what they're looking for.
+- 👤 **User Authentication & Profiles**: Secure login and personalized user experiences.
+- 💳 **Multiple Payment Gateways**: Support for various payment methods to accommodate all customers.
+- 📊 **Admin Dashboard**: Comprehensive tools for managing products, orders, and customers.
+- 🌐 **Multi-language Support**: Reach a global audience with localized content.
+- 📱 **Responsive Design**: Perfect shopping experience across all devices.
+- 🔒 **Security Features**: Implement best practices to keep your store and customers safe.
 
 <details>
 <summary>Getting Started</summary>
@@ -169,6 +175,8 @@ Each module in the `modules/` directory typically contains its own views, forms,
 promoting a modular and maintainable code structure.
 
 ## Database Schema
+
+Simplified database schema for the application:
 
 ![Database Schema](diagrams/plantuml_erd.png)
 
