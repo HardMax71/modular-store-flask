@@ -1,0 +1,131 @@
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.badge-large {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.75rem;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+}
+
+.review-list {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.star-rating {
+    font-size: 1.2rem;
+    color: #ffc107;
+}
+
+.review-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.review-images img {
+    max-width: 80px;
+    height: auto;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .review-images img {
+        max-width: 60px;
+    }
+}
+
+.star-rating {
+    display: inline-block;
+    direction: rtl;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ccc;
+    font-size: 24px;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #ffca28;
+}
+
+.related-products-section {
+    margin-top: 60px;
+}
+
+.related-products-section h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.related-products-section .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.related-products-section .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.related-products-section .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.related-products-section .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.related-products-section .card-text {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.related-products-section .price {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.price-container {
+    display: flex;
+    align-items: center;
+}
+
+.original-price {
+    font-size: 0.9rem;
+}
+
+.no-related-products {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.no-related-products .alert {
+    margin-bottom: 0;
+}
+
+.no-related-products .card {
+    height: 100%;
+}
+

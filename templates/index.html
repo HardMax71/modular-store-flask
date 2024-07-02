@@ -3,6 +3,8 @@
     {{ config.SHOP_NAME }} - {{ _('Home') }}
 {% endblock %}
 {% block body %}
+    <link href="{{ url_for('static', filename='css/start_page.css') }}" rel="stylesheet" type="text/css">
+
     <!-- Main Store Body -->
     {% if session['user'] %}
         <div class="alert alert-primary alert-dismissible fade show" role="alert">
@@ -12,88 +14,66 @@
             <strong>{{ _('Welcome') }}, {{ session['user'] }}!</strong> {{ _('We hope you enjoy your shopping experience.') }}
         </div>
     {% endif %}
-    <!-- Product Filter Section -->
-    <section class="container my-5">
-        <div class="card border-0 bg-light">
-            <div class="card-body p-4">
-                <h4 class="card-title mb-4 text-center">{{ _('Filter Products') }}</h4>
-                <form action="{{ url_for('filter.filter_route') }}" method="GET" class="needs-validation" novalidate>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-primary text-white"><i
-                                            class="fas fa-list"></i></span>
-                                </div>
-                                <select class="custom-select" id="category" name="category_id" required>
-                                    <option value="" disabled
-                                            {% if not request.args.get('category_id') %}selected{% endif %}>{{ _('Choose Category') }}</option>
-                                    {% for category in categories %}
-                                        <option value="{{ category.id }}"
-                                                {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
-                                            {{ category.name }}
+
+    <section class="filter-section my-5">
+    <div class="bento-box filter-card">
+        <h4 class="bento-title">{{ _('Filter Products') }}</h4>
+        <form action="{{ url_for('filter.filter_route') }}" method="GET" class="filter-form">
+            <div class="bento-grid">
+                <div class="bento-item">
+                    <label for="category" class="bento-label">{{ _('Category') }}</label>
+                    <select class="bento-select" id="category" name="category_id">
+                        <option value="" {% if not request.args.get('category_id') %}selected{% endif %}>{{ _('All Categories') }}</option>
+                        {% for category in categories %}
+                            {% if category.parent_id is none %}
+                                <option value="{{ category.id }}" class="category-parent"
+                                        {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% for subcategory in categories %}
+                                    {% if subcategory.parent_id == category.id %}
+                                        <option value="{{ subcategory.id }}" class="category-child"
+                                                {% if request.args.get('category_id')|int == subcategory.id %}selected{% endif %}>
+                                            &nbsp;&nbsp;{{ subcategory.name }}
                                         </option>
-                                    {% endfor %}
-                                </select>
-                                <div class="invalid-feedback">{{ _('Please select a category.') }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-primary text-white"><i
-                                            class="fas fa-sort"></i></span>
-                                </div>
-                                <select class="custom-select" id="sort_by" name="sort_by" required>
-                                    <option value="" disabled
-                                            {% if not request.args.get('sort_by') %}selected{% endif %}>{{ _('Sort By') }}</option>
-                                    <option value="price_asc"
-                                            {% if request.args.get('sort_by') == 'price_asc' %}selected{% endif %}>
-                                        {{ _('Price: Low to High') }}
-                                    </option>
-                                    <option value="price_desc"
-                                            {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>
-                                        {{ _('Price: High to Low') }}
-                                    </option>
-                                    <option value="rating"
-                                            {% if request.args.get('sort_by') == 'rating' %}selected{% endif %}>
-                                        {{ _('Rating') }}
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback">{{ _('Please select a sorting option.') }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-primary text-white"><i
-                                            class="fas fa-search"></i></span>
-                                </div>
-                                <input type="text" class="form-control" id="name_query" name="name_query"
-                                       value="{{ request.args.get('name_query', '') }}"
-                                       placeholder="{{ _('Product Name') }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-primary text-white"><i
-                                            class="fas fa-tags"></i></span>
-                                </div>
-                                <input type="text" class="form-control" id="tag_query" name="tag_query"
-                                       value="{{ request.args.get('tag_query', '') }}" placeholder="{{ _('Tags') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3 d-flex align-items-center justify-content-end">
-                            <button type="submit" class="btn btn-primary">{{ _('Apply Filters') }}</button>
-                        </div>
-                    </div>
-                </form>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="bento-item">
+                    <label for="sort_by" class="bento-label">{{ _('Sort By') }}</label>
+                    <select class="bento-select" id="sort_by" name="sort_by">
+                        <option value="price_asc" {% if request.args.get('sort_by') == 'price_asc' %}selected{% endif %}>
+                            {{ _('Price: Low to High') }}
+                        </option>
+                        <option value="price_desc" {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>
+                            {{ _('Price: High to Low') }}
+                        </option>
+                        <option value="rating" {% if request.args.get('sort_by') == 'rating' %}selected{% endif %}>
+                            {{ _('Rating') }}
+                        </option>
+                    </select>
+                </div>
+                <div class="bento-item">
+                    <label for="name_query" class="bento-label">{{ _('Product Name') }}</label>
+                    <input type="text" class="bento-input" id="name_query" name="name_query"
+                           value="{{ request.args.get('name_query', '') }}"
+                           placeholder="{{ _('Search products...') }}">
+                </div>
+                <div class="bento-item">
+                    <label for="tag_query" class="bento-label">{{ _('Tags') }}</label>
+                    <input type="text" class="bento-input" id="tag_query" name="tag_query"
+                           value="{{ request.args.get('tag_query', '') }}" placeholder="{{ _('Enter tags...') }}">
+                </div>
             </div>
-        </div>
-    </section>
+            <div class="bento-action">
+                <button type="submit" class="bento-button">{{ _('Apply Filters') }}</button>
+            </div>
+        </form>
+    </div>
+</section>
 
     <!-- Promoted Products Section -->
     {% if promoted_products|length > 0 %}
@@ -110,7 +90,8 @@
                                     {{ _('Featured') }}
                                 {% endif %}
                             </div>
-                            <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}" class="card-img-top img-fluid"
+                            <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
+                                 class="card-img-top img-fluid"
                                  alt="{{ product.samplename }}" loading="lazy">
                             <div class="card-body">
                                 <h5 class="card-title">{{ product.samplename }}</h5>
@@ -179,68 +160,64 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
                 {% for shirt in shirts %}
                     <div class="col mb-4">
-                         <div class="card h-100 shadow-sm hover-effect">
-                            <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}" class="card-img-top img-fluid"
-                                 alt="{{ shirt.samplename }}" loading="lazy">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title mb-3">{{ shirt.samplename }}</h5>
-                                <p class="card-text text-muted mb-3">{{ shirt.description[:100] if shirt.description else '' }}...</p>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div>
-                                        {% if shirt.onSale %}
-                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(shirt.onSalePrice) }}</span>
-                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(shirt.price) }}</del></span>
-                                        {% else %}
-                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(shirt.price) }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}"
+                                     alt="{{ shirt.samplename }}" loading="lazy">
+                            </div>
+                            <div class="product-details">
+                                <h3 class="product-title">{{ shirt.samplename }}</h3>
+                                <div class="product-meta">
+                                    <div class="product-category">{{ shirt.category.name }}</div>
+                                    <div class="product-rating">
                                         {% if shirt.avg_rating %}
-                                            <span class="text-warning">
-                                        {% for i in range(1, 6) %}
-                                            <i class="fas fa-star{% if i > shirt.avg_rating %} text-muted{% endif %}"></i>
-                                        {% endfor %}
-                                    </span>
-                                            <span class="ml-1">({{ shirt.avg_rating }})</span>
+                                            <div class="stars" style="--rating: {{ shirt.avg_rating }};"
+                                                 aria-label="{{ _('Rating of this product is %(rating)s out of 5.', rating=shirt.avg_rating) }}"></div>
+                                            <span class="rating-count">({{ shirt.reviews|length }})</span>
                                         {% else %}
-                                            <span class="text-muted">{{ _('No ratings') }}</span>
+                                            <span class="no-rating">{{ _('No ratings') }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-3 mb-4">
-                                    {% if shirt.tags %}
-                                        <div class="tags d-flex flex-wrap gap-2">
-                                            {% for tag in shirt.tags %}
-                                                <span class="badge bg-secondary text-white rounded-pill me-1 mb-1 px-3 py-2">{{ tag.name }}</span>
-                                            {% endfor %}
-                                        </div>
+                                <div class="product-price">
+                                    {% if shirt.onSale %}
+                                        <span class="sale-price">${{ '{:,.2f}'.format(shirt.onSalePrice) }}</span>
+                                        <span class="original-price">${{ '{:,.2f}'.format(shirt.price) }}</span>
+                                        <span class="discount-percentage">-{{ ((shirt.price - shirt.onSalePrice) / shirt.price * 100)|round|int }}%</span>
+                                    {% else %}
+                                        <span class="regular-price">${{ '{:,.2f}'.format(shirt.price) }}</span>
                                     {% endif %}
+                                </div>
+                                <div class="product-description">
+                                    {{ shirt.description[:100] if shirt.description else '' }}...
+                                </div>
+                                <div class="product-tags">
+                                    {% for tag in shirt.tags[:3] %}
+                                        <span class="tag">{{ tag.name }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="product-actions">
                                     <div class="stock-status">
                                         {% if shirt.stock == 0 %}
-                                            <span class="badge bg-danger text-white fs-6 px-3 py-2">
-                                                <i class="fas fa-times-circle me-2"></i>{{ _('Out of Stock') }}
-                                            </span>
+                                            <span class="out-of-stock">Out of Stock</span>
                                         {% elif shirt.stock < 3 %}
-                                            <span class="badge bg-danger text-white fs-6 px-3 py-2">
-                                                <i class="fas fa-exclamation-circle me-2"></i>{{ _('Low Stock') }}: {{ shirt.stock }}
-                                            </span>
+                                            <span class="low-stock">Low Stock: {{ shirt.stock }}</span>
                                         {% elif shirt.stock < 10 %}
-                                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-                                                <i class="fas fa-clock me-2"></i>{{ _('Hurry Up') }}: {{ shirt.stock }}
-                                            </span>
+                                            <span class="limited-stock">Limited Stock: {{ shirt.stock }}</span>
                                         {% else %}
-                                            <span class="badge bg-success text-white fs-6 px-3 py-2">
-                                                <i class="fas fa-check-circle me-2"></i> {{ _('In Stock') }}
-                                            </span>
+                                            <span class="in-stock">In Stock</span>
                                         {% endif %}
                                     </div>
+                                    <a href="{{ url_for('main.goods_page', id=shirt.id) }}" class="view-details-btn">View
+                                        Details</a>
                                 </div>
-
                             </div>
-                            <div class="card-footer text-center">
-                                <a href="{{ url_for('main.goods_page', id=shirt.id) }}"
-                                   class="btn btn-primary">{{ _('View Details') }}</a>
-                            </div>
+                            {% if shirt.is_new %}
+                                <div class="new-badge">New</div>
+                            {% endif %}
+                            {% if shirt.onSale %}
+                                <div class="sale-badge">Sale</div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -252,33 +229,34 @@
         {% endif %}
 
         {% if total_pages > 1 %}
-            <nav aria-label="{{ _('Page navigation') }}" class="mt-4">
-                <ul class="pagination justify-content-center">
+            <nav aria-label="{{ _('Page navigation') }}" class="pagination-container">
+                <div class="pagination-box">
                     {% if current_page > 1 %}
-                        <li class="page-item">
-                            <a class="page-link bg-primary text-white" href="?page={{ current_page - 1 }}"
-                               aria-label="{{ _('Previous') }}">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
+                        <a class="pagination-link prev-link" href="?page={{ current_page - 1 }}"
+                           aria-label="{{ _('Previous') }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
                     {% endif %}
 
-                    {% for page in range(1, total_pages + 1) %}
-                        <li class="page-item {% if page == current_page %}active{% endif %}">
-                            <a class="page-link {% if page == current_page %}bg-primary text-white{% endif %}"
-                               href="?page={{ page }}">{{ page }}</a>
-                        </li>
-                    {% endfor %}
+                    <div class="page-numbers">
+                        {% for page in range(1, total_pages + 1) %}
+                            {% if page == current_page %}
+                                <span class="pagination-link current-page">{{ page }}</span>
+                            {% elif page == 1 or page == total_pages or (page >= current_page - 1 and page <= current_page + 1) %}
+                                <a class="pagination-link" href="?page={{ page }}">{{ page }}</a>
+                            {% elif page == current_page - 2 or page == current_page + 2 %}
+                                <span class="pagination-ellipsis">…</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
 
                     {% if current_page < total_pages %}
-                        <li class="page-item">
-                            <a class="page-link bg-primary text-white" href="?page={{ current_page + 1 }}"
-                               aria-label="{{ _('Next') }}">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
+                        <a class="pagination-link next-link" href="?page={{ current_page + 1 }}"
+                           aria-label="{{ _('Next') }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
                     {% endif %}
-                </ul>
+                </div>
             </nav>
         {% endif %}
     </section>

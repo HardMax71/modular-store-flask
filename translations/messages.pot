@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-01 15:31+0200\n"
+"POT-Creation-Date: 2024-07-02 21:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,54 +113,58 @@ msgstr ""
 msgid "Passwords do not match."
 msgstr ""
 
-#: modules/carts/views.py:41 modules/compare/views.py:79
+#: modules/carts/views.py:42 modules/compare/views.py:79
 #: modules/main/views.py:60
 msgid "Product not found"
 msgstr ""
 
-#: modules/carts/views.py:88
+#: modules/carts/views.py:89
 msgid "Item removed from cart."
 msgstr ""
 
-#: modules/carts/views.py:97
+#: modules/carts/views.py:98
 msgid "Your cart is empty."
 msgstr ""
 
-#: modules/carts/views.py:101
+#: modules/carts/views.py:102
 msgid "Please add an address before proceeding to checkout."
 msgstr ""
 
-#: modules/carts/views.py:118
+#: modules/carts/views.py:119
 msgid "Please select both shipping address and shipping method."
 msgstr ""
 
-#: modules/carts/views.py:184 modules/carts/views.py:235
+#: modules/carts/views.py:140
+msgid "Test purchase completed. Thank you for shopping with us!"
+msgstr ""
+
+#: modules/carts/views.py:207 modules/carts/views.py:258
 msgid "An error occurred while processing your payment: "
 msgstr ""
 
-#: modules/carts/views.py:228
+#: modules/carts/views.py:251
 msgid "Purchase completed. Thank you for shopping with us!"
 msgstr ""
 
-#: modules/carts/views.py:231
+#: modules/carts/views.py:254
 msgid "Payment was not successful. Please try again."
 msgstr ""
 
-#: modules/carts/views.py:242
+#: modules/carts/views.py:265
 msgid ""
 "Payment was cancelled. Please try again or contact support if you "
 "continue to have issues."
 msgstr ""
 
-#: modules/carts/views.py:279 modules/carts/views.py:305
+#: modules/carts/views.py:302 modules/carts/views.py:328
 msgid "Not enough stock available for this product."
 msgstr ""
 
-#: modules/carts/views.py:301
+#: modules/carts/views.py:324
 msgid "Invalid quantity. Please select a positive number."
 msgstr ""
 
-#: modules/carts/views.py:332
+#: modules/carts/views.py:355
 msgid "Item added to cart."
 msgstr ""
 
@@ -424,7 +428,7 @@ msgstr ""
 msgid "Add Address"
 msgstr ""
 
-#: templates/add_address.html:6 templates/profile.html:305
+#: templates/add_address.html:6 templates/profile.html:303
 msgid "Add New Address"
 msgstr ""
 
@@ -437,26 +441,26 @@ msgid "Address Line 2 (Optional)"
 msgstr ""
 
 #: templates/add_address.html:20 templates/edit_address.html:20
-#: templates/profile.html:279
+#: templates/profile.html:277
 msgid "City"
 msgstr ""
 
 #: templates/add_address.html:24 templates/edit_address.html:26
-#: templates/profile.html:280
+#: templates/profile.html:278
 msgid "State"
 msgstr ""
 
 #: templates/add_address.html:28 templates/edit_address.html:34
-#: templates/profile.html:281
+#: templates/profile.html:279
 msgid "ZIP Code"
 msgstr ""
 
 #: templates/add_address.html:33 templates/edit_address.html:40
-#: templates/profile.html:282
+#: templates/profile.html:280
 msgid "Country"
 msgstr ""
 
-#: templates/contact_us.html:4 templates/goods_page.html:419
+#: templates/contact_us.html:4 templates/goods_page.html:403
 msgid "Contact Us"
 msgstr ""
 
@@ -476,7 +480,7 @@ msgid "Email"
 msgstr ""
 
 #: templates/contact_us.html:29 templates/profile.html:17
-#: templates/profile.html:112
+#: templates/profile.html:110
 msgid "Phone"
 msgstr ""
 
@@ -583,134 +587,139 @@ msgid ""
 " EST."
 msgstr ""
 
-#: templates/goods_page.html:26 templates/goods_page.html:378
+#: templates/goods_page.html:27 templates/goods_page.html:362
 #: templates/recommendations.html:49
 msgid "On Sale!"
 msgstr ""
 
-#: templates/goods_page.html:49
+#: templates/goods_page.html:40
 msgid "No tags provided"
 msgstr ""
 
-#: templates/goods_page.html:54 templates/index.html:221
+#: templates/goods_page.html:45
 msgid "Out of Stock"
 msgstr ""
 
-#: templates/goods_page.html:56 templates/index.html:150
-#: templates/index.html:225
+#: templates/goods_page.html:47 templates/index.html:131
 msgid "Low Stock"
 msgstr ""
 
-#: templates/goods_page.html:58 templates/index.html:152
-#: templates/index.html:229
+#: templates/goods_page.html:49 templates/index.html:133
 msgid "Hurry Up"
 msgstr ""
 
-#: templates/goods_page.html:60 templates/index.html:154
-#: templates/index.html:233
+#: templates/goods_page.html:51 templates/index.html:135
 msgid "In Stock"
 msgstr ""
 
 #: templates/cart/cart.html:20 templates/cart/checkout.html:58
-#: templates/goods_page.html:76 templates/order_confirmation.html:47
+#: templates/goods_page.html:67 templates/order_confirmation.html:47
 #: templates/purchase_details.html:51
 msgid "Quantity"
 msgstr ""
 
-#: templates/goods_page.html:97
+#: templates/goods_page.html:88
 msgid "Add to Cart"
 msgstr ""
 
-#: templates/goods_page.html:131
+#: templates/goods_page.html:122
 msgid "Remove from Wishlist"
 msgstr ""
 
-#: templates/goods_page.html:133
+#: templates/goods_page.html:124
 msgid "Add to Wishlist"
 msgstr ""
 
-#: templates/goods_page.html:144
+#: templates/goods_page.html:135
 msgid "Remove from Comparison"
 msgstr ""
 
-#: templates/goods_page.html:152
+#: templates/goods_page.html:143
 msgid "Add to Comparison"
 msgstr ""
 
-#: templates/goods_page.html:160
+#: templates/goods_page.html:151
 msgid "Share this product"
 msgstr ""
 
-#: templates/goods_page.html:201
+#: templates/goods_page.html:175
 msgid "Reviews and Ratings"
 msgstr ""
 
-#: templates/goods_page.html:207 templates/index.html:136
-#: templates/index.html:206 templates/product_comparison.html:52
+#: templates/goods_page.html:181 templates/index.html:117
+#: templates/index.html:178 templates/product_comparison.html:52
 msgid "No ratings"
 msgstr ""
 
-#: templates/goods_page.html:208
+#: templates/goods_page.html:182
 msgid "Be the first to rate this product!"
 msgstr ""
 
-#: templates/goods_page.html:210
+#: templates/goods_page.html:184
 msgid "Average Rating"
 msgstr ""
 
-#: templates/goods_page.html:224
+#: templates/goods_page.html:191
+msgid "Based on"
+msgstr ""
+
+#: templates/goods_page.html:191
+msgid "reviews"
+msgstr ""
+
+#: templates/goods_page.html:199
 msgid "Reviews"
 msgstr ""
 
-#: templates/goods_page.html:241
-msgid "Date of Purchase"
-msgstr ""
-
-#: templates/admin/reported_review_detail.html:20 templates/goods_page.html:255
-#: templates/goods_page.html:341
+#: templates/admin/reported_review_detail.html:20 templates/goods_page.html:234
+#: templates/goods_page.html:325
 msgid "Pros"
 msgstr ""
 
-#: templates/goods_page.html:263
+#: templates/goods_page.html:244
 msgid "No pros provided."
 msgstr ""
 
-#: templates/admin/reported_review_detail.html:21 templates/goods_page.html:267
-#: templates/goods_page.html:345
+#: templates/admin/reported_review_detail.html:21 templates/goods_page.html:248
+#: templates/goods_page.html:329
 msgid "Cons"
 msgstr ""
 
-#: templates/goods_page.html:275
+#: templates/goods_page.html:258
 msgid "No cons provided."
 msgstr ""
 
-#: templates/goods_page.html:283
+#: templates/goods_page.html:265
 msgid "Report"
 msgstr ""
 
 #: templates/admin/reported_review_detail.html:31
-#: templates/admin/reported_reviews.html:14 templates/goods_page.html:289
+#: templates/admin/reported_reviews.html:14 templates/goods_page.html:272
 msgid "Explanation"
 msgstr ""
 
-#: templates/goods_page.html:297
+#: templates/goods_page.html:279
 msgid "Submit Report"
 msgstr ""
 
-#: templates/goods_page.html:306
+#: templates/goods_page.html:290
 msgid "No reviews yet."
 msgstr ""
 
-#: templates/goods_page.html:317
+#: templates/goods_page.html:291
+msgid "Be the first to share your thoughts on this product!"
+msgstr ""
+
+#: templates/goods_page.html:301
 msgid "Add Your Review"
 msgstr ""
 
-#: templates/admin/reported_review_detail.html:19 templates/goods_page.html:322
-#: templates/index.html:60 templates/product_comparison.html:16
+#: templates/admin/reported_review_detail.html:19 templates/goods_page.html:306
+#: templates/index.html:55 templates/product_comparison.html:16
 msgid "Rating"
 msgstr ""
 
-#: templates/admin/admin_list_tickets.html:12 templates/goods_page.html:332
+#: templates/admin/admin_list_tickets.html:12 templates/goods_page.html:316
 #: templates/tickets/create_ticket.html:13
 #: templates/tickets/list_tickets.html:17
 #: templates/tickets/list_tickets.html:54
@@ -718,56 +727,56 @@ msgid "Title"
 msgstr ""
 
 #: templates/admin/reported_review_detail.html:14
-#: templates/admin/reported_review_detail.html:18 templates/goods_page.html:336
+#: templates/admin/reported_review_detail.html:18 templates/goods_page.html:320
 msgid "Review"
 msgstr ""
 
-#: templates/goods_page.html:349
+#: templates/goods_page.html:333
 msgid "Images"
 msgstr ""
 
-#: templates/goods_page.html:353
+#: templates/goods_page.html:337
 msgid "Submit Review"
 msgstr ""
 
-#: templates/goods_page.html:361
+#: templates/goods_page.html:345
 msgid "Related Products"
 msgstr ""
 
-#: templates/goods_page.html:364 templates/recommendations.html:3
+#: templates/goods_page.html:348 templates/recommendations.html:3
 #: templates/recommendations.html:8
 msgid "Personalized Recommendations"
 msgstr ""
 
-#: templates/goods_page.html:395 templates/history.html:25
-#: templates/index.html:161 templates/index.html:242
-#: templates/recommendations.html:22 templates/recommendations.html:68
+#: templates/goods_page.html:379 templates/history.html:25
+#: templates/index.html:142 templates/recommendations.html:22
+#: templates/recommendations.html:68
 msgid "View Details"
 msgstr ""
 
-#: templates/goods_page.html:402
+#: templates/goods_page.html:386
 msgid "No related products found."
 msgstr ""
 
-#: templates/goods_page.html:406
+#: templates/goods_page.html:390
 msgid "Explore Our Collection"
 msgstr ""
 
-#: templates/goods_page.html:407
+#: templates/goods_page.html:391
 msgid ""
 "Check out our wide range of products and find something that suits your "
 "style!"
 msgstr ""
 
-#: templates/goods_page.html:410
+#: templates/goods_page.html:394
 msgid "Browse Products"
 msgstr ""
 
-#: templates/goods_page.html:416
+#: templates/goods_page.html:400
 msgid "Cant Find What Youre Looking For?"
 msgstr ""
 
-#: templates/goods_page.html:417
+#: templates/goods_page.html:401
 msgid ""
 "If you have any specific requirements or need assistance, feel free to "
 "contact us."
@@ -816,99 +825,108 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: templates/cart/cart.html:92 templates/index.html:9
+#: templates/cart/cart.html:92 templates/index.html:11
 msgid "Close"
 msgstr ""
 
-#: templates/index.html:12
+#: templates/index.html:14
 msgid "Welcome"
 msgstr ""
 
-#: templates/index.html:12
+#: templates/index.html:14
 msgid "We hope you enjoy your shopping experience."
 msgstr ""
 
-#: templates/index.html:19
+#: templates/index.html:20
 msgid "Filter Products"
 msgstr ""
 
-#: templates/index.html:30
-msgid "Choose Category"
+#: templates/index.html:24 templates/product_comparison.html:15
+msgid "Category"
 msgstr ""
 
-#: templates/index.html:38
-msgid "Please select a category."
+#: templates/index.html:26
+msgid "All Categories"
 msgstr ""
 
-#: templates/index.html:49
+#: templates/index.html:46
 msgid "Sort By"
 msgstr ""
 
-#: templates/index.html:52
+#: templates/index.html:49
 msgid "Price: Low to High"
 msgstr ""
 
-#: templates/index.html:56
+#: templates/index.html:52
 msgid "Price: High to Low"
 msgstr ""
 
-#: templates/index.html:63
-msgid "Please select a sorting option."
-msgstr ""
-
-#: templates/index.html:74
+#: templates/index.html:60
 msgid "Product Name"
 msgstr ""
 
-#: templates/index.html:86
+#: templates/index.html:63 templates/website_parts/header.html:34
+msgid "Search products..."
+msgstr ""
+
+#: templates/index.html:66
 msgid "Tags"
 msgstr ""
 
-#: templates/index.html:90
+#: templates/index.html:68
+msgid "Enter tags..."
+msgstr ""
+
+#: templates/index.html:72
 msgid "Apply Filters"
 msgstr ""
 
-#: templates/index.html:101
+#: templates/index.html:81
 msgid "Featured Products"
 msgstr ""
 
-#: templates/index.html:108
+#: templates/index.html:88
 msgid "Sale"
 msgstr ""
 
-#: templates/index.html:110
+#: templates/index.html:90
 msgid "Featured"
 msgstr ""
 
-#: templates/index.html:176
+#: templates/index.html:157
 msgid "All Products"
 msgstr ""
 
-#: templates/index.html:177
+#: templates/index.html:158
 msgid "Showing"
 msgstr ""
 
-#: templates/index.html:177
+#: templates/index.html:158
 msgid "of"
 msgstr ""
 
-#: templates/index.html:177
+#: templates/index.html:158
 msgid "products"
 msgstr ""
 
-#: templates/index.html:250
+#: templates/index.html:175
+#, python-format
+msgid "Rating of this product is %(rating)s out of 5."
+msgstr ""
+
+#: templates/index.html:227
 msgid "No products found."
 msgstr ""
 
-#: templates/index.html:255
+#: templates/index.html:232
 msgid "Page navigation"
 msgstr ""
 
-#: templates/index.html:260
+#: templates/index.html:236
 msgid "Previous"
 msgstr ""
 
-#: templates/index.html:276
+#: templates/index.html:255
 msgid "Next"
 msgstr ""
 
@@ -991,17 +1009,13 @@ msgid "Total Amount"
 msgstr ""
 
 #: templates/cart/cart.html:142 templates/cart/success.html:40
-#: templates/order_confirmation.html:73 templates/product_comparison.html:162
+#: templates/order_confirmation.html:73 templates/product_comparison.html:157
 msgid "Continue Shopping"
 msgstr ""
 
 #: templates/product_comparison.html:3 templates/product_comparison.html:7
 #: templates/website_parts/header.html:68
 msgid "Product Comparison"
-msgstr ""
-
-#: templates/product_comparison.html:15
-msgid "Category"
 msgstr ""
 
 #: templates/admin/admin_list_tickets.html:17
@@ -1011,15 +1025,15 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: templates/product_comparison.html:160
+#: templates/product_comparison.html:155
 msgid "No Products to Compare"
 msgstr ""
 
-#: templates/product_comparison.html:161
+#: templates/product_comparison.html:156
 msgid "Add products to the comparison list to compare their features and prices."
 msgstr ""
 
-#: templates/profile.html:2 templates/profile.html:66
+#: templates/profile.html:2 templates/profile.html:64
 #: templates/website_parts/header.html:58
 msgid "Profile"
 msgstr ""
@@ -1040,126 +1054,126 @@ msgstr ""
 msgid "No social media accounts connected."
 msgstr ""
 
-#: templates/profile.html:51
-msgid "Connect with Facebook"
+#: templates/profile.html:50
+msgid "Connect Facebook account"
 msgstr ""
 
-#: templates/profile.html:55
-msgid "Connect with Google"
+#: templates/profile.html:53
+msgid "Connect Google account"
 msgstr ""
 
-#: templates/profile.html:70
+#: templates/profile.html:68
 msgid "Addresses"
 msgstr ""
 
-#: templates/profile.html:74
+#: templates/profile.html:72
 msgid "Wishlist"
 msgstr ""
 
-#: templates/profile.html:96 templates/profile.html:126
+#: templates/profile.html:94 templates/profile.html:124
 msgid "Update Profile"
 msgstr ""
 
-#: templates/profile.html:101
+#: templates/profile.html:99
 msgid "First Name"
 msgstr ""
 
-#: templates/profile.html:106
+#: templates/profile.html:104
 msgid "Last Name"
 msgstr ""
 
-#: templates/profile.html:121
+#: templates/profile.html:119
 msgid "Choose profile picture (PNG, JPG, BMP)"
 msgstr ""
 
-#: templates/profile.html:136
+#: templates/profile.html:134
 msgid "Notification Settings"
 msgstr ""
 
-#: templates/profile.html:151
+#: templates/profile.html:149
 msgid "Enable Notifications"
 msgstr ""
 
-#: templates/profile.html:161
+#: templates/profile.html:159
 msgid "Enable Email Notifications"
 msgstr ""
 
-#: templates/profile.html:165
+#: templates/profile.html:163
 msgid "Update Notification Settings"
 msgstr ""
 
-#: templates/profile.html:172
+#: templates/profile.html:170
 msgid "Change account parameters"
 msgstr ""
 
-#: templates/profile.html:180 templates/profile.html:194
+#: templates/profile.html:178 templates/profile.html:192
 msgid "Change Phone Number"
 msgstr ""
 
-#: templates/profile.html:189
+#: templates/profile.html:187
 msgid "New Phone Number"
 msgstr ""
 
-#: templates/profile.html:206 templates/profile.html:220
+#: templates/profile.html:204 templates/profile.html:218
 msgid "Change Email"
 msgstr ""
 
-#: templates/profile.html:215
+#: templates/profile.html:213
 msgid "New Email"
 msgstr ""
 
-#: templates/profile.html:232 templates/profile.html:256
+#: templates/profile.html:230 templates/profile.html:254
 msgid "Change Password"
 msgstr ""
 
-#: templates/profile.html:241
+#: templates/profile.html:239
 msgid "Current Password"
 msgstr ""
 
-#: templates/auth/reset_password_token.html:14 templates/profile.html:246
+#: templates/auth/reset_password_token.html:14 templates/profile.html:244
 msgid "New Password"
 msgstr ""
 
-#: templates/auth/reset_password_token.html:19 templates/profile.html:251
+#: templates/auth/reset_password_token.html:19 templates/profile.html:249
 msgid "Confirm New Password"
 msgstr ""
 
-#: templates/profile.html:287
+#: templates/profile.html:285
 msgid "Edit"
 msgstr ""
 
-#: templates/admin/reported_reviews.html:30 templates/profile.html:292
+#: templates/admin/reported_reviews.html:30 templates/profile.html:290
 msgid "Delete"
 msgstr ""
 
-#: templates/profile.html:301
+#: templates/profile.html:299
 msgid "No addresses found."
 msgstr ""
 
 #: templates/admin/admin_list_tickets.html:29
-#: templates/admin/reported_reviews.html:25 templates/profile.html:323
+#: templates/admin/reported_reviews.html:25 templates/profile.html:321
 #: templates/tickets/list_tickets.html:37
 #: templates/tickets/list_tickets.html:76
 msgid "View"
 msgstr ""
 
-#: templates/profile.html:331
+#: templates/profile.html:329
 msgid "Remove"
 msgstr ""
 
-#: templates/profile.html:342
+#: templates/profile.html:340
 msgid "Send Wishlist Notifications"
 msgstr ""
 
-#: templates/profile.html:349
+#: templates/profile.html:347
 msgid "Your wishlist is empty."
 msgstr ""
 
-#: templates/profile.html:350
+#: templates/profile.html:348
 msgid "Explore our collection and add your favorite items to your wishlist!"
 msgstr ""
 
-#: templates/profile.html:352
+#: templates/profile.html:350
 msgid "Start Shopping"
 msgstr ""
 
@@ -1949,10 +1963,6 @@ msgstr ""
 
 #: templates/website_parts/header.html:23
 msgid "Toggle navigation"
-msgstr ""
-
-#: templates/website_parts/header.html:34
-msgid "Search products..."
 msgstr ""
 
 #: templates/website_parts/header.html:34

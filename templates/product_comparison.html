@@ -80,11 +80,8 @@
                                                 },
                                                 body: `goods_id=${productId}&quantity=1`
                                             })
-                                                .then(response => response.json())
                                                 .then(data => {
-                                                    // Show a toast or notification with data.message
-                                                    console.log(data.message);
-                                                    // Update cart count in the UI if necessary
+                                                    window.location.reload();
                                                 })
                                                 .catch(error => console.error('Error:', error));
                                         });
@@ -102,9 +99,7 @@
                                             })
                                                 .then(response => response.json())
                                                 .then(data => {
-                                                    // Show a toast or notification with data.message
-                                                    console.log(data.message);
-                                                    // You can update the button appearance here if needed
+                                                    window.location.reload();
                                                 })
                                                 .catch(error => console.error('Error:', error));
                                         });

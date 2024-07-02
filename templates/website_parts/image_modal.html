@@ -1,0 +1,19 @@
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">{{ shirt.samplename }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body justify-content-center align-items-center">
+                <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}"
+                     class="img-fluid"
+                     alt="{{ shirt.samplename }}">
+            </div>
+        </div>
+    </div>
+</div>

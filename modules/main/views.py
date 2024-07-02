@@ -60,7 +60,7 @@ def goods_page(id):
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
 
-    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(Review.date.desc()).all()
+    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(Review.date.desc()).limit(3).all()
     variants = Variant.query.filter_by(goods_id=id).all()
     variant_options = {variant.name: [v.value for v in variants if v.name == variant.name] for variant in variants}
 

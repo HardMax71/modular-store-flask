@@ -1,0 +1,68 @@
+<!-- Review Image Modal -->
+<div class="modal fade" id="reviewImageModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body justify-content-center align-items-center">
+                <div id="reviewImageCarousel" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner"></div>
+                    <a class="carousel-control-prev" href="#reviewImageCarousel" role="button"
+                       data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#reviewImageCarousel" role="button"
+                       data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openReviewImageModal(imgElement) {
+        const reviewId = imgElement.dataset.reviewId;
+        const imageIndex = parseInt(imgElement.dataset.imageIndex);
+        const reviewImages = Array.from(document.querySelectorAll(`img[data-review-id="${reviewId}"]`));
+
+        const carouselInner = document.querySelector('#reviewImageCarousel .carousel-inner');
+        carouselInner.innerHTML = '';
+
+        reviewImages.forEach((img, index) => {
+            const carouselItem = document.createElement('div');
+            carouselItem.className = `carousel-item${index === imageIndex ? ' active' : ''}`;
+
+            const image = document.createElement('img');
+            image.src = img.src;
+            image.className = 'd-block w-100';
+            image.alt = 'Review Image';
+
+            carouselItem.appendChild(image);
+            carouselInner.appendChild(carouselItem);
+        });
+
+        $('#reviewImageModal').modal('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        $('.review-image-thumbnail').on('click', function () {
+            var targetModal = $($(this).data('target'));
+            var slideIndex = $(this).data('slide-to');
+            targetModal.find('.carousel-item').removeClass('active');
+            targetModal.find('.carousel-item').eq(slideIndex).addClass('active');
+        });
+
+        // Handle modal close
+        $('#reviewImageModal').on('hidden.bs.modal', function () {
+            const carouselInner = document.querySelector('#reviewImageCarousel .carousel-inner');
+            carouselInner.innerHTML = '';
+        });
+    });
+</script>
