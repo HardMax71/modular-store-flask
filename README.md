@@ -1,34 +1,45 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/HardMax71/modular-store-flask/main/static/img/icon.png" alt="Modular Store Flask Logo" width="100" height="100">
 
-  # Modular Store Flask
+# Modular Store Flask
 
-  A comprehensive, feature-rich e-commerce platform built with Flask
+A comprehensive, feature-rich e-commerce platform built with Flask
 
-  [![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
-  [![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
-  [![Live Demo](https://img.shields.io/uptimerobot/status/m797201826-b0375adddc1703a4a8c79126)](https://monkfish-app-mbn3z.ondigitalocean.app/)
-  [![WAVE accessibility checker](https://img.shields.io/badge/WAVE_accessibility_report-here-blue)](https://wave.webaim.org/report#/https://monkfish-app-mbn3z.ondigitalocean.app)
+[![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
+[![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
+[![Live Demo](https://img.shields.io/uptimerobot/status/m797201826-b0375adddc1703a4a8c79126)](https://monkfish-app-mbn3z.ondigitalocean.app/)
+[![WAVE accessibility checker](https://img.shields.io/badge/WAVE_accessibility_report-here-blue)](https://wave.webaim.org/report#/https://monkfish-app-mbn3z.ondigitalocean.app)
 
-  [Demo](https://monkfish-app-mbn3z.ondigitalocean.app/) | [Report Bug](https://github.com/HardMax71/modular-store-flask/issues) | [Request Feature](https://github.com/HardMax71/modular-store-flask/issues)
+[Demo](https://monkfish-app-mbn3z.ondigitalocean.app/) | [Report Bug](https://github.com/HardMax71/modular-store-flask/issues) | [Request Feature](https://github.com/HardMax71/modular-store-flask/issues)
 
 </div>
 
 > [!IMPORTANT]
-> The names, trademarks, service marks, logos, and other data displayed on the demo website and in this repository are the intellectual property of their respective owners. The utilization of these names, trademarks, service marks, logos, or other proprietary materials does not indicate any affiliation with, endorsement by, or sponsorship by the respective trademark owners. All references to such proprietary materials are provided solely for illustrative purposes and do not imply any claim of ownership or confer any legal rights. The repository owner expressly disclaims any legal liability or responsibility for any misuse, misinterpretation, or misrepresentation of these proprietary materials.
+> The names, trademarks, service marks, logos, and other data displayed on the demo website and in this repository are
+> the intellectual property of their respective owners. The utilization of these names, trademarks, service marks,
+> logos,
+> or other proprietary materials does not indicate any affiliation with, endorsement by, or sponsorship by the
+> respective
+> trademark owners. All references to such proprietary materials are provided solely for illustrative purposes and do
+> not
+> imply any claim of ownership or confer any legal rights. The repository owner expressly disclaims any legal liability
+> or
+> responsibility for any misuse, misinterpretation, or misrepresentation of these proprietary materials.
 
 ## About The Project
 
-Modular Store Flask is a state-of-the-art e-commerce solution designed to provide a flexible and scalable platform for online stores. Built with Flask, it offers a wide range of features to enhance both user experience and store management.
+Modular Store Flask is a state-of-the-art e-commerce solution designed to provide a flexible and scalable platform for
+online stores. Built with Flask, it offers a wide range of features to enhance both user experience and store
+management.
 
 ### Key Features
 
 - 🛒 **Robust Shopping Cart System**: Seamless shopping experience with real-time updates.
 - 🔍 **Advanced Product Search & Filtering**: Help customers find exactly what they're looking for.
 - 👤 **User Authentication & Profiles**: Secure login and personalized user experiences.
-- 💳 **Multiple Payment Gateways**: Support for various payment methods to accommodate all customers.
+- 💳 **Multiple Payment Options**: Support for various payment methods to accommodate all customers.
 - 📊 **Admin Dashboard**: Comprehensive tools for managing products, orders, and customers.
 - 🌐 **Multi-language Support**: Reach a global audience with localized content.
 - 📱 **Responsive Design**: Perfect shopping experience across all devices.
@@ -90,24 +101,26 @@ Visit `http://localhost:5000` in your browser to see the application running.
 | Search and Autocomplete        | * Implement a search functionality for users to find products easily<br> * Provide autocomplete suggestions based on user input<br> * Optimize search results based on relevance and popularity                                                                                                                                                                                     | :question: In general - done, but not optimized                                                                              |
 | Product Comparison             | * Allow users to compare multiple products side by side<br> * Display key features, specifications, and prices for easy comparison<br> * Provide options to add compared products to the cart or wishlist                                                                                                                                                                           | :heavy_check_mark:                                                                                                           |
 | Social Sharing and Integration | * Implement social sharing buttons for products and pages<br> * Allow users to login or register using their social media accounts<br> * Integrate with social media platforms for product promotion and user engagement                                                                                                                                                            | :heavy_check_mark:                                                                                                           |
-| Customer Support and Live Chat | * Implement a customer support ticketing system<br> * Provide live chat functionality for real-time assistance<br> * Offer self-service options like FAQs or knowledge base articles                                                                                                                                                                                                | :question: FAQ - done; Ticketing system - done; Live chat - to do                                                            |
-| Mobile Optimization and Design | * Ensure the web store is fully responsive and mobile-friendly<br> * Optimize images and assets for faster loading on mobile devices<br> * Implement mobile-specific features like swipe gestures or mobile payments                                                                                                                                                                | :question: Viewpoint - done, lazy loading - done, img-fluid - done.                                                          |
+| Customer Support and Live Chat | * Implement a customer support ticketing system<br> * Provide live chat functionality for real-time assistance<br> * Offer self-service options like FAQs or knowledge base articles                                                                                                                                                                                                | :question: <br/>FAQ - done; Ticketing system - done; Live chat - to do                                                       |
+| Mobile Optimization and Design | * Ensure the web store is fully responsive and mobile-friendly<br> * Optimize images and assets for faster loading on mobile devices<br> * Implement mobile-specific features like swipe gestures or mobile payments                                                                                                                                                                | :question: <br/>Viewpoint - done, lazy loading - done, img-fluid - done.                                                     |
 | Internationalization           | * Support multiple languages and currencies for a global audience<br> * Implement geolocation to detect user's location and adapt the store accordingly<br> * Provide options for users to switch languages or currencies                                                                                                                                                           | :heavy_check_mark: <br/>\[2 langs supported, using user settings<br/>to detect best possible lang\]                          |
 | Personalization and Recs       | * Implement personalized product recommendations based on user behavior<br> * Display recently viewed or related products for each user<br> * Send personalized email campaigns or newsletters based on user preferences                                                                                                                                                            | :heavy_check_mark: <br/>\[except sending mails\]                                                                             |
-| Security and Privacy           | * Implement secure user authentication and authorization<br> * Protect user data and transactions with encryption and secure protocols<br> * Comply with relevant privacy regulations (e.g., GDPR, CCPA)<br> * Regularly update and patch software to address security vulnerabilities                                                                                              | :heavy_check_mark: <br/>\[except GDPR stuff\]                                                                                |
-| Performance Optimization       | * Optimize website speed and performance for better user experience<br> * Implement caching mechanisms for faster page loading<br> * Minimize the use of third-party scripts or plugins that may slow down the site<br> * Regularly monitor and optimize database queries for improved performance                                                                                  |                                                                                                                              |
-| Accessibility                  | * Ensure the web store is accessible to users with disabilities<br> * Follow web accessibility guidelines (e.g., WCAG) for inclusive design<br> * Provide alternative text for images and proper labeling for form elements<br> * Test the store for compatibility with assistive technologies                                                                                      |                                                                                                                              |
-| Testing and Quality Assurance  | * Implement a comprehensive testing strategy for the web store<br> * Conduct functional testing, usability testing, and performance testing<br> * Perform cross-browser and cross-device testing for compatibility<br> * Establish a quality assurance process to identify and fix bugs or issues                                                                                   |                                                                                                                              |
-| Backup and Disaster Recovery   | * Implement regular data backups to prevent data loss<br> * Develop a disaster recovery plan for unexpected events or system failures<br> * Test the backup and recovery processes periodically to ensure their effectiveness                                                                                                                                                       | :heavy_check_mark:                                                                                                           |
+| Security and Privacy           | * Implement secure user authentication and authorization<br> * Protect user data and transactions with encryption and secure protocols<br> * Comply with relevant privacy regulations (e.g., GDPR, CCPA)                                                                                                                                                                            | :heavy_check_mark: <br/>\[except GDPR stuff\]                                                                                |
+| Performance Optimization       | * Optimize website speed and performance for better user experience<br> * Implement caching mechanisms for faster page loading<br> * Minimize the use of third-party scripts or plugins that may slow down the site<br> * Regularly monitor and optimize database queries for improved performance                                                                                  | :question: In general - done, but not optimized                                                                              |
+| Accessibility                  | * Ensure the web store is accessible to users with disabilities<br> * Follow web accessibility guidelines (e.g., WCAG) for inclusive design<br> * Provide alternative text for images and proper labeling for form elements<br> * Test the store for compatibility with assistive technologies                                                                                      | :question: <br/>Checker for WCAG compliance added, to do - be compliant                                                      |
+| Testing and Quality Assurance  | * Implement a comprehensive testing strategy for the web store<br> * Conduct functional testing, usability testing, and performance testing<br> * Perform cross-browser and cross-device testing for compatibility<br> * Establish a quality assurance process to identify and fix bugs or issues                                                                                   | :question: <br/>Unit & integration testing - done, QA via Github actions - done, Browser testing - to do                     |
+| Backup and Disaster Recovery   | * Implement regular data backups to prevent data loss<br> * Develop a disaster recovery plan for unexpected events or system failures                                                                                                                                                                                                                                               | :heavy_check_mark:                                                                                                           |
 
 </details>
 
 ## Project Structure
 
 Each module listed below is per se a package, with:
+
 - `__init__.py`: Initializes the module and registers routes and views (in a blueprint).
 
 Also may contain any of the following files:
+
 - `views.py`: Contains the route definitions and view functions.
 - `utils.py`: Contains utility functions specific to the module.
 

@@ -1,44 +1,24 @@
-import random
 import unittest
 
 from flask import request
 from flask_login import login_user, logout_user
 from werkzeug.datastructures import LanguageAccept
 
-from app import create_app
 from config import AppConfig
 from modules.db.database import db
-from modules.db.models import User
 from modules.extensions.utils import get_locale, load_user
+from tests.base_test import BaseTest
+from tests.util import create_user
 
 
-class TestExtensionsUnit(unittest.TestCase):
+class TestExtensionsUnit(BaseTest):
     @classmethod
     def setUpClass(cls):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.client = cls.app.test_client()
-        cls.app_context = cls.app.app_context()
-        cls.app_context.push()
-        db.init_db()
-
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        cls.app_context.pop()
-
-    def setUp(self):
-        db.session.begin(nested=True)
-
-    def tearDown(self):
-        db.session.rollback()
+        super().setUpClass(init_login_manager=False, define_load_user=True)
 
     def test_get_locale_authenticated(self):
         with self.app.test_request_context():
-            user = User(username=f'user_{random.randint(0, 123456)}',
-                        email=f'{random.randint(0, 123456)}@example.com',
-                        password=f'password_{random.randint(0, 123456)}',
-                        language='fr')
+            user = create_user(self, language='fr')
             db.session.add(user)
             db.session.commit()
 
@@ -57,11 +37,7 @@ class TestExtensionsUnit(unittest.TestCase):
             self.assertEqual(get_locale(), AppConfig.DEFAULT_LANG)  # Should fall back to default
 
     def test_load_user(self):
-        user = User(username=f'user_{random.randint(0, 123456)}',
-                    email=f'{random.randint(0, 123456)}@example.com',
-                    password=f'password_{random.randint(0, 123456)}')
-        db.session.add(user)
-        db.session.commit()
+        user = create_user(self)
 
         loaded_user = load_user(user.id)
         self.assertEqual(loaded_user, user)

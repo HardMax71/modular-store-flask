@@ -30,7 +30,6 @@ def wishlist():
 @wishlist_bp.route("/send-wishlist-notifications")
 def send_notifications():
     send_wishlist_notifications()
-    flash(_("Wishlist notifications sent successfully."), "success")
     return redirect(url_for('profile.profile_info'))
 
 

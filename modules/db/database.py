@@ -1,3 +1,4 @@
+from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
 
@@ -7,13 +8,13 @@ Base = declarative_base()
 
 
 class Database:
-    def __init__(self, app=None):
+    def __init__(self, app: Flask = None):
         self.app = app
         if app is not None:
             self.init_app(app)
         self.init_db()
 
-    def init_app(self, app):
+    def init_app(self, app: Flask):
         app.teardown_appcontext(self.shutdown_session)
 
     def create_engine(self):

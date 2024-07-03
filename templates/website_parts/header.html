@@ -1,4 +1,4 @@
-<header>
+<header class="site-header">
     <nav class="navbar fixed-top navbar-light bg-light navbar-expand-lg py-3">
         <div class="container">
             <div class="d-flex align-items-center">
@@ -11,7 +11,7 @@
                             <div class="font-weight-bold"
                                  id="header-total-items">{{ total_items|default(0, true) }} {{ _('item(s)') }}</div>
                             <div class="font-weight-bold" id="header-total-price">
-                                ${{ '{:,.2f}'.format(total_amount|default(0, true)) }}</div>
+                                ${{ '{:,.2f}'.format(total_amount/100.0|default(0, true)) }}</div>
                         </div>
                     </a>
                 {% endif %}
@@ -89,8 +89,3 @@
         </div>
     </nav>
 </header>
-<style>
-    .shop-name {
-        font-size: 1.5rem;
-    }
-</style>

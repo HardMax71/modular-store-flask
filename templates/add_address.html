@@ -2,7 +2,8 @@
 {% block title %}{{ config.SHOP_NAME }} - {{ _('Add Address') }}{% endblock %}
 
 {% block body %}
-    <div class="container my-4">
+    <link href="{{ url_for('static', filename='css/address_pages.css') }}" rel="stylesheet" type="text/css">
+    <div class="container my-4 bento-container">
         <h2 class="mb-4">{{ _('Add New Address') }}</h2>
         <form method="POST" action="{{ url_for('profile.add_address') }}">
             <div class="form-group">

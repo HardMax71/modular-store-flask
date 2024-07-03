@@ -161,18 +161,10 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
-
-.bento-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
 .bento-button {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background-color: #3498db;
+    background-color: #2370a5;
     color: #ffffff;
     text-decoration: none;
     border-radius: 5px;
@@ -181,7 +173,7 @@ body {
 }
 
 .bento-button:hover {
-    background-color: #2980b9;
+    background-color: #226c9c;
 }
 
 .social-icons {
@@ -285,4 +277,56 @@ body {
     .payment-info {
         margin-top: 1rem;
     }
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.bento-item {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.bento-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.bento-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* WCAG color contrast improvements */
+.text-muted {
+    color: #555 !important;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-primary:hover {
+    background-color: #004085;
+    border-color: #004085;
+}
+
+/* Improve focus visibility for accessibility */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
 }

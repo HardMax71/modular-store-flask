@@ -2,13 +2,14 @@
 {% block title %}{{ config.SHOP_NAME }} - {{ _('Profile') }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
+    <link href="{{ url_for('static', filename='css/profile_page.css') }}" rel="stylesheet" type="text/css">
+    <div class="container mt-4 bento-box profile-container">
         <div class="row">
             <div class="col-md-4">
-                <div class="card">
+                <div class="card bento-item user-info-card">
                     <div class="card-body text-center">
                         <img src="{{ url_for('static', filename='img/profile_pictures/' + user.profile_picture) if user.profile_picture else url_for('static', filename='img/user-icon.png') }}"
-                                 alt="Profile Picture" class="mr-3 rounded-circle lazy img-fluid" width="150">
+                             alt="Profile Picture" class="mr-3 rounded-circle lazy img-fluid" width="150">
                         <h5 class="card-title">{{ user.fname }} {{ user.lname }}</h5>
                         <p class="card-text">{{ user.email }}</p>
                     </div>
@@ -72,21 +73,7 @@
                                    data-tab="wishlist">{{ _('Wishlist') }}</a>
                             </li>
                         </ul>
-                        <script>
-                            $(function () {
-                                $('.nav-tabs a').on('shown.bs.tab', function (event) {
-                                    var activeTab = $(event.target).data('tab');
-                                    localStorage.setItem('activeTab', activeTab);
-                                });
-                            });
-
-                            $(function () {
-                                var activeTab = localStorage.getItem('activeTab');
-                                if (activeTab) {
-                                    $('.nav-tabs a[data-tab="' + activeTab + '"]').tab('show');
-                                }
-                            });
-                        </script>
+                        <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
                     </div>
                     <div class="card-body">
                         <div class="tab-content">
@@ -312,7 +299,8 @@
                                             <div class="col-md-4 mb-4">
                                                 <div class="card h-100">
                                                     <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
-                                                         class="card-img-top lazy img-fluid" alt="{{ item.goods.samplename }}">
+                                                         class="card-img-top lazy img-fluid"
+                                                         alt="{{ item.goods.samplename }}">
                                                     <div class="card-body">
                                                         <h6 class="card-title">{{ item.goods.samplename }}</h6>
                                                         <p class="card-text text-truncate">{{ item.goods.description }}</p>
@@ -343,7 +331,8 @@
                                 {% else %}
                                     <div class="text-center">
                                         <img src="{{ url_for('static', filename='img/empty_cart.png') }}"
-                                             alt="Empty Wishlist" class="img-fluid mb-4 lazy img-fluid" style="max-width: 200px;">
+                                             alt="Empty Wishlist" class="img-fluid mb-4 lazy img-fluid"
+                                             style="max-width: 200px;">
                                         <h6>{{ _('Your wishlist is empty.') }}</h6>
                                         <p>{{ _('Explore our collection and add your favorite items to your wishlist!') }}</p>
                                         <a href="{{ url_for('main.index') }}"

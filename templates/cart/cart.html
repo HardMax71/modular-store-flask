@@ -113,19 +113,20 @@
                                     <tbody>
                                     <tr>
                                         <td>{{ _('Subtotal') }}:</td>
-                                        <td class="text-right" id="subtotal">{{ '${:,.2f}'.format(subtotal) }}</td>
+                                        <td class="text-right"
+                                            id="subtotal">{{ '${:,.2f}'.format(subtotal / 100.0) }}</td>
                                     </tr>
                                     {% if discount_percentage > 0 %}
                                         <tr>
                                             <td>{{ _('Discount:') }} {{ discount_percentage }}%</td>
                                             <td class="text-right" id="discount">
-                                                -{{ '${:,.2f}'.format(subtotal * discount_percentage / 100) }}</td>
+                                                -{{ '${:,.2f}'.format(subtotal * discount_percentage / 100.0) }}</td>
                                         </tr>
                                     {% endif %}
                                     <tr>
                                         <td><strong>{{ _('Total') }}:</strong></td>
                                         <td class="text-right"
-                                            id="cart-total">{{ '${:,.2f}'.format(total_amount) }}</td>
+                                            id="cart-total">{{ '${:,.2f}'.format(total_amount / 100.0) }}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -161,6 +162,15 @@
         </div>
     </div>
     <script>
+        function formatCurrency(valueString) {
+            // Remove the dollar sign and commas
+            const numericValue = parseFloat(valueString.replace(/[$,]/g, ''));
+            // Convert to cents and format as currency
+            const value = numericValue / 100;
+            return value.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+        }
+
+
         function updateQuantity(element, change = 0) {
             const form = element.closest('form');
             const quantityInput = form.querySelector('input[name="quantity"]');
@@ -183,34 +193,35 @@
                 .then(data => {
                     console.log(data);
                     if (data.status) {
+                        // Assuming data.subtotal, data.cart_total, and data.item_subtotal are in cents
+                        const formattedSubtotal = formatCurrency(data.subtotal);
+                        const formattedCartTotal = formatCurrency(data.cart_total);
+                        const formattedItemSubtotal = formatCurrency(data.item_subtotal);
+
                         // Update the subtotal, discount, and total in the cart summary
-                        document.getElementById('subtotal').textContent = data.subtotal;
+                        document.getElementById('subtotal').textContent = formattedSubtotal;
                         const discountElement = document.getElementById('discount');
                         if (discountElement) {
-                            discountElement.textContent = data.discount;
+                            discountElement.textContent = formatCurrency(data.discount);
                         }
 
-                        // update the cart total below subtotal
-                        document.getElementById('cart-total').textContent = data.cart_total;
+                        // Update the cart total below subtotal
+                        document.getElementById('cart-total').textContent = formattedCartTotal;
 
                         // Update cart summary above right
-                        document.getElementById('header-total-items').textContent = data.cart_items + " {{ _('item(s)') }}";
-                        document.getElementById('header-total-price').textContent = data.cart_total;
+                        document.getElementById('header-total-items').textContent = `${data.cart_items} {{ _('item(s)') }}`;
+                        document.getElementById('header-total-price').textContent = formattedCartTotal;
 
                         // Update the subtotal in the table row
                         const tableRow = element.closest('tr');
                         const subtotalCell = tableRow.querySelector('td:nth-child(7)');
-                        subtotalCell.textContent = data.item_subtotal;
-
+                        subtotalCell.textContent = formattedItemSubtotal;
                     } else {
                         console.error('{{ _('Cant change amount!') }}');
                         alert('{{ _('Cant change amount!') }}');
                         quantityInput.value = data.current_quantity;
                     }
                 })
-                .catch(error => {
-                    console.error('{{ _('Error') }}:', error);
-                });
         }
     </script>
     <style>

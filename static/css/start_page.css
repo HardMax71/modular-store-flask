@@ -45,7 +45,7 @@
 .bento-select:focus,
 .bento-input:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: #207AB6;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
@@ -211,7 +211,7 @@
 .sale-price {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #e74c3c;
+    color: #9A2113;
 }
 
 .original-price {
@@ -272,7 +272,7 @@
 .out-of-stock { color: #e74c3c; font-weight: 600; }
 .low-stock { color: #e67e22; font-weight: 600; }
 .limited-stock { color: #f39c12; font-weight: 600; }
-.in-stock { color: #2ecc71; font-weight: 600; }
+.in-stock { color: #1D8750; font-weight: 600; }
 
 .view-details-btn {
     background-color: #2370a5;
@@ -305,7 +305,7 @@
 }
 
 .sale-badge {
-    background: #e74c3c;
+    background: #9A2113;
     color: #fff;
     left: auto;
     right: 15px;
@@ -344,7 +344,7 @@
 }
 
 .pagination-link.current-page {
-    background-color: #3498db;
+    background-color: #207AB6;
     color: #ffffff;
     font-weight: bold;
 }

@@ -226,6 +226,13 @@ def payment_success():
     session_id = request.args.get('session_id')
     stripe.api_key = AppConfig.STRIPE_SECRET_KEY
 
+    ##### ONLY FOR TEST PURPOSES #####
+    if AppConfig.STRIPE_SECRET_KEY == 'your_stripe_secret_key':
+        order_id = request.args.get('order_id')
+        flash(_("Purchase completed. Thank you for shopping with us!"), "success")
+        return render_template("cart/success.html", order=db.session.get(Purchase, order_id))
+    ##### ONLY FOR TEST PURPOSES #####
+
     try:
         session = stripe.checkout.Session.retrieve(session_id)
 

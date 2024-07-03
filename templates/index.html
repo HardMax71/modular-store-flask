@@ -171,8 +171,7 @@
                                     <div class="product-category">{{ shirt.category.name }}</div>
                                     <div class="product-rating">
                                         {% if shirt.avg_rating %}
-                                            <div class="stars" style="--rating: {{ shirt.avg_rating }};"
-                                                 aria-label="{{ _('Rating of this product is %(rating)s out of 5.', rating=shirt.avg_rating) }}"></div>
+                                            <div class="stars" style="--rating: {{ shirt.avg_rating }};"></div>
                                             <span class="rating-count">({{ shirt.reviews|length }})</span>
                                         {% else %}
                                             <span class="no-rating">{{ _('No ratings') }}</span>

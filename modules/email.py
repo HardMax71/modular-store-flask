@@ -44,6 +44,7 @@ def send_wishlist_notifications():
         msg = Message(subject, recipients=[user.email], body=body)
         try:
             current_app.extensions['mail'].send(msg)
+            flash(_("Wishlist notifications sent successfully."), "success")
         except Exception:
             flash(_("Error sending wishlist notification email"), "danger")
 
