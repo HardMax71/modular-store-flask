@@ -12,10 +12,12 @@
                         <p class="text-muted">Last updated: {{ config.TERMS_LAST_UPDATED }}</p>
 
                         <h4>1. Introduction</h4>
-                        <p>Welcome to {{ config.SHOP_NAME }}. These terms and conditions ("Terms") govern your use of our website located at <a href="{{ session.get('website_url', '#') }}" target="_blank">{{ session.get('website_url', 'https://example.com') }}</a> (the "Website"). By accessing or using the Website, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must not use the Website.</p>
+                        <p>Welcome to {{ config.SHOP_NAME }}. These terms and conditions ("Terms") govern your use of our website located at <a href="{{ request.url_root }}" target="_blank">{{ request.url_root }}</a> (the "Website"). By accessing or using the Website, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must not use the Website.</p>
 
                         <h4>2. Intellectual Property</h4>
-                        <p>All content on the Website, including text, graphics, logos, images, and software, is the property of {{ config.SHOP_NAME }} and is protected by intellectual property laws. You may not use, reproduce, distribute, or modify any content from the Website without our prior written consent.</p>
+                        <p>All content on the Website, including but not limited to text, graphics, logos, images, and software, is the property of {{ config.SHOP_NAME }} or its licensors and is protected by intellectual property laws. You may not use, reproduce, distribute, or modify any content from the Website without our prior written consent.</p>
+
+                        <p>The names, trademarks, service marks, logos, and other data displayed on the Website are the intellectual property of their respective owners. The utilization of these names, trademarks, service marks, logos, or other proprietary materials does not indicate any affiliation with, endorsement by, or sponsorship by the respective trademark owners. All references to such proprietary materials are provided solely for illustrative purposes and do not imply any claim of ownership or confer any legal rights.</p>
 
                         <h4>3. User Accounts</h4>
                         <p>To access certain features of the Website, such as making purchases and leaving reviews, you may be required to create a user account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You agree to provide accurate and complete information when creating your account and to update your information as necessary.</p>
@@ -25,8 +27,9 @@
                         <ul>
                             <li>Violate any applicable laws or regulations.</li>
                             <li>Infringe upon the rights of others, including intellectual property rights.</li>
+                            <li>Use any automated system, including but not limited to robots, spiders, scrapers, or other automated means, to access, collect, or extract data from the Website without our express written permission.</li>
+                            <li>Engage in any activity that interferes with or disrupts the proper functioning of the Website, including but not limited to excessive requests, denial of service attacks, or attempts to bypass security measures.</li>
                             <li>Upload or transmit any harmful, offensive, or inappropriate content.</li>
-                            <li>Interfere with or disrupt the Website or its servers.</li>
                             <li>Attempt to gain unauthorized access to the Website or user accounts.</li>
                             <li>Engage in any fraudulent or deceptive activities.</li>
                             <li>Use the Website for any commercial purposes without our express written consent.</li>
@@ -56,8 +59,11 @@
                         <h4>12. Governing Law</h4>
                         <p>These Terms shall be governed by and construed in accordance with the laws of {{ config.JURISDICTION }}. Any legal action or proceeding relating to the Website or these Terms shall be brought exclusively in the courts of {{ config.JURISDICTION }}.</p>
 
-                        <h4>13. Contact Us</h4>
-                        <p>If you have any questions or concerns about these Terms, please contact us at <a href="mailto:{{ config.CONTACT_MAIL }}">{{ config.CONTACT_MAIL }}</a> or call us at <a href="tel:{{ config.CONTACT_PHONE }}">{{ config.CONTACT_PHONE }}</a>.</p>
+                        <h4>13. Disclaimer of Liability for Third-Party Content</h4>
+                        <p>{{ config.SHOP_NAME }} expressly disclaims any legal liability or responsibility for any misuse, misinterpretation, or misrepresentation of third-party proprietary materials displayed on the Website. Users acknowledge that such materials are used for illustrative purposes only and do not confer any rights or imply any relationship with the respective trademark owners.</p>
+
+                        <h4>14. Contact Us</h4>
+                        <p>If you have any questions or concerns about these Terms, please contact us at <a href="mailto:{{ config.CONTACT_EMAIL }}">{{ config.CONTACT_EMAIL }}</a> or call us at <a href="tel:{{ config.CONTACT_PHONE }}">{{ config.CONTACT_PHONE }}</a>.</p>
                     </div>
                 </div>
             </div>

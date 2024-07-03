@@ -12,22 +12,30 @@
                         <p class="text-muted">Last updated: {{ config.RETURN_POLICY_LAST_UPDATED }}</p>
 
                         <h4>1. Eligibility for Returns</h4>
-                        <p>To be eligible for a return, your item must be unused, in the same condition that you received it, and in its original packaging. Certain items, due to their nature, may not be eligible for return. Please refer to the product description or contact us if you have any questions about the eligibility of a specific item.</p>
+                        <p>To be eligible for a return, the item must be unused, in its original condition, and in the original packaging. {{ config.SHOP_NAME }} reserves the right to refuse returns on certain items due to health, safety, or other regulatory reasons. The eligibility of an item for return will be clearly stated in the product description. In cases of ambiguity, customers are advised to contact {{ config.SHOP_NAME }} for clarification prior to purchase.</p>
 
                         <h4>2. Return Window</h4>
-                        <p>You have {{ config.RETURN_WINDOW }} days from the date of delivery to initiate a return. If you receive a defective or incorrect item, please contact us immediately so we can address the issue.</p>
+                        <p>Customers are entitled to initiate a return within {{ config.RETURN_WINDOW }} calendar days from the date of delivery, as recorded in our system. This period shall commence on the day following the delivery date. For items received in a defective state or inconsistent with the order specifications, customers must notify {{ config.SHOP_NAME }} within 48 hours of receipt to ensure prompt resolution.</p>
 
                         <h4>3. Return Process</h4>
-                        <p>To initiate a return, please email us at <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a> with your order number and the reason for your return. We will provide you with instructions on how to proceed with the return.</p>
+                        <p>To initiate a return, customers must contact {{ config.SHOP_NAME }} via email at <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a>. The communication must include the order number and a detailed explanation for the return request. Upon receipt of this information, {{ config.SHOP_NAME }} will provide specific instructions for the return process. Failure to adhere to these instructions may result in delays or rejection of the return.</p>
 
                         <h4>4. Refunds</h4>
-                        <p>Once we receive and inspect your returned item, we will send you an email to notify you that we have received your returned item. We will also notify you of the approval or rejection of your refund. If approved, your refund will be processed, and a credit will automatically be applied to your original method of payment within {{ config.REFUND_PROCESSING_DAYS }} business days.</p>
+                        <p>Upon receipt and inspection of the returned item, {{ config.SHOP_NAME }} will notify the customer via email regarding the status of their refund. If approved, the refund will be processed to the original method of payment within {{ config.REFUND_PROCESSING_DAYS }} business days. The refund amount will be for the purchase price of the item(s) returned, excluding any shipping charges, unless otherwise required by applicable law. In cases where the return is due to an error on the part of {{ config.SHOP_NAME }}, all associated costs, including shipping, will be refunded.</p>
 
                         <h4>5. Shipping Costs</h4>
-                        <p>You will be responsible for paying the shipping costs for returning your item. Shipping costs are non-refundable. If you receive a refund, the cost of return shipping will be deducted from your refund.</p>
+                        <p>The customer shall bear the cost of return shipping, unless the return is necessitated by an error on the part of {{ config.SHOP_NAME }} or as otherwise required by law. Shipping costs are non-refundable and will be deducted from any refund issued, where applicable. {{ config.SHOP_NAME }} recommends that customers use a trackable shipping service and purchase shipping insurance for items of significant value, as {{ config.SHOP_NAME }} cannot be held responsible for items lost or damaged in transit during the return process.</p>
 
-                        <h4>6. Contact Us</h4>
-                        <p>If you have any questions about our return policy or need assistance with a return, please contact us at <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a> or call us at <a href="tel:{{ config.RETURNS_PHONE }}">{{ config.RETURNS_PHONE }}</a>.</p>
+                        <h4>6. Exceptions and Special Circumstances</h4>
+                        <p>Certain items, including but not limited to perishable goods, personalized items, and intimate apparel, may be exempt from this return policy. Such exceptions will be clearly indicated in the product description. In cases of force majeure or other extraordinary circumstances, {{ config.SHOP_NAME }} reserves the right to modify this policy temporarily or permanently, with such changes being effective immediately upon posting on the website.</p>
+
+                        <h4>7. Consumer Rights</h4>
+                        <p>This Return Policy does not affect any statutory rights that customers may have under applicable consumer protection laws. In the event of any conflict between this policy and applicable law, the provisions of the law shall prevail.</p>
+
+                        <h4>8. Contact Information</h4>
+                        <p>For any inquiries regarding this Return Policy or assistance with a return, please contact {{ config.SHOP_NAME }} at:</p>
+                        <p>Email: <a href="mailto:{{ config.RETURNS_EMAIL }}">{{ config.RETURNS_EMAIL }}</a><br>
+                        Phone: <a href="tel:{{ config.RETURNS_PHONE }}">{{ config.RETURNS_PHONE }}</a></p>
                     </div>
                 </div>
             </div>

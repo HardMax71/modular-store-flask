@@ -24,15 +24,15 @@ class AppConfig:
     REVIEW_PICS_FOLDER: str = os.path.join('static', 'img', 'review_pictures')
     IMAGES_FOLDER: str = os.path.join('static', 'img')
     MAIL_DEFAULT_SENDER: str = 'default'
-    WEBSITE_URL: str = 'https://example.com'
+    WEBSITE_URL: str = 'https://monkfish-app-mbn3z.ondigitalocean.app/'
     PER_PAGE: int = 9  # Number of items per page shown in the shop
 
-    TERMS_LAST_UPDATED: str = 'June 31, 2024'
+    TERMS_LAST_UPDATED: str = 'July 7, 2024'
     CONTACT_EMAIL: str = 'contact@example.com'
     CONTACT_PHONE: str = '123-456-7890'
     JURISDICTION: str = 'New York, NY'
 
-    RETURN_POLICY_LAST_UPDATED: str = 'June 1, 2023'
+    RETURN_POLICY_LAST_UPDATED: str = 'July 7, 2024'
     RETURN_WINDOW: int = 30
     RETURNS_EMAIL: str = 'return@example.com'
     REFUND_PROCESSING_DAYS: int = 7
