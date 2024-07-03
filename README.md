@@ -10,13 +10,14 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
   [![Live Demo](https://img.shields.io/uptimerobot/status/m797201826-b0375adddc1703a4a8c79126)](https://monkfish-app-mbn3z.ondigitalocean.app/)
+  [![WAVE accessibility checker](https://img.shields.io/badge/WAVE_accessibility_report-here-blue)](https://wave.webaim.org/report#/https://monkfish-app-mbn3z.ondigitalocean.app)
 
   [Demo](https://monkfish-app-mbn3z.ondigitalocean.app/) | [Report Bug](https://github.com/HardMax71/modular-store-flask/issues) | [Request Feature](https://github.com/HardMax71/modular-store-flask/issues)
 
 </div>
 
 > [!IMPORTANT]
-> **Disclaimer:** The names, trademarks, service marks, logos, and other data displayed on the demo website and in this repository are the intellectual property of their respective owners. The utilization of these names, trademarks, service marks, logos, or other proprietary materials does not indicate any affiliation with, endorsement by, or sponsorship by the respective trademark owners. All references to such proprietary materials are provided solely for illustrative purposes and do not imply any claim of ownership or confer any legal rights. The repository owner expressly disclaims any legal liability or responsibility for any misuse, misinterpretation, or misrepresentation of these proprietary materials.
+> The names, trademarks, service marks, logos, and other data displayed on the demo website and in this repository are the intellectual property of their respective owners. The utilization of these names, trademarks, service marks, logos, or other proprietary materials does not indicate any affiliation with, endorsement by, or sponsorship by the respective trademark owners. All references to such proprietary materials are provided solely for illustrative purposes and do not imply any claim of ownership or confer any legal rights. The repository owner expressly disclaims any legal liability or responsibility for any misuse, misinterpretation, or misrepresentation of these proprietary materials.
 
 ## About The Project
 

@@ -30,11 +30,7 @@
     flex-direction: column;
 }
 
-.bento-label {
-    font-size: 0.9rem;
-    color: #777;
-    margin-bottom: 0.5rem;
-}
+
 
 .bento-select,
 .bento-input {
@@ -58,8 +54,15 @@
     justify-content: center;
 }
 
+.bento-label {
+    font-size: 0.9rem;
+    color: #555; /* Darker color for better contrast */
+    font-weight: 500; /* Slightly bolder */
+    margin-bottom: 0.5rem;
+}
+
 .bento-button {
-    background-color: #3498db;
+    background-color: #2980b9; /* Darker blue for better contrast */
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -169,7 +172,8 @@
 
 .product-category {
     font-size: 0.9rem;
-    color: #777;
+    color: #444;
+    font-weight: 500;
     text-transform: uppercase;
 }
 
@@ -196,7 +200,7 @@
 
 .rating-count {
     font-size: 0.8rem;
-    color: #777;
+    color: #555;
     margin-left: 5px;
 }
 
@@ -212,17 +216,18 @@
 
 .original-price {
     font-size: 1rem;
-    color: #777;
+    color: #555;
     text-decoration: line-through;
     margin-left: 10px;
 }
 
 .discount-percentage {
-    background: #e74c3c;
+    background: #c92a2a;
     color: #fff;
     padding: 2px 6px;
     border-radius: 10px;
     font-size: 0.8rem;
+    font-weight: 600;
     margin-left: 10px;
 }
 
@@ -264,13 +269,13 @@
     font-weight: 600;
 }
 
-.out-of-stock { color: #e74c3c; }
-.low-stock { color: #e67e22; }
-.limited-stock { color: #f39c12; }
-.in-stock { color: #2ecc71; }
+.out-of-stock { color: #e74c3c; font-weight: 600; }
+.low-stock { color: #e67e22; font-weight: 600; }
+.limited-stock { color: #f39c12; font-weight: 600; }
+.in-stock { color: #2ecc71; font-weight: 600; }
 
 .view-details-btn {
-    background: #3498db;
+    background-color: #2370a5;
     color: #fff;
     padding: 8px 15px;
     border-radius: 20px;
@@ -280,7 +285,7 @@
 }
 
 .view-details-btn:hover {
-    background: #2980b9;
+    background: #1c5a84;
 }
 
 .new-badge, .sale-badge {
