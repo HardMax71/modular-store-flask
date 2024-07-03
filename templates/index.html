@@ -99,10 +99,10 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         {% if product.onSale %}
-                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(product.onSalePrice) }}</span>
-                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(product.price) }}</del></span>
+                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
+                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(product.price / 100.0) }}</del></span>
                                         {% else %}
-                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(product.price) }}</span>
+                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
                                         {% endif %}
                                     </div>
                                     <div>
@@ -181,11 +181,11 @@
                                 </div>
                                 <div class="product-price">
                                     {% if shirt.onSale %}
-                                        <span class="sale-price">${{ '{:,.2f}'.format(shirt.onSalePrice) }}</span>
-                                        <span class="original-price">${{ '{:,.2f}'.format(shirt.price) }}</span>
+                                        <span class="sale-price">${{ '{:,.2f}'.format(shirt.onSalePrice / 100.0) }}</span>
+                                        <span class="original-price">${{ '{:,.2f}'.format(shirt.price / 100.0) }}</span>
                                         <span class="discount-percentage">-{{ ((shirt.price - shirt.onSalePrice) / shirt.price * 100)|round|int }}%</span>
                                     {% else %}
-                                        <span class="regular-price">${{ '{:,.2f}'.format(shirt.price) }}</span>
+                                        <span class="regular-price">${{ '{:,.2f}'.format(shirt.price / 100.0) }}</span>
                                     {% endif %}
                                 </div>
                                 <div class="product-description">

@@ -18,7 +18,7 @@ class TestMainIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.category = Category(name='Test Category')
-        self.goods = Goods(samplename='Test Product', price=10.0, category=self.category, stock=10)
+        self.goods = Goods(samplename='Test Product', price=1000, category=self.category, stock=10)
         self.session.add_all([self.category, self.goods])
         self.session.commit()
 

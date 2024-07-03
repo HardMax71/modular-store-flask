@@ -17,10 +17,10 @@ class TestCompareIntegration(BaseTest):
 
     def setUp(self):
         super().setUp()
-        self.product1 = Goods(samplename='Product 1', price=10.0, stock=10)
-        self.product2 = Goods(samplename='Product 2', price=20.0, stock=20)
-        self.product3 = Goods(samplename='Product 3', price=30.0, stock=30)
-        self.product4 = Goods(samplename='product 4', price=40.0, stock=40)
+        self.product1 = Goods(samplename='Product 1', price=1000, stock=10)
+        self.product2 = Goods(samplename='Product 2', price=2000, stock=20)
+        self.product3 = Goods(samplename='Product 3', price=3000, stock=30)
+        self.product4 = Goods(samplename='product 4', price=4000, stock=40)
         self.session.add_all([self.product1, self.product2, self.product3, self.product4])
         self.session.commit()
 

@@ -14,39 +14,39 @@ class TestPurchaseHistoryUtils(unittest.TestCase):
             PurchaseItem(id=1, quantity=2),
             PurchaseItem(id=2, quantity=1)
         ]
-        original_prices = {1: 10.0, 2: 15.0}
+        original_prices = {1: 1000, 2: 1500}
         result = calculate_subtotal(cart_items, original_prices)
-        self.assertEqual(result, 35.0)
+        self.assertEqual(result, 3500)
 
     def test_calculate_discount_amount(self):
-        subtotal = 100.0
+        subtotal = 10000
         discount_percentage = 10.0
         result = calculate_discount_amount(subtotal, discount_percentage)
-        self.assertEqual(result, 10.0)
+        self.assertEqual(result, 1000)
 
     def test_calculate_delivery_fee(self):
-        shipping_method = ShippingMethod(price=5.0)
+        shipping_method = ShippingMethod(price=500)
         result = calculate_delivery_fee(shipping_method)
-        self.assertEqual(result, 5.0)
+        self.assertEqual(result, 500)
 
     def test_calculate_delivery_fee_no_method(self):
         result = calculate_delivery_fee(None)
         self.assertEqual(result, 0.0)
 
     def test_calculate_total_price(self):
-        subtotal = 100.0
-        discount_amount = 10.0
-        delivery_fee = 5.0
+        subtotal = 10000
+        discount_amount = 1000
+        delivery_fee = 500
         result = calculate_total_price(subtotal, discount_amount, delivery_fee)
-        self.assertEqual(result, 95.0)
+        self.assertEqual(result, 9500)
 
     def test_calculate_items_subtotal(self):
         items = [
-            PurchaseItem(quantity=2, price=10.0),
-            PurchaseItem(quantity=1, price=15.0)
+            PurchaseItem(quantity=2, price=1000),
+            PurchaseItem(quantity=1, price=1500)
         ]
         result = calculate_items_subtotal(items)
-        self.assertEqual(result, 35.0)
+        self.assertEqual(result, 3500)
 
 
 if __name__ == '__main__':

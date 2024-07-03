@@ -17,7 +17,7 @@
                                 <p class="card-text">
                                     <strong>{{ _('Date') }}:</strong> {{ purchase.date.strftime('%Y-%m-%d %H:%M') }}<br>
                                     <strong>{{ _('Total Price') }}:</strong>
-                                    ${{ purchase.items_subtotal + purchase.delivery_fee }}<br>
+                                    ${{ (purchase.items_subtotal + purchase.delivery_fee) / 100.0 }}<br>
                                     <strong>{{ _('Status') }}:</strong> {{ purchase.status }}
                                 </p>
                                 <div class="mt-auto">

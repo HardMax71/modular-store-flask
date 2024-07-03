@@ -15,6 +15,15 @@
 
 </div>
 
+<div style="background-color: yellow; padding: 10px; border: 1px solid black;">
+  <strong>Disclaimer:</strong> The names, trademarks, service marks, logos, and other data displayed on the demo website and in this repository are 
+the intellectual property of their respective owners. The utilization of these names, trademarks, service marks, logos, or other proprietary materials 
+does not indicate any affiliation with, endorsement by, or sponsorship by the respective trademark owners. All references to such proprietary materials 
+are provided solely for illustrative purposes and do not imply any claim of ownership or confer any legal rights. The repository owner expressly disclaims 
+any legal liability or responsibility for any misuse, misinterpretation, or misrepresentation of these proprietary materials.
+</div>
+
+
 ## About The Project
 
 Modular Store Flask is a state-of-the-art e-commerce solution designed to provide a flexible and scalable platform for online stores. Built with Flask, it offers a wide range of features to enhance both user experience and store management.

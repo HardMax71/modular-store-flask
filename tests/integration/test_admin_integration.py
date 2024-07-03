@@ -21,7 +21,7 @@ class TestAdminIntegration(BaseTest):
         super().setUp()
         self.admin_user = create_user(self, is_admin=True)
         self.regular_user = create_user(self)
-        self.product = Goods(samplename='Test Product', price=10.0, stock=10)
+        self.product = Goods(samplename='Test Product', price=1000, stock=10)
         self.category = Category(name='Test Category')
         self.session.add_all([self.product, self.category])
         self.session.commit()

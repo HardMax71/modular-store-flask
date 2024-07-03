@@ -18,7 +18,7 @@
                     </div>
                     <p class="card-text">{{ _('Order Number') }}: <strong>#{{ order.id }}</strong></p>
                     <p class="card-text">{{ _('Order Date') }}: {{ order.date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-                    <p class="card-text">{{ _('Total Amount') }}: ${{ "%.2f"|format(order.total_price) }}</p>
+                    <p class="card-text">{{ _('Total Amount') }}: ${{ "%.2f"|format(order.total_price / 100.0) }}</p>
 
                     <h5 class="mt-4">{{ _('Order Details') }}</h5>
                     <ul class="list-group mb-3">

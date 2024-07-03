@@ -57,7 +57,7 @@
                                     <tr>
                                         <td>{{ item.goods.samplename }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>${{ '%.2f' | format(item.price) }}</td>
+                                        <td>${{ '%.2f' | format(item.price / 100.0) }}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -68,13 +68,13 @@
                                 {% set items_subtotal = purchase.items|sum(attribute='price') %}
                                 <p><strong>{{ _('Subtotal') }}:</strong> ${{ '%.2f' | format(items_subtotal) }}</p>
                                 <p><strong>{{ _('Discount') }}:</strong>
-                                    ${{ '%.2f' | format(purchase.discount_amount) }}</p>
+                                    ${{ '%.2f' | format(purchase.discount_amount / 100.0) }}</p>
                                 <p><strong>{{ _('Delivery Fee') }}:</strong>
-                                    ${{ '%.2f' | format(purchase.delivery_fee) }}</p>
+                                    ${{ '%.2f' | format(purchase.delivery_fee / 100.0) }}</p>
                             </div>
                             <div class="col-md-6 text-md-right">
                                 <h4><strong>{{ _('Total Price') }}:</strong>
-                                    ${{ '%.2f' | format(items_subtotal - purchase.discount_amount + purchase.delivery_fee) }}
+                                    ${{ '%.2f' | format((items_subtotal - purchase.discount_amount + purchase.delivery_fee)/100.0) }}
                                 </h4>
                             </div>
                         </div>

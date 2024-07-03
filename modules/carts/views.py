@@ -173,7 +173,7 @@ def checkout():
                     'product_data': {
                         'name': item.goods.samplename,
                     },
-                    'unit_amount': int(item.price * 100),
+                    'unit_amount': item.price,
                 },
                 'quantity': item.quantity,
             } for item in cart_items]
@@ -185,7 +185,7 @@ def checkout():
                     'product_data': {
                         'name': f"Shipping: {shipping_method.name}",
                     },
-                    'unit_amount': int(shipping_method.price * 100),
+                    'unit_amount': shipping_method.price,
                 },
                 'quantity': 1,
             })

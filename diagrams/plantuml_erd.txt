@@ -37,7 +37,7 @@ entity "Cart" as cart {
  *user_id : integer <<FK>>
  *goods_id : integer <<FK>>
  *quantity : integer
- *price : float
+ *price : integer
  variant_options : text
 }
 
@@ -47,8 +47,8 @@ entity "Purchase" as purchase {
  --
  *user_id : integer <<FK>>
  *date : date
- *total_price : float
- discount_amount : float
+ *total_price : integer
+ discount_amount : integer
  delivery_fee : float
  status : text
  tracking_number : text
@@ -63,7 +63,7 @@ entity "PurchaseItem" as purchaseitem {
  *purchase_id : integer <<FK>>
  *goods_id : integer <<FK>>
  *quantity : integer
- *price : float
+ *price : integer
 }
 
 
@@ -126,9 +126,9 @@ entity "Goods" as goods {
  --
  samplename : text
  image : text
- price : float
+ price : integer
  onSale : integer
- onSalePrice : float
+ onSalePrice : integer
  kind : text
  goods_type : text
  description : text

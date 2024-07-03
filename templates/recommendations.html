@@ -55,10 +55,10 @@ html {% extends "base.html" %}
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div class="price-container">
                                             {% if product.onSale %}
-                                                <span class="price text-danger fs-5">{{ '{:,.2f}'.format(product.onSalePrice) }}</span>
-                                                <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(product.price) }}</del></span>
+                                                <span class="price text-danger fs-5">{{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
+                                                <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(product.price / 100.0) }}</del></span>
                                             {% else %}
-                                                <span class="price fs-5">{{ '{:,.2f}'.format(product.price) }}</span>
+                                                <span class="price fs-5">{{ '{:,.2f}'.format(product.price / 100.0) }}</span>
                                             {% endif %}
                                         </div>
                                     </div>

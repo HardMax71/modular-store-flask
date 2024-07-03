@@ -35,9 +35,9 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="shipping_method"
                                        id="shipping-{{ method.id }}" value="{{ method.id }}" required
-                                       data-price="{{ method.price }}" onchange="updateTotal()">
+                                       data-price="{{ method.price / 100.0 }}" onchange="updateTotal()">
                                 <label class="form-check-label" for="shipping-{{ method.id }}">
-                                    {{ method.name }} - ${{ "%.2f"|format(method.price) }}
+                                    {{ method.name }} - ${{ "%.2f"|format(method.price / 100.0) }}
                                 </label>
                             </div>
                         {% endfor %}
@@ -55,14 +55,14 @@
                             {% for item in cart_items %}
                                 <li class="list-group-item">
                                     {{ item.goods.samplename }}
-                                    - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}: ${{ "%.2f"|format(item.price) }}
+                                    - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}: ${{ "%.2f"|format(item.price / 100.0) }}
                                 </li>
                             {% endfor %}
                         </ul>
                         <div class="mt-3">
-                            <p>{{ _('Subtotal') }}: $<span id="subtotal">{{ "%.2f"|format(subtotal) }}</span></p>
-                            <p>{{ _('Shipping cost') }}: $<span id="shipping-price">{{ "%.2f"|format(shipping_price) }}</span></p>
-                            <h4>{{ _('Total price') }}: $<span id="total-price">{{ "%.2f"|format(total) }}</span></h4>
+                            <p>{{ _('Subtotal') }}: $<span id="subtotal">{{ "%.2f"|format(subtotal / 100.0) }}</span></p>
+                            <p>{{ _('Shipping cost') }}: $<span id="shipping-price">{{ "%.2f"|format(shipping_price / 100.0) }}</span></p>
+                            <h4>{{ _('Total price') }}: $<span id="total-price">{{ "%.2f"|format(total / 100.0) }}</span></h4>
                         </div>
                     </div>
                 </div>

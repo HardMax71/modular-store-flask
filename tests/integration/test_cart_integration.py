@@ -20,8 +20,8 @@ class TestCartIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.user = create_user(self)
-        self.product = Goods(samplename='Test Product', price=10.0, stock=10)
-        self.shipping_method = ShippingMethod(name='Standard', price=5.0)
+        self.product = Goods(samplename='Test Product', price=1000, stock=10)
+        self.shipping_method = ShippingMethod(name='Standard', price=500)
         self.address = Address(user_id=self.user.id, address_line1='123 Test St', city='Test City',
                                state='TS', zip_code='12345', country='Testland')
         self.session.add_all([self.product, self.shipping_method, self.address])
@@ -47,7 +47,7 @@ class TestCartIntegration(BaseTest):
             with self.app.test_client():
                 login_user(self.user)
 
-                goods = Goods(samplename='Test Product', price=10.0)
+                goods = Goods(samplename='Test Product', price=1000)
                 self.session.add_all([goods])
                 self.session.commit()
 
@@ -163,18 +163,19 @@ class TestCartIntegration(BaseTest):
         self.login_user_with_app_context()
 
         # Create some products
-        product1 = Goods(samplename='Test Product 1', price=10.0, stock=10)
-        product2 = Goods(samplename='Test Product 2', price=15.0, stock=10)
+        # (!) price in cents
+        product1 = Goods(samplename='Test Product 1', price=1000, stock=10)
+        product2 = Goods(samplename='Test Product 2', price=1500, stock=10)
         self.session.add_all([product1, product2])
         self.session.commit()
 
         # Create a purchase
         purchase = Purchase(
             user_id=self.user.id,
-            total_price=35.0,
+            total_price=3500,
             status='Completed',
             discount_amount=0,
-            delivery_fee=5.0,
+            delivery_fee=500,
             payment_method='Credit Card'
         )
         self.session.add(purchase)
@@ -214,12 +215,6 @@ class TestCartIntegration(BaseTest):
         self.assertIn(b'Test Product 2', response.data)
         self.assertIn(b'15.00', response.data)
         self.assertIn(b'<td>1</td>', response.data)  # Quantity: 1
-
-        # Clean up
-        # self.session.query(PurchaseItem).delete()
-        # self.session.query(Purchase).delete()
-        # self.session.query(Goods).delete()
-        # self.session.commit()
 
     def test_apply_discount_code(self):
         # Setup: Create a valid discount
@@ -271,7 +266,7 @@ class TestCartIntegration(BaseTest):
 
         # Check if the cart items' prices have been updated
         updated_cart_item = Cart.query.filter_by(user_id=self.user.id).first()
-        self.assertAlmostEqual(updated_cart_item.price, self.product.price * 0.9, places=2)
+        self.assertAlmostEqual(updated_cart_item.price, self.product.price * 0.9)  # checking values in cents
 
         # Check if UserDiscount has been created
         user_discount = UserDiscount.query.filter_by(user_id=self.user.id, discount_id=valid_discount.id).first()
@@ -297,12 +292,6 @@ class TestCartIntegration(BaseTest):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Invalid discount code', response.data)
-
-        # Cleanup
-        # self.session.query(UserDiscount).delete()
-        # self.session.query(Discount).delete()
-        # self.session.query(Cart).delete()
-        # self.session.commit()
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ class TestWishlistsIntegration(BaseTest):
         self.mock_email_sender.sent_notifications = False
 
     def create_goods(self):
-        goods = Goods(samplename='Test Product', price=10.0)
+        goods = Goods(samplename='Test Product', price=1000)
         self.session.add(goods)
         self.session.commit()
         return goods

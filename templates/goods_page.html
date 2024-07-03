@@ -23,10 +23,10 @@
                     <div class="d-flex align-items-center mb-3">
                         {% if shirt.onSale %}
                             <h4 class="text-danger font-weight-bold mb-0 mr-3">
-                                ${{ '{:,.2f}'.format(shirt.onSalePrice) }}</h4>
+                                ${{ '{:,.2f}'.format(shirt.onSalePrice / 100.0) }}</h4>
                             <span class="badge badge-danger">{{ _('On Sale!') }}</span>
                         {% else %}
-                            <h4 class="font-weight-bold mb-0">${{ '{:,.2f}'.format(shirt.price) }}</h4>
+                            <h4 class="font-weight-bold mb-0">${{ '{:,.2f}'.format(shirt.price / 100.0) }}</h4>
                         {% endif %}
                     </div>
                     <div class="mb-4">
@@ -367,10 +367,10 @@
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div class="price-container"> {% if related_product.onSale %}
                                             <span
-                                                    class="price text-danger fs-5">{{ '{:,.2f}'.format(related_product.onSalePrice) }}</span>
-                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(related_product.price) }}</del></span> {% else %}
+                                                    class="price text-danger fs-5">{{ '{:,.2f}'.format(related_product.onSalePrice / 100.0) }}</span>
+                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(related_product.price / 100.0) }}</del></span> {% else %}
                                             <span
-                                                    class="price fs-5">{{ '{:,.2f}'.format(related_product.price) }}</span> {% endif %}
+                                                    class="price fs-5">{{ '{:,.2f}'.format(related_product.price / 100.0) }}</span> {% endif %}
                                         </div>
                                     </div>
                                 </div>

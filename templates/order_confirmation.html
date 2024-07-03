@@ -54,15 +54,15 @@
                                     <tr>
                                         <td>{{ item.goods.samplename }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>${{ "%.2f"|format(item.price) }}</td>
-                                        <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                        <td>${{ "%.2f"|format(item.price / 100.0) }}</td>
+                                        <td>${{ "%.2f"|format(item.price / 100.0 * item.quantity) }}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
                                 <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-right"><strong>{{ _('Total Amount') }}:</strong></td>
-                                    <td>${{ "%.2f"|format(total_amount) }}</td>
+                                    <td>${{ "%.2f"|format(total_amount / 100.0) }}</td>
                                 </tr>
                                 </tfoot>
                             </table>

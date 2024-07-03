@@ -14,7 +14,7 @@ class TestWishlistsUnit(BaseTest):
         super().setUpClass(init_login_manager=False, define_load_user=True)
 
     def create_goods(self):
-        goods = Goods(samplename='Test Product', price=10.0)
+        goods = Goods(samplename='Test Product', price=1000)
         self.session.add(goods)
         self.session.commit()
         return goods

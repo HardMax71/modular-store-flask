@@ -28,8 +28,8 @@ class TestReviewUtils(BaseTest):
         self.assertEqual(reported_review.explanation, "Test explanation")
 
     def test_has_purchased(self):
-        purchase = Purchase(id=1, user_id=1, total_price=10.0)
-        purchase_item = PurchaseItem(purchase_id=1, goods_id=1, quantity=1, price=10.0)
+        purchase = Purchase(id=1, user_id=1, total_price=1000)
+        purchase_item = PurchaseItem(purchase_id=1, goods_id=1, quantity=1, price=1000)
         self.session.add_all([purchase, purchase_item])
         self.session.commit()
 

@@ -21,7 +21,7 @@ class TestReviewUtilsIntegration(BaseTest):
         super().setUp()
         self.user = create_user(self)
         self.admin = create_user(self, is_admin=True)
-        self.goods = Goods(id=1, samplename='Test Product', price=10.0)
+        self.goods = Goods(id=1, samplename='Test Product', price=1000)
         self.session.add(self.goods)
         self.session.commit()
 
@@ -51,7 +51,7 @@ class TestReviewUtilsIntegration(BaseTest):
         self.assertEqual(reported_review.explanation, "Inappropriate content")
 
     def test_has_purchased_integration(self):
-        purchase = Purchase(user_id=self.user.id, total_price=10.0)
+        purchase = Purchase(user_id=self.user.id, total_price=1000)
         self.session.add(purchase)
         self.session.commit()
 

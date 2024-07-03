@@ -124,7 +124,7 @@ class Cart(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     goods_id = Column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
     quantity = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Integer, nullable=False)  # Price in cents
     variant_options = Column(Text)
 
     goods = relationship('Goods', backref='cart_items', lazy='joined')
@@ -201,7 +201,7 @@ class Cart(Base):
             Discount.end_date >= current_date
         ).scalar() or 0.0
 
-        discount_amount = subtotal * (max_discount / 100)
+        discount_amount = subtotal * max_discount
         total_amount = subtotal - discount_amount
 
         current_user.discount = max_discount
@@ -223,9 +223,9 @@ class Goods(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     samplename = Column(Text)
     _image = Column(Text, default='goods-icon.png')
-    price = Column(Float)
+    price = Column(Integer)  # Price in cents
     onSale = Column(Integer)
-    onSalePrice = Column(Float)
+    onSalePrice = Column(Integer)  # Price in cents
     kind = Column(Text)
     goods_type = Column(Text)
     description = Column(Text)
@@ -327,9 +327,9 @@ class Purchase(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     date = Column(DateTime, nullable=False, default=func.now())
-    total_price = Column(Float, nullable=False)
-    discount_amount = Column(Float, nullable=False, default=0)
-    delivery_fee = Column(Float, nullable=False, default=0)
+    total_price = Column(Integer, nullable=False)  # Total price in cents
+    discount_amount = Column(Integer, nullable=False, default=0)  # Discount amount in cents
+    delivery_fee = Column(Integer, nullable=False, default=0)  # Delivery fee in cents
     status = Column(Text)
     tracking_number = Column(Text)
     shipping_method = Column(Text)
@@ -357,7 +357,7 @@ class ShippingMethod(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Text, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Integer, nullable=False)  # Price in cents
 
 
 class PurchaseItem(Base):
@@ -367,7 +367,7 @@ class PurchaseItem(Base):
     purchase_id = Column(Integer, ForeignKey('purchases.id'), nullable=False, index=True)
     goods_id = Column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
     quantity = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Integer, nullable=False)  # Price in cents
 
     @property
     def goods(self) -> Goods:

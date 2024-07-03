@@ -25,15 +25,15 @@ class TestRecommendations(BaseTest):
         user = create_user(self)
         category1 = Category(name='Category 1')
         category2 = Category(name='Category 2')
-        goods1 = Goods(samplename='Test Product 1', price=10.0, category=category1, stock=10)
-        goods2 = Goods(samplename='Test Product 2', price=15.0, category=category2, stock=5)
+        goods1 = Goods(samplename='Test Product 1', price=1000, category=category1, stock=10)
+        goods2 = Goods(samplename='Test Product 2', price=1500, category=category2, stock=5)
         db.session.add_all([user, category1, category2, goods1, goods2])
         db.session.commit()
         return user, category1, category2, goods1, goods2
 
     def test_update_recently_viewed_products(self):
         user = create_user(self)
-        goods = Goods(samplename='Test Product', price=10.0)
+        goods = Goods(samplename='Test Product', price=1000)
         db.session.add_all([user, goods])
         db.session.commit()
 
