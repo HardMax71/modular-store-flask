@@ -1,6 +1,6 @@
 import time
 
-from flask import current_app
+from flask import current_app, Flask
 from flask import request
 from flask_login import current_user
 
@@ -13,7 +13,7 @@ class DatabaseLogger(object):
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Flask):
         app.before_request(self.before_request)
         app.after_request(self.after_request)
 

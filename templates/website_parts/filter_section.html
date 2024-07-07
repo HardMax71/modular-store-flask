@@ -1,0 +1,57 @@
+<section class="filter-section my-5">
+    <div class="bento-box filter-card">
+        <h4 class="bento-title">{{ _('Filter Products') }}</h4>
+        <form action="{{ url_for('filter.filter_route') }}" method="GET" class="filter-form">
+            <div class="bento-grid">
+                <div class="bento-item">
+                    <label for="category" class="bento-label">{{ _('Category') }}</label>
+                    <select class="bento-select" id="category" name="category_id">
+                        <option value=""
+                                {% if not request.args.get('category_id') %}selected{% endif %}>{{ _('All Categories') }}</option>
+                        {% for category in categories %}
+                            {% if category.parent_id is none %}
+                                <option value="{{ category.id }}" class="category-parent"
+                                        {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% for subcategory in categories %}
+                                    {% if subcategory.parent_id == category.id %}
+                                        <option value="{{ subcategory.id }}" class="category-child"
+                                                {% if request.args.get('category_id')|int == subcategory.id %}selected{% endif %}>
+                                            &nbsp;&nbsp;{{ subcategory.name }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="bento-item">
+                    <label for="sort_by" class="bento-label">{{ _('Sort By') }}</label>
+                    <select class="bento-select" id="sort_by" name="sort_by">
+                        {% for option in session.get('filter_options', {}).get('sort_options', []) %}
+                            <option value="{{ option.value }}"
+                                    {% if request.args.get('sort_by') == option.value %}selected{% endif %}>
+                                {{ option.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="bento-item">
+                    <label for="name_query" class="bento-label">{{ _('Product Name') }}</label>
+                    <input type="text" class="bento-input" id="name_query" name="name_query"
+                           value="{{ request.args.get('name_query', '') }}"
+                           placeholder="{{ _('Search products...') }}">
+                </div>
+                <div class="bento-item">
+                    <label for="tag_query" class="bento-label">{{ _('Tags') }}</label>
+                    <input type="text" class="bento-input" id="tag_query" name="tag_query"
+                           value="{{ request.args.get('tag_query', '') }}" placeholder="{{ _('Enter tags...') }}">
+                </div>
+            </div>
+            <div class="bento-action">
+                <button type="submit" class="bento-button">{{ _('Apply Filters') }}</button>
+            </div>
+        </form>
+    </div>
+</section>

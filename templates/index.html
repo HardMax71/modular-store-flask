@@ -2,150 +2,18 @@
 {% block title %}
     {{ config.SHOP_NAME }} - {{ _('Home') }}
 {% endblock %}
-{% block body %}
+
+{% block head %}
+    {{ super() }}
     <link href="{{ url_for('static', filename='css/start_page.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
 
-    <!-- Main Store Body -->
-    {% if session['user'] %}
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="{{ _('Close') }}">
-                <span aria-hidden="true">×</span>
-            </button>
-            <strong>{{ _('Welcome') }}, {{ session['user'] }}!</strong> {{ _('We hope you enjoy your shopping experience.') }}
-        </div>
-    {% endif %}
-
-    <section class="filter-section my-5">
-    <div class="bento-box filter-card">
-        <h4 class="bento-title">{{ _('Filter Products') }}</h4>
-        <form action="{{ url_for('filter.filter_route') }}" method="GET" class="filter-form">
-            <div class="bento-grid">
-                <div class="bento-item">
-                    <label for="category" class="bento-label">{{ _('Category') }}</label>
-                    <select class="bento-select" id="category" name="category_id">
-                        <option value="" {% if not request.args.get('category_id') %}selected{% endif %}>{{ _('All Categories') }}</option>
-                        {% for category in categories %}
-                            {% if category.parent_id is none %}
-                                <option value="{{ category.id }}" class="category-parent"
-                                        {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
-                                    {{ category.name }}
-                                </option>
-                                {% for subcategory in categories %}
-                                    {% if subcategory.parent_id == category.id %}
-                                        <option value="{{ subcategory.id }}" class="category-child"
-                                                {% if request.args.get('category_id')|int == subcategory.id %}selected{% endif %}>
-                                            &nbsp;&nbsp;{{ subcategory.name }}
-                                        </option>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="bento-item">
-                    <label for="sort_by" class="bento-label">{{ _('Sort By') }}</label>
-                    <select class="bento-select" id="sort_by" name="sort_by">
-                        <option value="price_asc" {% if request.args.get('sort_by') == 'price_asc' %}selected{% endif %}>
-                            {{ _('Price: Low to High') }}
-                        </option>
-                        <option value="price_desc" {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>
-                            {{ _('Price: High to Low') }}
-                        </option>
-                        <option value="rating" {% if request.args.get('sort_by') == 'rating' %}selected{% endif %}>
-                            {{ _('Rating') }}
-                        </option>
-                    </select>
-                </div>
-                <div class="bento-item">
-                    <label for="name_query" class="bento-label">{{ _('Product Name') }}</label>
-                    <input type="text" class="bento-input" id="name_query" name="name_query"
-                           value="{{ request.args.get('name_query', '') }}"
-                           placeholder="{{ _('Search products...') }}">
-                </div>
-                <div class="bento-item">
-                    <label for="tag_query" class="bento-label">{{ _('Tags') }}</label>
-                    <input type="text" class="bento-input" id="tag_query" name="tag_query"
-                           value="{{ request.args.get('tag_query', '') }}" placeholder="{{ _('Enter tags...') }}">
-                </div>
-            </div>
-            <div class="bento-action">
-                <button type="submit" class="bento-button">{{ _('Apply Filters') }}</button>
-            </div>
-        </form>
-    </div>
-</section>
+{% block body %}
+    {% include 'website_parts/filter_section.html' %}
 
     <!-- Promoted Products Section -->
     {% if promoted_products|length > 0 %}
-        <section class="container my-5">
-            <h2 class="text-center mb-4">{{ _('Featured Products') }}</h2>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-                {% for product in promoted_products %}
-                    <div class="col">
-                        <div class="card h-100 border-primary">
-                            <div class="badge badge-danger badge-pill position-absolute top-0 end-0 m-2">
-                                {% if product.onSale %}
-                                    {{ _('Sale') }}
-                                {% else %}
-                                    {{ _('Featured') }}
-                                {% endif %}
-                            </div>
-                            <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                                 class="card-img-top img-fluid"
-                                 alt="{{ product.samplename }}" loading="lazy">
-                            <div class="card-body">
-                                <h3 class="card-title">{{ product.samplename }}</h3>
-                                <p class="card-text">{{ product.description[:100] }}...</p>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div>
-                                        {% if product.onSale %}
-                                            <span class="text-danger font-weight-bold">${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
-                                            <span class="text-muted ml-2"><del>${{ '{:,.2f}'.format(product.price / 100.0) }}</del></span>
-                                        {% else %}
-                                            <span class="font-weight-bold">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        {% if product.avg_rating %}
-                                            <span class="text-warning">
-                                        {% for i in range(1, 6) %}
-                                            <i class="fas fa-star{% if i > product.avg_rating %} text-muted{% endif %}"></i>
-                                        {% endfor %}
-                                    </span>
-                                            <span class="ml-1">({{ product.avg_rating }})</span>
-                                        {% else %}
-                                            <span class="text-muted">{{ _('No ratings') }}</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="tags">
-                                        {% if product.tags %}
-                                            {% for tag in product.tags %}
-                                                <span class="badge badge-secondary mr-2 px-3 py-2">{{ tag.name }}</span>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        {% if product.stock < 3 %}
-                                            <span class="badge badge-danger mr-2 px-3 py-2">{{ _('Low Stock') }}: {{ product.stock }}</span>
-                                        {% elif product.stock < 10 %}
-                                            <span class="badge badge-warning mr-2 px-3 py-2">{{ _('Hurry Up') }}: {{ product.stock }}</span>
-                                        {% else %}
-                                            <span class="badge badge-success mr-2 px-3 py-2">{{ _('In Stock') }}</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer text-center">
-                                <a href="{{ url_for('main.goods_page', id=product.id) }}"
-                                   class="btn btn-outline-primary">{{ _('View Details') }}</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
+        {% include 'website_parts/promoted_products_section.html' %}
     {% endif %}
 
     <!-- Product List Section -->

@@ -1,85 +1,60 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ config.SHOP_NAME }} - {{ _('Tickets') }}{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='css/tickets.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>{{ _('My Tickets') }}</h2>
-            <a href="{{ url_for('tickets.create_ticket') }}" class="btn btn-success">{{ _('Create Ticket') }}</a>
+        <div class="bento-box tickets-header">
+            <h2 class="bento-title">{{ _('Ticket Management') }}</h2>
+            <a href="{{ url_for('tickets.create_ticket') }}" class="bento-button">{{ _('Create Ticket') }}</a>
         </div>
 
-        {% if user_tickets %}
-            <div class="table-responsive">
-                <h3>{{ _('My Tickets') }}</h3>
-                <table class="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>{{ _('Title') }}</th>
-                        <th>{{ _('Status') }}</th>
-                        <th>{{ _('Priority') }}</th>
-                        <th>{{ _('Created At') }}</th>
-                        <th class="text-center">{{ _('Actions') }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for ticket in user_tickets %}
-                        <tr>
-                            <td>{{ ticket.title }}</td>
-                            <td>
-                                <span class="badge badge-pill badge-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'closed' %}success{% else %}secondary{% endif %}">{{ ticket.status }}</span>
-                            </td>
-                            <td>
-                                <span class="badge badge-pill badge-{% if ticket.priority == 'low' %}success{% elif ticket.priority == 'high' %}danger{% else %}warning{% endif %}">{{ ticket.priority }}</span>
-                            </td>
-                            <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td class="text-center">
-                                <a href="{{ url_for('tickets.ticket_details', ticket_id=ticket.id) }}"
-                                   class="btn btn-primary btn-sm">{{ _('View') }}</a>
-                            </td>
-                        </tr>
+        {% if current_user.is_admin and assigned_tickets %}
+            <div class="bento-box mt-4">
+                <h3 class="bento-subtitle">{{ _('Tickets Under Review') }}</h3>
+                <div class="tickets-grid">
+                    {% for ticket in assigned_tickets %}
+                        <div class="ticket-item">
+                            <h4 class="ticket-title">{{ ticket.title }}</h4>
+                            <div class="ticket-info">
+                                <span class="ticket-user">{{ ticket.user.username }}</span>
+                                <span class="ticket-status status-{{ ticket.status }}">{{ ticket.status }}</span>
+                                <span class="ticket-priority priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
+                                <span class="ticket-date">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                            <a href="{{ url_for('tickets.ticket_details', ticket_id=ticket.id) }}" class="bento-button ticket-action">{{ _('View') }}</a>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                </div>
             </div>
-        {% else %}
-            <p>{{ _('No tickets found.') }}</p>
         {% endif %}
 
-        {% if current_user.is_admin and assigned_tickets %}
-            <div class="table-responsive mt-4">
-                <h3>{{ _('Assigned Tickets') }}</h3>
-                <table class="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>{{ _('Title') }}</th>
-                        <th>{{ _('User') }}</th>
-                        <th>{{ _('Status') }}</th>
-                        <th>{{ _('Priority') }}</th>
-                        <th>{{ _('Created At') }}</th>
-                        <th class="text-center">{{ _('Actions') }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for ticket in assigned_tickets %}
-                        <tr>
-                            <td>{{ ticket.title }}</td>
-                            <td>{{ ticket.user.username }}</td>
-                            <td><span
-                                    class="badge badge-pill badge-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'closed' %}success{% else %}secondary{% endif %}">{{ ticket.status }}</span>
-                            </td>
-                            <td><span
-                                    class="badge badge-pill badge-{% if ticket.priority == 'low' %}success{% elif ticket.priority == 'high' %}danger{% else %}warning{% endif %}">{{ ticket.priority }}</span>
-                            </td>
-                            <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td class="text-center">
-                                <a href="{{ url_for('tickets.ticket_details', ticket_id=ticket.id) }}"
-                                   class="btn btn-primary btn-sm">{{ _('View') }}</a>
-                            </td>
-                        </tr>
+        <div class="bento-box mt-4">
+            <h3 class="bento-subtitle">{{ _('My Tickets') }}</h3>
+            {% if user_tickets %}
+                <div class="tickets-grid">
+                    {% for ticket in user_tickets %}
+                        <div class="ticket-item">
+                            <h4 class="ticket-title">{{ ticket.title }}</h4>
+                            <div class="ticket-info">
+                                <span class="ticket-status status-{{ ticket.status }}">{{ ticket.status }}</span>
+                                <span class="ticket-priority priority-{{ ticket.priority }}">{{ ticket.priority }}</span>
+                                <span class="ticket-date">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                            <a href="{{ url_for('tickets.ticket_details', ticket_id=ticket.id) }}" class="bento-button ticket-action">{{ _('View') }}</a>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
+                </div>
+            {% else %}
+                <div class="empty-tickets">
+                    <p class="empty-tickets-text">{{ _('You have not created any tickets yet.') }}</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

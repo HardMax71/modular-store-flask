@@ -7,6 +7,7 @@ from sqlalchemy.orm import Query
 from config import AppConfig
 from modules.db.models import Goods, Category, Tag, Review, goods_tags
 from modules.db.models import ProductPromotion
+from modules.filter.sort_options import SortOptions
 
 
 def filter_products(
@@ -31,13 +32,10 @@ def filter_products(
     if tag_query:
         query = query.join(goods_tags).join(Tag).filter(Tag.name.ilike(f'%{tag_query}%'))
 
-    if sort_by == 'price_asc':
-        query = query.order_by(Goods.current_price.asc())
-    elif sort_by == 'price_desc':
-        query = query.order_by(Goods.current_price.desc())
-    elif sort_by == 'rating':
-        query = query.outerjoin(Review, Review.goods_id == Goods.id).group_by(Goods.id).order_by(
-            func.avg(Review.rating).desc().nullslast())
+    if sort_by:
+        sort_option = SortOptions.get_by_key(sort_by)
+        if sort_option:
+            query = sort_option.apply(query)
 
     return query
 
@@ -45,10 +43,12 @@ def filter_products(
 def get_filter_options():
     categories = get_categories()
     tags = get_tags()
+    sort_options = [{'value': option.key, 'label': option.label} for option in SortOptions.get_all()]
 
     filter_options = {
         'categories': categories,
         'tags': tags,
+        'sort_options': sort_options,
     }
     return filter_options
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-02 21:05+0200\n"
+"POT-Creation-Date: 2024-07-07 21:41+0200\n"
 "PO-Revision-Date: 2024-03-12 14:25+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -35,15 +35,19 @@ msgstr "Сообщение на почту успешно отправлено."
 msgid "Error sending email"
 msgstr "Ошибка при отправке электронного письма"
 
-#: modules/email.py:48
+#: modules/email.py:47
+msgid "Wishlist notifications sent successfully."
+msgstr "Список желаний успешно отправлен."
+
+#: modules/email.py:49
 msgid "Error sending wishlist notification email"
 msgstr "Ошибка при отправке уведомления о списке желаний по электронной почте"
 
-#: modules/email.py:56
+#: modules/email.py:57
 msgid "Order confirmation email sent successfully"
 msgstr "Сообщение подтверждения заказа успешно отправлено на почту"
 
-#: modules/email.py:58
+#: modules/email.py:59
 msgid "Error sending order confirmation email"
 msgstr "Ошибка при отправке сообщения подтверждения заказа на почту"
 
@@ -140,19 +144,19 @@ msgstr "Пожалуйста, выберите и адрес доставки, �
 msgid "Test purchase completed. Thank you for shopping with us!"
 msgstr "Покупка завершена. Спасибо за покупку!"
 
-#: modules/carts/views.py:207 modules/carts/views.py:258
+#: modules/carts/views.py:207 modules/carts/views.py:265
 msgid "An error occurred while processing your payment: "
 msgstr "Произошла ошибка при обработке вашего платежа: "
 
-#: modules/carts/views.py:251
+#: modules/carts/views.py:232 modules/carts/views.py:258
 msgid "Purchase completed. Thank you for shopping with us!"
 msgstr "Покупка завершена. Спасибо за покупку!"
 
-#: modules/carts/views.py:254
+#: modules/carts/views.py:261
 msgid "Payment was not successful. Please try again."
 msgstr "Оплата не прошла успешно. Пожалуйста, попробуйте еще раз."
 
-#: modules/carts/views.py:265
+#: modules/carts/views.py:272
 msgid ""
 "Payment was cancelled. Please try again or contact support if you "
 "continue to have issues."
@@ -160,15 +164,15 @@ msgstr ""
 "Платеж отменен. Пожалуйста, попробуйте еще раз или свяжитесь с "
 "поддержкой, если у вас проблемы не исправлены."
 
-#: modules/carts/views.py:302 modules/carts/views.py:328
+#: modules/carts/views.py:309 modules/carts/views.py:335
 msgid "Not enough stock available for this product."
 msgstr "Не хватает товара на складе."
 
-#: modules/carts/views.py:324
+#: modules/carts/views.py:331
 msgid "Invalid quantity. Please select a positive number."
 msgstr "Не верное количество. Пожалуйста, выберите положительное число."
 
-#: modules/carts/views.py:355
+#: modules/carts/views.py:362
 msgid "Item added to cart."
 msgstr "Товар добавлен в корзину."
 
@@ -195,6 +199,18 @@ msgstr "Товар добавлен в сравнение."
 #: modules/compare/views.py:72
 msgid "Product is already in comparison."
 msgstr "Товар уже в сравнении."
+
+#: modules/filter/sort_options.py:21
+msgid "Price: Low to High"
+msgstr "Цена: по возрастанию"
+
+#: modules/filter/sort_options.py:22
+msgid "Price: High to Low"
+msgstr "Цена: по убыванию"
+
+#: modules/filter/sort_options.py:23
+msgid "Rating: High to Low"
+msgstr "Рейтинг: по убыванию"
 
 #: modules/main/views.py:99
 msgid "Invalid product ID"
@@ -426,43 +442,39 @@ msgstr "Сообщение успешно отправлено."
 msgid "You must be logged in to add items to your wishlist."
 msgstr "Вы должны войти в систему, чтобы добавить товары в список желаний."
 
-#: modules/wishlists/views.py:33
-msgid "Wishlist notifications sent successfully."
-msgstr "Список желаний успешно отправлен."
-
-#: templates/add_address.html:2 templates/add_address.html:37
+#: templates/add_address.html:2 templates/add_address.html:38
 msgid "Add Address"
 msgstr "Добавить адрес"
 
-#: templates/add_address.html:6 templates/profile.html:303
+#: templates/add_address.html:7 templates/profile.html:290
 msgid "Add New Address"
 msgstr "Добавить новый адрес"
 
-#: templates/add_address.html:9 templates/edit_address.html:10
+#: templates/add_address.html:10 templates/edit_address.html:11
 msgid "Address Line 1"
 msgstr "Адресная строка 1"
 
-#: templates/add_address.html:15 templates/edit_address.html:14
+#: templates/add_address.html:16 templates/edit_address.html:16
 msgid "Address Line 2 (Optional)"
 msgstr "Адресная строка 2 (необязательно)"
 
-#: templates/add_address.html:20 templates/edit_address.html:20
-#: templates/profile.html:277
+#: templates/add_address.html:21 templates/edit_address.html:23
+#: templates/profile.html:264
 msgid "City"
 msgstr "Город"
 
-#: templates/add_address.html:24 templates/edit_address.html:26
-#: templates/profile.html:278
+#: templates/add_address.html:25 templates/edit_address.html:30
+#: templates/profile.html:265
 msgid "State"
 msgstr "Государство"
 
-#: templates/add_address.html:28 templates/edit_address.html:34
-#: templates/profile.html:279
+#: templates/add_address.html:29 templates/edit_address.html:39
+#: templates/profile.html:266
 msgid "ZIP Code"
 msgstr "Почтовый индекс"
 
-#: templates/add_address.html:33 templates/edit_address.html:40
-#: templates/profile.html:280
+#: templates/add_address.html:34 templates/edit_address.html:46
+#: templates/profile.html:267
 msgid "Country"
 msgstr "Страна"
 
@@ -487,8 +499,8 @@ msgstr ""
 msgid "Email"
 msgstr "Адрес электронной почты"
 
-#: templates/contact_us.html:29 templates/profile.html:17
-#: templates/profile.html:110
+#: templates/contact_us.html:29 templates/profile.html:18
+#: templates/profile.html:97
 msgid "Phone"
 msgstr "Телефон"
 
@@ -520,20 +532,20 @@ msgstr "Суббота"
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: templates/contact_us.html:65 templates/tickets/ticket_details.html:51
+#: templates/contact_us.html:65 templates/tickets/ticket_details.html:55
 msgid "Closed"
 msgstr "Закрыто"
 
-#: templates/edit_address.html:3 templates/edit_address.html:7
+#: templates/edit_address.html:3 templates/edit_address.html:8
 msgid "Edit Address"
 msgstr "Изменить адрес"
 
-#: templates/edit_address.html:45
+#: templates/edit_address.html:52
 msgid "Save Changes"
 msgstr "Сохранить изменения"
 
 #: templates/faq.html:2 templates/faq.html:6
-#: templates/website_parts/footer.html:45
+#: templates/website_parts/footer.html:48
 msgid "FAQ"
 msgstr "Часто задаваемые вопросы"
 
@@ -628,24 +640,27 @@ msgid "No tags provided"
 msgstr "Не предоставлены теги"
 
 #: templates/goods_page.html:45
+#: templates/website_parts/promoted_products_section.html:44
 msgid "Out of Stock"
 msgstr "Не в наличии"
 
-#: templates/goods_page.html:47 templates/index.html:131
+#: templates/goods_page.html:47
+#: templates/website_parts/promoted_products_section.html:46
 msgid "Low Stock"
 msgstr "Мало в наличии"
 
-#: templates/goods_page.html:49 templates/index.html:133
+#: templates/goods_page.html:49
 msgid "Hurry Up"
 msgstr "Поторопитесь"
 
-#: templates/goods_page.html:51 templates/index.html:135
+#: templates/goods_page.html:51
+#: templates/website_parts/promoted_products_section.html:50
 msgid "In Stock"
 msgstr "В наличии"
 
 #: templates/cart/cart.html:20 templates/cart/checkout.html:58
 #: templates/goods_page.html:67 templates/order_confirmation.html:47
-#: templates/purchase_details.html:51
+#: templates/purchase_details.html:52
 msgid "Quantity"
 msgstr "Количество"
 
@@ -677,8 +692,9 @@ msgstr "Поделитесь этим товаром"
 msgid "Reviews and Ratings"
 msgstr "Отзывы и оценки"
 
-#: templates/goods_page.html:181 templates/index.html:117
-#: templates/index.html:178 templates/product_comparison.html:52
+#: templates/goods_page.html:181 templates/index.html:45
+#: templates/product_comparison.html:52
+#: templates/website_parts/promoted_products_section.html:20
 msgid "No ratings"
 msgstr "Нет оценок"
 
@@ -746,14 +762,12 @@ msgid "Add Your Review"
 msgstr "Добавьте свой отзыв"
 
 #: templates/admin/reported_review_detail.html:19 templates/goods_page.html:306
-#: templates/index.html:55 templates/product_comparison.html:16
+#: templates/product_comparison.html:16
 msgid "Rating"
 msgstr "Рейтинг"
 
 #: templates/admin/admin_list_tickets.html:12 templates/goods_page.html:316
-#: templates/tickets/create_ticket.html:13
-#: templates/tickets/list_tickets.html:17
-#: templates/tickets/list_tickets.html:54
+#: templates/tickets/create_ticket.html:15
 msgid "Title"
 msgstr "Название"
 
@@ -779,9 +793,9 @@ msgstr "Похожие товары"
 msgid "Personalized Recommendations"
 msgstr "Персонализированные рекомендации"
 
-#: templates/goods_page.html:379 templates/history.html:25
-#: templates/index.html:142 templates/recommendations.html:22
-#: templates/recommendations.html:68
+#: templates/goods_page.html:379 templates/history.html:33
+#: templates/recommendations.html:22 templates/recommendations.html:68
+#: templates/website_parts/promoted_products_section.html:53
 msgid "View Details"
 msgstr "Подробнее"
 
@@ -817,42 +831,40 @@ msgstr ""
 "Если у вас есть какие-либо конкретные запросы или вам нужна помощь, не "
 "стесняйтесь обращаться к нам."
 
-#: templates/history.html:4 templates/history.html:9
+#: templates/history.html:4 templates/history.html:15
 #: templates/website_parts/header.html:66
 msgid "Purchase History"
 msgstr "История покупок"
 
-#: templates/history.html:16
+#: templates/history.html:20
 #, python-format
 msgid "Order #%(id)d"
 msgstr "Заказ №%(id)d"
 
-#: templates/admin/reported_review_detail.html:22 templates/history.html:18
-#: templates/purchase_details.html:16
+#: templates/admin/reported_review_detail.html:22 templates/history.html:22
+#: templates/purchase_details.html:18
 msgid "Date"
 msgstr "Дата"
 
-#: templates/history.html:19 templates/purchase_details.html:76
+#: templates/history.html:23 templates/purchase_details.html:84
 msgid "Total Price"
 msgstr "Общая цена"
 
-#: templates/admin/admin_list_tickets.html:14 templates/history.html:21
-#: templates/purchase_details.html:19 templates/tickets/list_tickets.html:18
-#: templates/tickets/list_tickets.html:56
-#: templates/tickets/ticket_details.html:13
-#: templates/tickets/ticket_details.html:29
+#: templates/admin/admin_list_tickets.html:14 templates/history.html:25
+#: templates/purchase_details.html:21 templates/tickets/ticket_details.html:16
+#: templates/tickets/ticket_details.html:31
 msgid "Status"
 msgstr "Статус"
 
-#: templates/history.html:29 templates/purchase_details.html:86
+#: templates/history.html:37 templates/purchase_details.html:94
 msgid "Are you sure you want to cancel this order?"
 msgstr "Вы уверены, что хотите отменить этот заказ?"
 
-#: templates/history.html:29 templates/purchase_details.html:86
+#: templates/history.html:37 templates/purchase_details.html:94
 msgid "Cancel Order"
 msgstr "Отменить заказ"
 
-#: templates/history.html:39
+#: templates/history.html:46
 msgid "No purchase history found."
 msgstr "Не найдена история покупок."
 
@@ -860,124 +872,51 @@ msgstr "Не найдена история покупок."
 msgid "Home"
 msgstr "Стартовая"
 
-#: templates/cart/cart.html:92 templates/index.html:11
-msgid "Close"
-msgstr "Закрыть"
-
-#: templates/index.html:14
-msgid "Welcome"
-msgstr "Добро пожаловать"
-
-#: templates/index.html:14
-msgid "We hope you enjoy your shopping experience."
-msgstr "Мы надеемся, что вам понравится ваш опыт покупок."
-
-#: templates/index.html:20
-msgid "Filter Products"
-msgstr "Отфильтровать товары"
-
-#: templates/index.html:24 templates/product_comparison.html:15
-msgid "Category"
-msgstr "Категория"
-
-#: templates/index.html:26
-msgid "All Categories"
-msgstr "Все категории"
-
-#: templates/index.html:46
-msgid "Sort By"
-msgstr "Сортировать по"
-
-#: templates/index.html:49
-msgid "Price: Low to High"
-msgstr "Цена: по возрастанию"
-
-#: templates/index.html:52
-msgid "Price: High to Low"
-msgstr "Цена: по убыванию"
-
-#: templates/index.html:60
-msgid "Product Name"
-msgstr "Название товара"
-
-#: templates/index.html:63 templates/website_parts/header.html:34
-msgid "Search products..."
-msgstr "Поиск товаров..."
-
-#: templates/index.html:66
-msgid "Tags"
-msgstr "Теги"
-
-#: templates/index.html:68
-msgid "Enter tags..."
-msgstr "Введите теги..."
-
-#: templates/index.html:72
-msgid "Apply Filters"
-msgstr "Применить фильтры"
-
-#: templates/index.html:81
-msgid "Featured Products"
-msgstr "Выделенные товары"
-
-#: templates/index.html:88
-msgid "Sale"
-msgstr "Распродажа"
-
-#: templates/index.html:90
-msgid "Featured"
-msgstr "Выделенные"
-
-#: templates/index.html:157
+#: templates/index.html:25
 msgid "All Products"
 msgstr "Все товары"
 
-#: templates/index.html:158
+#: templates/index.html:26
 msgid "Showing"
 msgstr "Показываем"
 
-#: templates/index.html:158
+#: templates/index.html:26
 msgid "of"
 msgstr "из"
 
-#: templates/index.html:158
+#: templates/index.html:26
 msgid "products"
 msgstr "товаров"
 
-#: templates/index.html:175
-#, python-format
-msgid "Rating of this product is %(rating)s out of 5."
-msgstr "Рейтинг этого товара составляет %(rating) из 5."
-
-#: templates/index.html:227
+#: templates/index.html:94
 msgid "No products found."
 msgstr "Товары не выбраны."
 
-#: templates/index.html:232
+#: templates/index.html:99
 msgid "Page navigation"
 msgstr "Навигация по страницам"
 
-#: templates/index.html:236
+#: templates/index.html:103
 msgid "Previous"
 msgstr "Пред"
 
-#: templates/index.html:255
+#: templates/index.html:122
 msgid "Next"
 msgstr "След"
 
-#: templates/notifications.html:3 templates/notifications.html:7
+#: templates/notifications.html:3 templates/notifications.html:12
 msgid "Notifications"
 msgstr "Уведомления"
 
-#: templates/notifications.html:19
+#: templates/notifications.html:23
 msgid "Mark as Read"
 msgstr "Отметить как прочитанное"
 
-#: templates/notifications.html:29
+#: templates/notifications.html:32
 msgid "No Notifications"
 msgstr "Нет уведомлений"
 
-#: templates/notifications.html:30
+#: templates/notifications.html:33
 msgid "You have no notifications at the moment."
 msgstr "У вас нет уведомлений на данный момент."
 
@@ -1015,7 +954,7 @@ msgid "Payment Method"
 msgstr "Способ оплаты"
 
 #: templates/cart/checkout.html:15 templates/order_confirmation.html:29
-#: templates/purchase_details.html:33
+#: templates/purchase_details.html:35
 msgid "Shipping Address"
 msgstr "Адрес доставки"
 
@@ -1024,18 +963,18 @@ msgid "Order Items"
 msgstr "Товары заказа"
 
 #: templates/order_confirmation.html:46 templates/product_comparison.html:13
-#: templates/purchase_details.html:50
+#: templates/purchase_details.html:51
 msgid "Product"
 msgstr "Товар"
 
 #: templates/cart/checkout.html:58 templates/order_confirmation.html:48
-#: templates/product_comparison.html:14 templates/purchase_details.html:52
+#: templates/product_comparison.html:14 templates/purchase_details.html:53
 msgid "Price"
 msgstr "Цена"
 
 #: templates/cart/cart.html:22 templates/cart/cart.html:115
 #: templates/cart/checkout.html:63 templates/order_confirmation.html:49
-#: templates/purchase_details.html:69
+#: templates/purchase_details.html:76
 msgid "Subtotal"
 msgstr "Суммарно"
 
@@ -1043,7 +982,7 @@ msgstr "Суммарно"
 msgid "Total Amount"
 msgstr "Всего"
 
-#: templates/cart/cart.html:142 templates/cart/success.html:40
+#: templates/cart/cart.html:143 templates/cart/success.html:40
 #: templates/order_confirmation.html:73 templates/product_comparison.html:157
 msgid "Continue Shopping"
 msgstr "Продолжить покупки"
@@ -1053,10 +992,14 @@ msgstr "Продолжить покупки"
 msgid "Product Comparison"
 msgstr "Сравнение товаров"
 
+#: templates/product_comparison.html:15
+#: templates/website_parts/filter_section.html:7
+msgid "Category"
+msgstr "Категория"
+
 #: templates/admin/admin_list_tickets.html:17
 #: templates/admin/reported_reviews.html:15
-#: templates/product_comparison.html:17 templates/tickets/list_tickets.html:21
-#: templates/tickets/list_tickets.html:59
+#: templates/product_comparison.html:17
 msgid "Actions"
 msgstr "Действия"
 
@@ -1070,173 +1013,177 @@ msgstr ""
 "Добавьте товары в список сравнения, чтобы сравнить их характеристики и "
 "цены."
 
-#: templates/profile.html:2 templates/profile.html:64
+#: templates/profile.html:2 templates/profile.html:65
 #: templates/website_parts/header.html:58
 msgid "Profile"
 msgstr "Профиль"
 
-#: templates/profile.html:16 templates/website_parts/header.html:84
+#: templates/profile.html:17 templates/website_parts/header.html:84
 msgid "Login"
 msgstr "Войти"
 
-#: templates/profile.html:22
+#: templates/profile.html:23
 msgid "Change Language"
 msgstr "Поменять язык"
 
-#: templates/cart/cart.html:137 templates/profile.html:31
+#: templates/cart/cart.html:138 templates/profile.html:32
 msgid "Apply"
 msgstr "Применить"
 
-#: templates/profile.html:46
+#: templates/profile.html:47
 msgid "No social media accounts connected."
 msgstr "Нет подключенных аккаунтов социальных сетей."
 
-#: templates/profile.html:50
+#: templates/profile.html:51
 msgid "Connect Facebook account"
 msgstr "Подключить аккаунт Facebook"
 
-#: templates/profile.html:53
+#: templates/profile.html:54
 msgid "Connect Google account"
 msgstr "Подключить аккаунт Google"
 
-#: templates/profile.html:68
+#: templates/profile.html:69
 msgid "Addresses"
 msgstr "Адреса"
 
-#: templates/profile.html:72
+#: templates/profile.html:73
 msgid "Wishlist"
 msgstr "Список желаний"
 
-#: templates/profile.html:94 templates/profile.html:124
+#: templates/profile.html:81 templates/profile.html:111
 msgid "Update Profile"
 msgstr "Обновить профиль"
 
-#: templates/profile.html:99
+#: templates/profile.html:86
 msgid "First Name"
 msgstr "Имя"
 
-#: templates/profile.html:104
+#: templates/profile.html:91
 msgid "Last Name"
 msgstr "Фамилия"
 
-#: templates/profile.html:119
+#: templates/profile.html:106
 msgid "Choose profile picture (PNG, JPG, BMP)"
 msgstr "Выберите изображение профиля (PNG, JPG, BMP)"
 
-#: templates/profile.html:134
+#: templates/profile.html:121
 msgid "Notification Settings"
 msgstr "Настройки уведомлений"
 
-#: templates/profile.html:149
+#: templates/profile.html:136
 msgid "Enable Notifications"
 msgstr "Включить уведомления"
 
-#: templates/profile.html:159
+#: templates/profile.html:146
 msgid "Enable Email Notifications"
 msgstr "Включить уведомления по электронной почте"
 
-#: templates/profile.html:163
+#: templates/profile.html:150
 msgid "Update Notification Settings"
 msgstr "Обновить настройки уведомлений"
 
-#: templates/profile.html:170
+#: templates/profile.html:157
 msgid "Change account parameters"
 msgstr "Изменить параметры учетной записи"
 
-#: templates/profile.html:178 templates/profile.html:192
+#: templates/profile.html:165 templates/profile.html:179
 msgid "Change Phone Number"
 msgstr "Изменить номер телефона"
 
-#: templates/profile.html:187
+#: templates/profile.html:174
 msgid "New Phone Number"
 msgstr "Новый номер телефона"
 
-#: templates/profile.html:204 templates/profile.html:218
+#: templates/profile.html:191 templates/profile.html:205
 msgid "Change Email"
 msgstr "Изменить адрес электронной почты"
 
-#: templates/profile.html:213
+#: templates/profile.html:200
 msgid "New Email"
 msgstr "Новый адрес электронной почты"
 
-#: templates/profile.html:230 templates/profile.html:254
+#: templates/profile.html:217 templates/profile.html:241
 msgid "Change Password"
 msgstr "Изменить пароль"
 
-#: templates/profile.html:239
+#: templates/profile.html:226
 msgid "Current Password"
 msgstr "Текущий пароль"
 
-#: templates/auth/reset_password_token.html:14 templates/profile.html:244
+#: templates/auth/reset_password_token.html:14 templates/profile.html:231
 msgid "New Password"
 msgstr "Новый пароль"
 
-#: templates/auth/reset_password_token.html:19 templates/profile.html:249
+#: templates/auth/reset_password_token.html:19 templates/profile.html:236
 msgid "Confirm New Password"
 msgstr "Подтвердите новый пароль"
 
-#: templates/profile.html:285
+#: templates/profile.html:272
 msgid "Edit"
 msgstr "Изменить"
 
-#: templates/admin/reported_reviews.html:30 templates/profile.html:290
+#: templates/admin/reported_reviews.html:30 templates/profile.html:277
 msgid "Delete"
 msgstr "Удалить"
 
-#: templates/profile.html:299
+#: templates/profile.html:286
 msgid "No addresses found."
 msgstr "Адреса не найдены."
 
 #: templates/admin/admin_list_tickets.html:29
-#: templates/admin/reported_reviews.html:25 templates/profile.html:321
-#: templates/tickets/list_tickets.html:37
-#: templates/tickets/list_tickets.html:76
+#: templates/admin/reported_reviews.html:25 templates/profile.html:309
+#: templates/tickets/list_tickets.html:30
+#: templates/tickets/list_tickets.html:49
 msgid "View"
 msgstr "Просмотреть"
 
-#: templates/profile.html:329
+#: templates/profile.html:317
 msgid "Remove"
 msgstr "Удалить"
 
-#: templates/profile.html:340
+#: templates/profile.html:328
 msgid "Send Wishlist Notifications"
 msgstr "Отправить уведомления о списке желаний"
 
-#: templates/profile.html:347
+#: templates/profile.html:336
 msgid "Your wishlist is empty."
 msgstr "Ваш список желаний пуст."
 
-#: templates/profile.html:348
+#: templates/profile.html:337
 msgid "Explore our collection and add your favorite items to your wishlist!"
 msgstr ""
 "Ознакомьтесь с нашей коллекцией и добавьте свои любимые товары в список "
 "желаний!"
 
-#: templates/profile.html:350
+#: templates/profile.html:339
 msgid "Start Shopping"
 msgstr "Начать покупки"
 
-#: templates/purchase_details.html:9
+#: templates/purchase_details.html:12
 msgid "Purchase Details"
 msgstr "Детали покупки"
 
-#: templates/purchase_details.html:14
+#: templates/purchase_details.html:17
 msgid "Order ID"
 msgstr "Номер заказа"
 
-#: templates/purchase_details.html:45
+#: templates/purchase_details.html:46
 msgid "Items"
 msgstr "Товары"
 
-#: templates/purchase_details.html:70
+#: templates/purchase_details.html:62
+msgid "View Product Details"
+msgstr "Детали продукта"
+
+#: templates/purchase_details.html:78
 msgid "Discount"
 msgstr "Скидка"
 
-#: templates/purchase_details.html:72
+#: templates/purchase_details.html:80
 msgid "Delivery Fee"
 msgstr "Стомость доставки"
 
-#: templates/purchase_details.html:94
+#: templates/purchase_details.html:100
 msgid "Back to Purchase List"
 msgstr "Обратно к списку покупок"
 
@@ -1287,26 +1234,22 @@ msgid "Admin - Tickets"
 msgstr "Администратор - Запросы"
 
 #: templates/admin/admin_list_tickets.html:13 templates/admin/analytics.html:62
-#: templates/tickets/list_tickets.html:55
-#: templates/tickets/ticket_details.html:12
-#: templates/tickets/ticket_details.html:28
+#: templates/tickets/ticket_details.html:15
+#: templates/tickets/ticket_details.html:30
+#: templates/tickets/ticket_details.html:92
 msgid "User"
 msgstr "Пользователь"
 
 #: templates/admin/admin_list_tickets.html:15
-#: templates/tickets/create_ticket.html:21
-#: templates/tickets/list_tickets.html:19
-#: templates/tickets/list_tickets.html:57
-#: templates/tickets/ticket_details.html:14
-#: templates/tickets/ticket_details.html:30
+#: templates/tickets/create_ticket.html:23
+#: templates/tickets/ticket_details.html:18
+#: templates/tickets/ticket_details.html:33
 msgid "Priority"
 msgstr "Приоритет"
 
 #: templates/admin/admin_list_tickets.html:16
-#: templates/tickets/list_tickets.html:20
-#: templates/tickets/list_tickets.html:58
-#: templates/tickets/ticket_details.html:15
-#: templates/tickets/ticket_details.html:31
+#: templates/tickets/ticket_details.html:20
+#: templates/tickets/ticket_details.html:35
 msgid "Created At"
 msgstr "Создано в"
 
@@ -1315,7 +1258,6 @@ msgid "Assign"
 msgstr "Назначить"
 
 #: templates/admin/admin_list_tickets.html:47
-#: templates/tickets/list_tickets.html:45
 msgid "No tickets found."
 msgstr "Запросы не найдены."
 
@@ -1766,43 +1708,47 @@ msgstr "Цена за единицу"
 msgid "No options selected"
 msgstr "Опции не выбраны"
 
+#: templates/cart/cart.html:92
+msgid "Close"
+msgstr "Закрыть"
+
 #: templates/cart/cart.html:111
 msgid "Cart Summary"
 msgstr "Сводка корзины"
 
-#: templates/cart/cart.html:120
+#: templates/cart/cart.html:121
 msgid "Discount:"
 msgstr "Скидка:"
 
-#: templates/cart/cart.html:126
+#: templates/cart/cart.html:127
 msgid "Total"
 msgstr "Всего"
 
-#: templates/cart/cart.html:135
+#: templates/cart/cart.html:136
 msgid "Discount Code"
 msgstr "Промокод"
 
-#: templates/cart/cart.html:144
+#: templates/cart/cart.html:145
 msgid "Proceed to Checkout"
 msgstr "Продолжить оформление заказа"
 
-#: templates/cart/cart.html:151
+#: templates/cart/cart.html:152
 msgid "Empty Cart"
 msgstr "Пустая корзина"
 
-#: templates/cart/cart.html:153
+#: templates/cart/cart.html:154
 msgid "Your cart is empty!"
 msgstr "Ваша корзина пуста!"
 
-#: templates/cart/cart.html:154
+#: templates/cart/cart.html:155
 msgid "Looks like you haven't added any items to your cart yet."
 msgstr "Похоже, вы еще не добавили ни одного товара в корзину."
 
-#: templates/cart/cart.html:157
+#: templates/cart/cart.html:158
 msgid "Start Shopping Now"
 msgstr "Начать покупки сейчас"
 
-#: templates/cart/cart.html:171
+#: templates/cart/cart.html:181
 msgid ""
 "Quantity cannot be less than 1. If you want to remove the item, please "
 "use the remove button."
@@ -1810,17 +1756,13 @@ msgstr ""
 "Количество не может быть меньше 1. Если вы хотите удалить товар, "
 "пожалуйста, используйте кнопку удаления."
 
-#: templates/cart/cart.html:197 templates/website_parts/header.html:12
+#: templates/cart/cart.html:212 templates/website_parts/header.html:12
 msgid "item(s)"
 msgstr "товар(ов)"
 
-#: templates/cart/cart.html:206 templates/cart/cart.html:207
+#: templates/cart/cart.html:220 templates/cart/cart.html:221
 msgid "Cant change amount!"
 msgstr "Нельзя изменить количество!"
-
-#: templates/cart/cart.html:212 templates/website_parts/error_page.html:13
-msgid "Error"
-msgstr "Ошибка"
 
 #: templates/cart/checkout.html:4 templates/cart/checkout.html:9
 msgid "Checkout"
@@ -1859,50 +1801,58 @@ msgid "View Order Details"
 msgstr "Детали заказа"
 
 #: templates/tickets/create_ticket.html:2
-#: templates/tickets/create_ticket.html:8
-#: templates/tickets/create_ticket.html:28
-#: templates/tickets/list_tickets.html:8
+#: templates/tickets/create_ticket.html:12
+#: templates/tickets/create_ticket.html:30
+#: templates/tickets/list_tickets.html:14
 msgid "Create Ticket"
 msgstr "Создать запрос"
 
-#: templates/tickets/create_ticket.html:17
-#: templates/tickets/ticket_details.html:16
-#: templates/tickets/ticket_details.html:32
+#: templates/tickets/create_ticket.html:19
+#: templates/tickets/ticket_details.html:21
+#: templates/tickets/ticket_details.html:37
 msgid "Description"
 msgstr "Описание"
 
-#: templates/tickets/create_ticket.html:23
-#: templates/tickets/ticket_details.html:58
+#: templates/tickets/create_ticket.html:25
+#: templates/tickets/ticket_details.html:63
 msgid "Low"
 msgstr "Низкий"
 
-#: templates/tickets/create_ticket.html:24
-#: templates/tickets/ticket_details.html:59
+#: templates/tickets/create_ticket.html:26
+#: templates/tickets/ticket_details.html:65
 msgid "Normal"
 msgstr "Средний"
 
-#: templates/tickets/create_ticket.html:25
-#: templates/tickets/ticket_details.html:60
+#: templates/tickets/create_ticket.html:27
+#: templates/tickets/ticket_details.html:67
 msgid "High"
 msgstr "Высокий"
 
-#: templates/tickets/list_tickets.html:2 templates/website_parts/header.html:64
+#: templates/tickets/list_tickets.html:3 templates/website_parts/header.html:64
 msgid "Tickets"
 msgstr "Обращения"
 
-#: templates/tickets/list_tickets.html:7 templates/tickets/list_tickets.html:13
+#: templates/tickets/list_tickets.html:13
+msgid "Ticket Management"
+msgstr "Управление обращениями"
+
+#: templates/tickets/list_tickets.html:19
+msgid "Tickets Under Review"
+msgstr "Обращения на рассмотрении"
+
+#: templates/tickets/list_tickets.html:38
 msgid "My Tickets"
 msgstr "Мои обращения"
 
-#: templates/tickets/list_tickets.html:50
-msgid "Assigned Tickets"
-msgstr "Обращения на рассмотрении"
+#: templates/tickets/list_tickets.html:55
+msgid "You have not created any tickets yet."
+msgstr "У вас нет созданных обращений."
 
 #: templates/tickets/ticket_details.html:2
 msgid "Ticket Details"
 msgstr "Детали обращения"
 
-#: templates/tickets/ticket_details.html:40
+#: templates/tickets/ticket_details.html:42
 msgid "Admin Actions"
 msgstr "Действия администратора"
 
@@ -1914,57 +1864,62 @@ msgstr "Изменить статус"
 msgid "Select Status"
 msgstr "Выберите статус"
 
-#: templates/tickets/ticket_details.html:48
+#: templates/tickets/ticket_details.html:49
 msgid "Open"
 msgstr "Открыто"
 
-#: templates/tickets/ticket_details.html:49
+#: templates/tickets/ticket_details.html:51
 msgid "In Progress"
 msgstr "В процессе"
 
-#: templates/tickets/ticket_details.html:50
+#: templates/tickets/ticket_details.html:53
 msgid "Resolved"
 msgstr "Решено"
 
-#: templates/tickets/ticket_details.html:55
+#: templates/tickets/ticket_details.html:59
 msgid "Change Priority"
 msgstr "Поменять приоритет"
 
-#: templates/tickets/ticket_details.html:57
+#: templates/tickets/ticket_details.html:61
 msgid "Select Priority"
 msgstr "Выберите приоритет"
 
-#: templates/tickets/ticket_details.html:64
+#: templates/tickets/ticket_details.html:71
 msgid "Change Title"
 msgstr "Поменять заголовок"
 
-#: templates/tickets/ticket_details.html:68
+#: templates/tickets/ticket_details.html:76
 msgid "Change Description"
 msgstr "Поменять описание"
 
-#: templates/tickets/ticket_details.html:71
+#: templates/tickets/ticket_details.html:80
 msgid "Update Ticket"
 msgstr "Обновить запрос"
 
-#: templates/tickets/ticket_details.html:81
+#: templates/tickets/ticket_details.html:87
 msgid "Messages"
 msgstr "Сообщения"
 
 #: templates/tickets/ticket_details.html:92
+#: templates/tickets/ticket_details.html:97
 msgid "Admin"
 msgstr "Администратор"
 
-#: templates/tickets/ticket_details.html:111
+#: templates/tickets/ticket_details.html:110
 msgid "Send Message"
 msgstr "Отправить сообщение"
 
-#: templates/tickets/ticket_details.html:114
+#: templates/tickets/ticket_details.html:113
 msgid "Send"
 msgstr "Отправить"
 
 #: templates/website_parts/error_page.html:4
 msgid "Error page"
 msgstr "Страница ошибки"
+
+#: templates/website_parts/error_page.html:13
+msgid "Error"
+msgstr "Ошибка"
 
 #: templates/website_parts/error_page.html:16
 msgid "Request URL"
@@ -1978,6 +1933,39 @@ msgstr "Traceback"
 msgid "Return to start page"
 msgstr "Вернуться на главную страницу"
 
+#: templates/website_parts/filter_section.html:3
+msgid "Filter Products"
+msgstr "Отфильтровать товары"
+
+#: templates/website_parts/filter_section.html:10
+msgid "All Categories"
+msgstr "Все категории"
+
+#: templates/website_parts/filter_section.html:30
+msgid "Sort By"
+msgstr "Сортировать по"
+
+#: templates/website_parts/filter_section.html:41
+msgid "Product Name"
+msgstr "Название товара"
+
+#: templates/website_parts/filter_section.html:44
+#: templates/website_parts/header.html:34
+msgid "Search products..."
+msgstr "Поиск товаров..."
+
+#: templates/website_parts/filter_section.html:47
+msgid "Tags"
+msgstr "Теги"
+
+#: templates/website_parts/filter_section.html:49
+msgid "Enter tags..."
+msgstr "Введите теги..."
+
+#: templates/website_parts/filter_section.html:53
+msgid "Apply Filters"
+msgstr "Применить фильтры"
+
 #: templates/website_parts/footer.html:8
 msgid "About Us"
 msgstr "О нас"
@@ -1990,23 +1978,23 @@ msgstr "именно то, что вам нужно"
 msgid "Connect With Us"
 msgstr "Связаться с нами"
 
-#: templates/website_parts/footer.html:43
+#: templates/website_parts/footer.html:46
 msgid "Quick Links"
 msgstr "Быстрые ссылки"
 
-#: templates/website_parts/footer.html:46
+#: templates/website_parts/footer.html:49
 msgid "Return Policy"
 msgstr "Политика возврата"
 
-#: templates/website_parts/footer.html:48
+#: templates/website_parts/footer.html:51
 msgid "Terms of Usage"
 msgstr "Условия пользования"
 
-#: templates/website_parts/footer.html:55
+#: templates/website_parts/footer.html:58
 msgid "All rights reserved"
 msgstr "Все права защищены"
 
-#: templates/website_parts/footer.html:59
+#: templates/website_parts/footer.html:62
 msgid "We Accept"
 msgstr "Мы принимаем"
 
@@ -2022,6 +2010,26 @@ msgstr "Искать"
 msgid "Logout"
 msgstr "Выход"
 
+#: templates/website_parts/promoted_products_section.html:2
+msgid "Featured Products"
+msgstr "Выделенные товары"
+
+#: templates/website_parts/promoted_products_section.html:48
+msgid "Limited Stock"
+msgstr "Ограниченный запас"
+
+#: templates/website_parts/promoted_products_section.html:57
+msgid "New"
+msgstr "Новый"
+
+#: templates/website_parts/promoted_products_section.html:60
+msgid "Sale"
+msgstr "Распродажа"
+
+#: templates/website_parts/promoted_products_section.html:62
+msgid "Featured"
+msgstr "Выделенные"
+
 #~ msgid "Date of Purchase"
 #~ msgstr "Дата покупки"
 
@@ -2033,4 +2041,16 @@ msgstr "Выход"
 
 #~ msgid "Please select a sorting option."
 #~ msgstr "Пожалуйста, выберите опцию сортировки."
+
+#~ msgid "Welcome"
+#~ msgstr "Добро пожаловать"
+
+#~ msgid "We hope you enjoy your shopping experience."
+#~ msgstr "Мы надеемся, что вам понравится ваш опыт покупок."
+
+#~ msgid "Rating of this product is %(rating)s out of 5."
+#~ msgstr "Рейтинг этого товара составляет %(rating) из 5."
+
+#~ msgid "Assigned Tickets"
+#~ msgstr "Обращения на рассмотрении"
 

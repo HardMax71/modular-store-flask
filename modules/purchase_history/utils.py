@@ -16,9 +16,9 @@ def save_purchase_history(
         shipping_method_id: int,
         payment_method: str,
         payment_id: int
-) -> Purchase:
+) -> Purchase | None:
     if not cart_items:
-        return
+        return None
 
     user_id = current_user.id
     subtotal = calculate_subtotal(cart_items, original_prices)
@@ -89,7 +89,7 @@ def get_address_by_id(db: Session, address_id: int) -> Optional[Address]:
     return db.get(Address, address_id)
 
 
-def calculate_subtotal(cart_items: List[PurchaseItem], original_prices: Dict[int, float]) -> float:
+def calculate_subtotal(cart_items: List[PurchaseItem], original_prices: Dict[int, float]) -> int:
     return sum(original_prices[item.id] * item.quantity for item in cart_items)
 
 
@@ -97,11 +97,11 @@ def calculate_discount_amount(subtotal: float, discount_percentage: float) -> fl
     return subtotal * (discount_percentage / 100)
 
 
-def calculate_delivery_fee(shipping_method: Optional[ShippingMethod]) -> float:
-    return shipping_method.price if shipping_method else 0.0
+def calculate_delivery_fee(shipping_method: Optional[ShippingMethod]) -> int:
+    return shipping_method.price if shipping_method else 0
 
 
-def calculate_total_price(subtotal: float, discount_amount: float, delivery_fee: float) -> float:
+def calculate_total_price(subtotal: int, discount_amount: float, delivery_fee: int) -> float:
     return subtotal - discount_amount + delivery_fee
 
 

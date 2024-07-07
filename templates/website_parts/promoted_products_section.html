@@ -1,0 +1,68 @@
+<section class="container my-5">
+    <h2 class="text-center mb-4">{{ _('Featured Products') }}</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        {% for product in promoted_products %}
+            <div class="col mb-4">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
+                             alt="{{ product.samplename }}" loading="lazy">
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-title">{{ product.samplename }}</h3>
+                        <div class="product-meta">
+                            <div class="product-category">{{ product.category.name }}</div>
+                            <div class="product-rating">
+                                {% if product.avg_rating %}
+                                    <div class="stars" style="--rating: {{ product.avg_rating }};"></div>
+                                    <span class="rating-count">({{ product.reviews|length }})</span>
+                                {% else %}
+                                    <span class="no-rating">{{ _('No ratings') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="product-price">
+                            {% if product.onSale %}
+                                <span class="sale-price">${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
+                                <span class="original-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
+                                <span class="discount-percentage">-{{ ((product.price - product.onSalePrice) / product.price * 100)|round|int }}%</span>
+                            {% else %}
+                                <span class="regular-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-description">
+                            {{ product.description[:100] if product.description else '' }}...
+                        </div>
+                        <div class="product-tags">
+                            {% for tag in product.tags[:3] %}
+                                <span class="tag">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="product-actions">
+                            <div class="stock-status">
+                                {% if product.stock == 0 %}
+                                    <span class="out-of-stock">{{ _('Out of Stock') }}</span>
+                                {% elif product.stock < 3 %}
+                                    <span class="low-stock">{{ _('Low Stock') }}: {{ product.stock }}</span>
+                                {% elif product.stock < 10 %}
+                                    <span class="limited-stock">{{ _('Limited Stock') }}: {{ product.stock }}</span>
+                                {% else %}
+                                    <span class="in-stock">{{ _('In Stock') }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('main.goods_page', id=product.id) }}" class="view-details-btn">{{ _('View Details') }}</a>
+                        </div>
+                    </div>
+                    {% if product.is_new %}
+                        <div class="new-badge">{{ _('New') }}</div>
+                    {% endif %}
+                    {% if product.onSale %}
+                        <div class="sale-badge">{{ _('Sale') }}</div>
+                    {% else %}
+                        <div class="featured-badge">{{ _('Featured') }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>

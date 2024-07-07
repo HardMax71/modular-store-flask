@@ -112,7 +112,7 @@ def handle_update_notification_settings():
     flash(_('Notification settings updated successfully.'), 'success')
 
 
-def handle_social_login(provider, name: str = None):
+def handle_social_login(provider, name: str = "facebook"):
     if not provider.authorized:
         return redirect(url_for(f'{name}.login'))
 

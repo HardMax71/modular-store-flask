@@ -27,7 +27,6 @@ def create_app(config_class=AppConfig):
     current_app.config.from_object(config_class)
 
     with current_app.app_context():
-        db.init_app(current_app)
         db.init_db()
 
         DatabaseLogger(current_app)
@@ -43,10 +42,6 @@ def create_app(config_class=AppConfig):
 
 
 def register_request_handlers(current_app):
-    @current_app.teardown_appcontext
-    def shutdown_session(exception=None):
-        db.session.remove()
-
     @current_app.before_request
     def before_request():
         db.session.permanent = True

@@ -1,0 +1,104 @@
+/* auth.css */
+
+/* Extend styles from the main CSS file */
+@import url('base.css');
+
+/* Authentication pages specific styles */
+.auth-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 0 15px;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+}
+
+.auth-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #2370a5;
+    box-shadow: 0 0 0 0.2rem rgba(35, 112, 165, 0.25);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    color: #ffffff;
+    background-color: #2370a5;
+    border: none;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.auth-button:hover {
+    background-color: #226c9c;
+    transform: translateY(-2px);
+}
+
+.auth-link {
+    color: #2370a5;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+    color: #226c9c;
+    text-decoration: underline;
+}
+
+.auth-divider {
+    margin: 1.5rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Specific styles for the register page */
+.terms-checkbox {
+    margin-bottom: 1rem;
+}
+
+/* Specific styles for the password reset pages */
+.reset-instructions {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #6c757d;
+}

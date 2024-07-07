@@ -4,39 +4,48 @@
     {{ config.SHOP_NAME }} - {{ _('Purchase History') }}
 {% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='css/purchase_history.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block body %}
-    <div class="container my-5">
-        <h2 class="mb-4">{{ _('Purchase History') }}</h2>
-        {% if purchases %}
-            <div class="row">
-                {% for purchase in purchases %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow h-100">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">{{ _('Order #%(id)d', id=purchase.id) }}</h5>
-                                <p class="card-text">
-                                    <strong>{{ _('Date') }}:</strong> {{ purchase.date.strftime('%Y-%m-%d %H:%M') }}<br>
-                                    <strong>{{ _('Total Price') }}:</strong>
-                                    ${{ (purchase.items_subtotal + purchase.delivery_fee) / 100.0 }}<br>
-                                    <strong>{{ _('Status') }}:</strong> {{ purchase.status }}
+    <div class="purchase-history-container">
+        <div class="bento-box">
+            <h2 class="bento-title">{{ _('Purchase History') }}</h2>
+            {% if purchases %}
+                <div class="bento-grid">
+                    {% for purchase in purchases %}
+                        <div class="bento-item purchase-card">
+                            <h5 class="purchase-title">{{ _('Order #%(id)d', id=purchase.id) }}</h5>
+                            <div class="purchase-info">
+                                <p><strong>{{ _('Date') }}:</strong> {{ purchase.date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                <p><strong>{{ _('Total Price') }}:</strong> <span class="price">{{ '%.2f' | format((purchase.items_subtotal + purchase.delivery_fee) / 100.0) }}</span></p>
+                                <p>
+                                    <strong>{{ _('Status') }}:</strong>
+                                    <span class="purchase-status status-{{ purchase.status.lower() }}">
+                                        {{ purchase.status }}
+                                    </span>
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for('purchase_history.purchase_details', purchase_id=purchase.id) }}"
-                                       class="btn btn-primary btn-block mb-2">{{ _('View Details') }}</a>
-                                    {% if purchase.status == 'Pending' %}
-                                        <form action="{{ url_for('purchase_history.cancel_order', purchase_id=purchase.id) }}" method="POST">
-                                            <button type="submit" class="btn btn-danger btn-block"
-                                                    onclick="return confirm('{{ _('Are you sure you want to cancel this order?') }}')">{{ _('Cancel Order') }}</button>
-                                        </form>
-                                    {% endif %}
-                                </div>
+                            </div>
+                            <div class="purchase-actions">
+                                <a href="{{ url_for('purchase_history.purchase_details', purchase_id=purchase.id) }}"
+                                   class="bento-button bento-button-primary">{{ _('View Details') }}</a>
+                                {% if purchase.status == 'Pending' %}
+                                    <form action="{{ url_for('purchase_history.cancel_order', purchase_id=purchase.id) }}" method="POST">
+                                        <button type="submit" class="bento-button bento-button-danger"
+                                                onclick="return confirm('{{ _('Are you sure you want to cancel this order?') }}')">{{ _('Cancel Order') }}</button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-info" role="alert">{{ _('No purchase history found.') }}</div>
-        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bento-item empty-history">
+                    <p>{{ _('No purchase history found.') }}</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
