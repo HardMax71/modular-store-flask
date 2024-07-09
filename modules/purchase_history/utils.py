@@ -1,34 +1,33 @@
 import datetime
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 from flask_login import current_user
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import scoped_session
 
-from modules.db.models import Purchase, PurchaseItem, ShippingAddress, Address, ShippingMethod
+from modules.db.models import Purchase, PurchaseItem, ShippingAddress, Address, ShippingMethod, Cart
 from modules.email import send_email
 
 
 def save_purchase_history(
-        db: Session,
-        cart_items: List[PurchaseItem],
-        original_prices: Dict[int, float],
+        db_session: scoped_session,
+        cart_items: List[Cart],
         shipping_address_id: int,
         shipping_method_id: int,
         payment_method: str,
-        payment_id: int
-) -> Purchase | None:
+        payment_id: str
+) -> Purchase:
     if not cart_items:
-        return None
+        raise ValueError("No cart items!")
 
     user_id = current_user.id
-    subtotal = calculate_subtotal(cart_items, original_prices)
+    subtotal = sum(item.price * item.quantity for item in cart_items)
     discount_percentage = getattr(current_user, 'discount', 0)
     discount_amount = calculate_discount_amount(subtotal, discount_percentage)
-    shipping_method = get_shipping_method_by_id(db, shipping_method_id)
+    shipping_method = db_session.get(ShippingMethod, shipping_method_id)
     delivery_fee = calculate_delivery_fee(shipping_method)
     total_price = calculate_total_price(subtotal, discount_amount, delivery_fee)
     tracking_number = generate_tracking_number()
-    shipping_address = get_address_by_id(db, shipping_address_id)
+    shipping_address = db_session.get(Address, shipping_address_id)
 
     if shipping_address is None:
         raise ValueError("Invalid shipping address ID")
@@ -46,8 +45,8 @@ def save_purchase_history(
         payment_id=payment_id
     )
 
-    db.add(new_purchase)
-    db.flush()
+    db_session.add(new_purchase)
+    db_session.flush()
 
     new_shipping_address = ShippingAddress(
         purchase_id=new_purchase.id,
@@ -58,39 +57,16 @@ def save_purchase_history(
         zip_code=shipping_address.zip_code,
         country=shipping_address.country
     )
-    db.add(new_shipping_address)
+    db_session.add(new_shipping_address)
+    db_session.flush()
 
-    create_purchase_items(db, new_purchase.id, cart_items, original_prices)
+    create_purchase_items(db_session=db_session, purchase_id=new_purchase.id, cart_items=cart_items)
 
-    db.commit()
+    db_session.commit()
     Purchase.update_stock(new_purchase)
     send_order_confirmation_email(current_user.email)
 
     return new_purchase
-
-
-def get_purchase_history(db: Session) -> List[Purchase]:
-    user_id = current_user.id
-    purchases = db.query(Purchase).filter_by(user_id=user_id).order_by(Purchase.date.desc()).all()
-    for purchase in purchases:
-        purchase.items_subtotal = calculate_items_subtotal(purchase.items)
-    return purchases
-
-
-def get_purchase_by_id(db: Session, purchase_id: int) -> Optional[Purchase]:
-    return db.get(Purchase, purchase_id)
-
-
-def get_shipping_method_by_id(db: Session, shipping_method_id: int) -> Optional[ShippingMethod]:
-    return db.get(ShippingMethod, shipping_method_id)
-
-
-def get_address_by_id(db: Session, address_id: int) -> Optional[Address]:
-    return db.get(Address, address_id)
-
-
-def calculate_subtotal(cart_items: List[PurchaseItem], original_prices: Dict[int, float]) -> int:
-    return sum(original_prices[item.id] * item.quantity for item in cart_items)
 
 
 def calculate_discount_amount(subtotal: float, discount_percentage: float) -> float:
@@ -111,26 +87,22 @@ def generate_tracking_number() -> str:
 
 
 def create_purchase_items(
-        db: Session,
+        db_session: scoped_session,
         purchase_id: int,
-        cart_items: List[PurchaseItem],
-        original_prices: Dict[int, float]
+        cart_items: List[Cart]
 ) -> None:
     for item in cart_items:
         new_purchase_item = PurchaseItem(
             purchase_id=purchase_id,
             goods_id=item.goods_id,
             quantity=item.quantity,
-            price=original_prices[item.id]
+            price=item.price
         )
-        db.add(new_purchase_item)
+        db_session.add(new_purchase_item)
+    db_session.flush()
 
 
-def calculate_items_subtotal(items: List[PurchaseItem]) -> float:
-    return sum(item.quantity * item.price for item in items)
-
-
-def send_order_confirmation_email(email: str):
+def send_order_confirmation_email(email: str) -> None:
     send_email(email,
                'Order Confirmation',
                'Thank you for your order! Your order is being processed.')

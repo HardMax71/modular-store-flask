@@ -4,6 +4,7 @@ import json
 from datetime import datetime, time
 from io import StringIO, BytesIO
 from typing import List, Dict, Any
+from typing import Optional
 
 import pandas as pd
 from flask import Blueprint, flash, redirect, url_for
@@ -15,13 +16,14 @@ from flask_babel import gettext as _
 from flask_login import current_user
 from markupsafe import Markup
 from openpyxl import Workbook
-from sqlalchemy import func
-from sqlalchemy import inspect, text
+from sqlalchemy import func, Integer
+from sqlalchemy import inspect, select, Table
+from sqlalchemy.orm import aliased
 from werkzeug.wrappers import Response
 from ydata_profiling import ProfileReport
 
 import config
-from modules.db.database import db
+from modules.db.database import db, Base
 from modules.db.models import RequestLog, Ticket, User, Goods, Category, Purchase, Review, Wishlist, Tag, \
     ProductPromotion, Discount, ShippingMethod, ReportedReview, TicketMessage
 from modules.decorators import login_required_with_message, admin_required
@@ -30,13 +32,30 @@ from modules.decorators import login_required_with_message, admin_required
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
-def get_table_names():
+def get_table_names() -> List[str]:
+    """
+    Get a list of all table names in the database.
+
+    Returns:
+        List[str]: A list of table names.
+    """
     inspector = inspect(db.session.bind)
     return inspector.get_table_names()
 
 
-# depiction of floats as e.g. 39.999..99 => "39.99"
-def _number_formatter(view, context, model, name):
+def _number_formatter(view: ModelView, context: Dict, model: Any, name: str) -> str:
+    """
+    Format a number to display two decimal places.
+
+    Args:
+        view (ModelView): The current view.
+        context (Dict): The context dictionary.
+        model (Any): The model instance.
+        name (str): The name of the attribute to format.
+
+    Returns:
+        str: The formatted number as a string.
+    """
     value = getattr(model, name)
     if value is not None:
         return '{:.2f}'.format(value)
@@ -44,11 +63,10 @@ def _number_formatter(view, context, model, name):
 
 
 class AdminView(ModelView):
-    def is_accessible(self):
+    def is_accessible(self) -> bool:
         return current_user.is_authenticated and current_user.is_admin
 
-    def inaccessible_callback(self, name, **kwargs):
-        # Redirect to login page if user doesn't have access
+    def inaccessible_callback(self, name: str, **kwargs) -> Response:
         return redirect(url_for('login', next=request.url))
 
 
@@ -56,7 +74,7 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     @login_required_with_message()
     @admin_required()
-    def index(self):
+    def index(self) -> Response:
         if not current_user.is_admin:
             flash(_('You do not have permission to access this page.'), 'danger')
             return redirect(url_for('login'))
@@ -64,22 +82,22 @@ class MyAdminIndexView(AdminIndexView):
 
 
 class TicketView(AdminView):
-    column_searchable_list = ['user.username', 'title', 'description']
-    column_filters = ['status', 'priority']
-    column_editable_list = ['status', 'priority']
-    form_excluded_columns = ['messages']
+    column_searchable_list: list[str] = ['user.username', 'title', 'description']
+    column_filters: list[str] = ['status', 'priority']
+    column_editable_list: list[str] = ['status', 'priority']
+    form_excluded_columns: list[str] = ['messages']
 
     column_formatters = {
         _('actions'): lambda v, c, m, p: Markup(
             f'<a href="{url_for("tickets.ticket_details", ticket_id=m.id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
-    column_list = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
+    column_list: list[str] = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
-    @expose('/assign/<int:ticket_id>', methods=['POST'])
-    def assign_ticket(self, ticket_id):
-        ticket = db.session.get(Ticket, ticket_id)
+    @expose('/assign/<int:ticket_id>', methods=['POST'])  # type: ignore
+    def assign_ticket(self, ticket_id: int) -> Response:
+        ticket: Optional[Ticket] = db.session.get(Ticket, ticket_id)
         if ticket:
-            admin_id = request.form['admin_id']
+            admin_id = request.form.get('admin_id', type=int)
             ticket.admin_id = admin_id
             db.session.commit()
             flash(_('Ticket assigned successfully.'), 'success')
@@ -107,20 +125,33 @@ class StatisticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
     @admin_required()
-    def index(self):
-
-        table_names = get_table_names()
+    def index(self) -> Response:
+        inspector = inspect(db.engine)
+        table_names = inspector.get_table_names()
 
         if request.method == 'POST':
             tables = request.form.getlist('tables')
             data_percentage = int(request.form.get('data_percentage', 100))
 
-            profile_reports = []
-            for table in tables:
-                if table in table_names:
-                    query = f"SELECT * FROM {table} ORDER BY id DESC LIMIT (SELECT CAST(COUNT(*) * {data_percentage / 100.0} AS INTEGER) FROM {table})"
-                    df = pd.read_sql_query(query, db.session.bind)
-                    profile = ProfileReport(df, title=f"{table.capitalize()} Dataset")
+            profile_reports: List[ProfileReport] = []
+            for table_name in tables:
+                if table_name in table_names:
+                    table = db.metadata.tables[table_name]
+
+                    # Create an alias for the table
+                    aliased_table = aliased(table)
+
+                    count_subq = select(func.count()).select_from(table).scalar_subquery()
+                    limit = select(func.cast(count_subq * (data_percentage / 100.0), Integer)).scalar_subquery()
+
+                    query = (
+                        select(aliased_table)
+                        .order_by(aliased_table.c.id.desc())
+                        .limit(limit)
+                    )
+
+                    df = pd.read_sql(query, db.engine)
+                    profile = ProfileReport(df, title=f"{table_name.capitalize()} Dataset")
                     profile_reports.append(profile)
 
             if profile_reports:
@@ -140,11 +171,12 @@ class StatisticsView(BaseView):
 
 
 class ReportsView(BaseView):
-    @expose('/', methods=['GET', 'POST'])
+    @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
-    def index(self):
-        table_names = get_table_names()
+    def index(self) -> Response:
+        inspector = inspect(db.engine)
+        table_names = inspector.get_table_names()
 
         if request.method == 'POST':
             tables = request.form.getlist('tables')
@@ -162,15 +194,22 @@ class ReportsView(BaseView):
         return self.render('admin/reports.html', table_names=table_names)
 
     def fetch_data(self, tables: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+        inspector = inspect(db.engine)
+        all_table_names = inspector.get_table_names()
         data = {}
-        for table in tables:
-            if table in get_table_names():
-                result = db.session.execute(text(f"SELECT * FROM {table}"))
-                columns = result.keys()
-                data[table] = [
-                    {col: self.decode_if_bytes(value) for col, value in zip(columns, row)}
-                    for row in result.fetchall()
-                ]
+
+        for table_name in tables:
+            if table_name in all_table_names:
+                table = Table(table_name, Base.metadata, autoload_with=db.engine)
+                aliased_table = aliased(table)
+                query = select(aliased_table)
+                with db.engine.connect() as connection:
+                    result = connection.execute(query)
+                    columns = result.keys()
+                    data[table_name] = [
+                        {col: self.decode_if_bytes(value) for col, value in zip(columns, row)}
+                        for row in result.fetchall()
+                    ]
         return data
 
     @staticmethod
@@ -195,7 +234,7 @@ class ReportsView(BaseView):
 
     def generate_json(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
         class CustomEncoder(json.JSONEncoder):
-            def default(self, obj):
+            def default(self, obj) -> Any:
                 if isinstance(obj, bytes):
                     return obj.decode('utf-8')
                 return super().default(obj)
@@ -257,7 +296,7 @@ class GoodsView(AdminView):
         'onSalePrice': _number_formatter,
     }
 
-    def on_model_change(self, form, model, is_created):
+    def on_model_change(self, form, model, is_created) -> None:
         if not is_created and model.stock <= config.AppConfig.LOW_STOCK_THRESHOLD:
             goods_name = model.samplename
             notification_message = _(f"Low stock alert: {goods_name} is running low on stock.")
@@ -281,10 +320,10 @@ class AnalyticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
     @admin_required()
-    def index(self):
+    def index(self) -> Response | str:
         if request.method == 'POST':
-            start_date_str = request.form.get('start_date')
-            end_date_str = request.form.get('end_date')
+            start_date_str = request.form.get('start_date', type=str, default=datetime.today().strftime('%Y-%m-%d'))
+            end_date_str = request.form.get('end_date', type=str, default=datetime.today().strftime('%Y-%m-%d'))
 
             # Convert start_date and end_date to datetime objects
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
@@ -403,5 +442,5 @@ admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports
 admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))
 
 
-def init_admin(app):
+def init_admin(app) -> None:
     admin.init_app(app)

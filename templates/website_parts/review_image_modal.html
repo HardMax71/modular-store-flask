@@ -27,9 +27,9 @@
 </div>
 
 <script>
-    function openReviewImageModal(imgElement) {
-        const reviewId = imgElement.dataset.reviewId;
-        const imageIndex = parseInt(imgElement.dataset.imageIndex);
+    function openReviewImageModal(element) {
+        const reviewId = element.dataset.reviewId || element.querySelector('[data-review-id]').dataset.reviewId;
+        const clickedImageId = element.dataset.imageId;
         const reviewImages = Array.from(document.querySelectorAll(`img[data-review-id="${reviewId}"]`));
 
         const carouselInner = document.querySelector('#reviewImageCarousel .carousel-inner');
@@ -37,7 +37,7 @@
 
         reviewImages.forEach((img, index) => {
             const carouselItem = document.createElement('div');
-            carouselItem.className = `carousel-item${index === imageIndex ? ' active' : ''}`;
+            carouselItem.className = `carousel-item${img.dataset.imageId === clickedImageId ? ' active' : ''}`;
 
             const image = document.createElement('img');
             image.src = img.src;
@@ -47,6 +47,11 @@
             carouselItem.appendChild(image);
             carouselInner.appendChild(carouselItem);
         });
+
+        // If no image was clicked (i.e., "more" button was clicked), activate the first image
+        if (!clickedImageId) {
+            carouselInner.firstElementChild.classList.add('active');
+        }
 
         $('#reviewImageModal').modal('show');
     }

@@ -1,3 +1,4 @@
+from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -14,9 +15,18 @@ from .tickets import create_ticket_routes
 from .wishlists import create_wishlist_routes
 
 
-def init_modules(app):
-    limiter = Limiter(app=app, key_func=get_remote_address, default_limits=[app.config['DEFAULT_LIMIT_RATE']],
-                      storage_uri="memory://")
+def init_modules(app: Flask) -> None:
+    """
+    Initialize all application modules and their routes with rate limiting.
+
+    :param app: Flask application instance
+    """
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=[app.config['DEFAULT_LIMIT_RATE']],
+        storage_uri="memory://"
+    )
 
     create_main_routes(app)
     create_admin(app)

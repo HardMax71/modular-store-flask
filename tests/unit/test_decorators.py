@@ -3,8 +3,8 @@ import unittest
 
 from flask import Flask
 from flask import render_template_string
-from flask_babel import Babel
-from flask_login import LoginManager, UserMixin, login_user, logout_user
+from flask_babel import Babel  # type: ignore
+from flask_login import LoginManager, UserMixin, login_user, logout_user  # type: ignore
 from werkzeug.datastructures import Headers
 
 from config import AppConfig

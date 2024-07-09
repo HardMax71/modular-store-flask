@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from typing import Optional
+
+from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask
 from flask_babel import gettext as _
 from flask_dance.contrib.facebook import facebook
 from flask_dance.contrib.google import google
 from flask_login import current_user, login_required
+from werkzeug import Response
 
 from config import AppConfig
 from modules.db.database import db
@@ -17,7 +20,8 @@ profile_bp = Blueprint('profile', __name__)
 
 @profile_bp.route('/', methods=['GET', 'POST'])
 @login_required_with_message(message=_("You must be logged in to open profile."))
-def profile_info():
+def profile_info() -> str:
+    """Render the profile page and handle profile updates."""
     if request.method == 'POST':
         handle_profile_update()
 
@@ -28,8 +32,9 @@ def profile_info():
 
 
 @profile_bp.route('/notifications')
-@login_required
-def notifications():
+@login_required  # type: ignore
+def notifications() -> str:
+    """Render the notifications page for the current user."""
     user_notifications = db.session.query(Notification).filter_by(user_id=current_user.id).order_by(
         Notification.created_at.desc()).all()
     return render_template('notifications.html',
@@ -37,8 +42,9 @@ def notifications():
 
 
 @profile_bp.route('/notifications/<int:notification_id>/mark-as-read', methods=['POST'])
-@login_required
-def mark_notification_as_read(notification_id):
+@login_required  # type: ignore
+def mark_notification_as_read(notification_id: int) -> Response:
+    """Mark a notification as read."""
     notification = db.session.get(Notification, notification_id)
     if not notification:
         flash(_('Notification not found.'), 'danger')
@@ -53,9 +59,11 @@ def mark_notification_as_read(notification_id):
 
 @profile_bp.route('/add-address', methods=['GET', 'POST'])
 @login_required_with_message(message=_("You must be logged in to add an address."))
-def add_address():
+def add_address() -> Response | str:
+    """Add a new address for the current user."""
     if request.method == 'POST':
         address_data = {
+            'user_id': current_user.id,
             'address_line1': request.form.get('address_line1'),
             'address_line2': request.form.get('address_line2'),
             'city': request.form.get('city'),
@@ -64,13 +72,13 @@ def add_address():
             'country': request.form.get('country')
         }
 
-        existing_address = db.session.query(Address).filter_by(user_id=current_user.id, **address_data).first()
+        existing_address = db.session.query(Address).filter_by(**address_data).first()
 
         if existing_address:
             flash(_('This address has already been added.'), 'warning')
             return redirect(url_for('profile.profile_info'))
 
-        new_address = Address(user_id=current_user.id, **address_data)
+        new_address = Address(**address_data)
         db.session.add(new_address)
         db.session.commit()
         flash(_('Address added successfully.'), 'success')
@@ -81,8 +89,9 @@ def add_address():
 
 
 @profile_bp.route('/addresses/edit/<int:address_id>', methods=['GET', 'POST'])
-@login_required
-def edit_address(address_id):
+@login_required  # type: ignore
+def edit_address(address_id: int) -> Response | str:
+    """Edit an existing address for the current user."""
     address = db.session.get(Address, address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
@@ -104,8 +113,9 @@ def edit_address(address_id):
 
 
 @profile_bp.route('/addresses/delete/<int:address_id>', methods=['POST'])
-@login_required
-def delete_address(address_id):
+@login_required  # type: ignore
+def delete_address(address_id: int) -> Response:
+    """Delete an existing address for the current user."""
     address = db.session.get(Address, address_id)
     if not address:
         flash(_('Address not found.'), 'danger')
@@ -120,14 +130,17 @@ def delete_address(address_id):
 
 
 @profile_bp.route('/facebook-login')
-def facebook_login():
+def facebook_login() -> Optional[Response]:
+    """Handle login via Facebook."""
     return handle_social_login(facebook, name='facebook')
 
 
 @profile_bp.route('/google-login')
-def google_login():
+def google_login() -> Optional[Response]:
+    """Handle login via Google."""
     return handle_social_login(google, name='google')
 
 
-def init_profile(app):
+def init_profile(app: Flask) -> None:
+    """Initialize the profile blueprint."""
     app.register_blueprint(profile_bp, url_prefix='/profile')

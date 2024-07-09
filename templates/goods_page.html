@@ -184,7 +184,7 @@
                                 <h4 class="card-title mb-4">{{ _('Average Rating') }}</h4>
                                 <div class="display-3 font-weight-bold mb-3">{{ "%.1f"|format(average_rating) }}</div>
                                 <div class="star-rating mb-3">
-                                    {% for i in range(1, 6) %}
+                                    {% for i in range(5, 0, -1) %}
                                         <i class="fas fa-star{% if i > average_rating %}-half-alt{% endif %} fa-2x {% if i <= average_rating %}text-warning{% else %}text-muted{% endif %}"></i>
                                     {% endfor %}
                                 </div>
@@ -208,7 +208,7 @@
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <h5 class="mt-0 mb-0">{{ user.username }}</h5>
                                                     <div class="star-rating">
-                                                        {% for i in range(1, 6) %}
+                                                        {% for i in range(5, 0, -1) %}
                                                             <i class="fas fa-star {% if i <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
                                                         {% endfor %}
                                                     </div>
@@ -218,14 +218,28 @@
                                                 <p class="mb-3">{{ review.review }}</p>
                                                 {% if review.images %}
                                                     <div class="review-images mb-3">
-                                                        {% for image in review.images.split(',') %}
-                                                            <img src="{{ url_for('static', filename='img/review_pictures/' + image) }}"
+                                                        {% for image in review.images[:4] %}
+                                                            <img src="{{ url_for('static', filename='img/review_pictures/' + image.uploaded_image) }}"
                                                                  alt="Review Image"
                                                                  class="img-thumbnail mr-2 review-image-thumbnail"
                                                                  style="max-width: 100px; cursor: pointer;"
                                                                  data-review-id="{{ review.id }}"
-                                                                 data-image-index="{{ loop.index0 }}"
+                                                                 data-image-id="{{ image.id }}"
                                                                  onclick="openReviewImageModal(this)">
+                                                        {% endfor %}
+                                                        {% if review.images|length > 4 %}
+                                                            <button class="btn btn-sm btn-secondary ml-2"
+                                                                    onclick="openReviewImageModal(document.querySelector('[data-review-id=\'{{ review.id }}\']'))">
+                                                                +{{ review.images|length - 4 }} more
+                                                            </button>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="d-none">
+                                                        {% for image in review.images[4:] %}
+                                                            <img src="{{ url_for('static', filename='img/review_pictures/' + image.uploaded_image) }}"
+                                                                 alt="Review Image"
+                                                                 data-review-id="{{ review.id }}"
+                                                                 data-image-id="{{ image.id }}">
                                                         {% endfor %}
                                                     </div>
                                                 {% endif %}
@@ -306,8 +320,7 @@
                                 <label for="rating">{{ _('Rating') }}:</label>
                                 <div class="star-rating">
                                     {% for i in range(5, 0, -1) %}
-                                        <input type="radio" name="rating" id="rating-{{ i }}" value="{{ i }}"
-                                               required>
+                                        <input type="radio" name="rating" id="rating-{{ i }}" value="{{ i }}" required>
                                         <label for="rating-{{ i }}"><i class="fas fa-star"></i></label>
                                     {% endfor %}
                                 </div>
@@ -331,8 +344,26 @@
                             </div>
                             <div class="form-group">
                                 <label for="images">{{ _('Images') }}:</label>
-                                <input type="file" class="form-control-file" id="images" name="images" multiple>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="images" name="images" multiple
+                                           accept="image/*">
+                                    <label class="custom-file-label" for="images">{{ _('Choose files') }}</label>
+                                </div>
+                                <small class="form-text text-muted">{{ _('You can select multiple images') }}</small>
                             </div>
+                            <script>
+                                document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+                                    var fileName = '';
+                                    if (this.files && this.files.length > 1) {
+                                        fileName = (this.getAttribute('data-multiple-caption') || '').replace('{count}', this.files.length);
+                                    } else {
+                                        fileName = e.target.value.split('\\').pop();
+                                    }
+                                    if (fileName) {
+                                        this.nextElementSibling.innerHTML = fileName;
+                                    }
+                                });
+                            </script>
                             <input type="hidden" name="goods_id" value="{{ shirt.id }}">
                             <button type="submit" class="btn btn-primary">{{ _('Submit Review') }}</button>
                         </form>
@@ -367,10 +398,10 @@
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div class="price-container"> {% if related_product.onSale %}
                                             <span
-                                                    class="price text-danger fs-5">{{ '{:,.2f}'.format(related_product.onSalePrice / 100.0) }}</span>
-                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(related_product.price / 100.0) }}</del></span> {% else %}
+                                                    class="price text-danger fs-5">{{ '${:,.2f}'.format(related_product.onSalePrice / 100.0) }}</span>
+                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '${:,.2f}'.format(related_product.price / 100.0) }}</del></span> {% else %}
                                             <span
-                                                    class="price fs-5">{{ '{:,.2f}'.format(related_product.price / 100.0) }}</span> {% endif %}
+                                                    class="price fs-5">{{ '${:,.2f}'.format(related_product.price / 100.0) }}</span> {% endif %}
                                         </div>
                                     </div>
                                 </div>

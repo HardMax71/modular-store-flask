@@ -4,6 +4,11 @@ from .views import init_compare, add_to_comparison
 
 
 def create_compare_routes(app: Flask) -> None:
+    """
+    Initialize comparison routes.
+
+    :param app: Flask application instance
+    """
     init_compare(app)
 
 

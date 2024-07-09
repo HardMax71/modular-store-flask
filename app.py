@@ -1,10 +1,13 @@
 import gettext
 import logging
 from datetime import datetime
+from typing import Any, Dict
 
-from flask import Flask
-from flask import redirect, url_for, g, session
+from flask import Flask, redirect, url_for, g
+from flask import session as flask_session
 from flask_login import current_user
+
+from werkzeug.wrappers.response import Response
 
 from config import AppConfig
 from modules import init_modules
@@ -14,51 +17,69 @@ from modules.error_handlers import create_error_handlers
 from modules.extensions import init_extensions
 from modules.logger import DatabaseLogger
 
+# Initialize logger
 logger = logging.getLogger(__name__)
 
+# Configure gettext for internationalization
 gettext.bindtextdomain(AppConfig.GETTEXT_DOMAIN, localedir=AppConfig.LOCALE_PATH)
 gettext.textdomain(AppConfig.GETTEXT_DOMAIN)
-
 _ = gettext.gettext
 
 
-def create_app(config_class=AppConfig):
+def create_app(config_class: type = AppConfig) -> Flask:
+    """
+    Create and configure the Flask application.
+
+    :param config_class: Configuration class for the app
+    :return: Configured Flask app instance
+    """
     current_app = Flask(__name__)
     current_app.config.from_object(config_class)
 
     with current_app.app_context():
         db.init_db()
-
         DatabaseLogger(current_app)
-
         init_extensions(current_app)
-
         create_error_handlers(current_app)
-
         init_modules(current_app)
         register_request_handlers(current_app)
 
     return current_app
 
 
-def register_request_handlers(current_app):
+def register_request_handlers(current_app: Flask) -> None:
+    """
+    Register request lifecycle handlers for the app.
+
+    :param current_app: Flask app instance
+    """
+
     @current_app.before_request
-    def before_request():
-        db.session.permanent = True
+    def before_request() -> None:
+        """
+        Handler for tasks to run before each request.
+        """
+        flask_session.permanent = True
         g.permanent_session_lifetime = AppConfig.PERMANENT_SESSION_LIFETIME
-        db.session.modified = True
+        flask_session.modified = True
         g.total_items, g.total_amount, g.discount_percentage = Cart.cart_info()
 
-        if current_user and current_user.is_authenticated:
-            g.mini_cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-            g.unread_notifications_count = Notification.query.filter_by(user_id=current_user.id,
-                                                                        read=False).count()
+        if current_user.is_authenticated:
+            g.mini_cart_items = db.session.query(Cart).filter_by(user_id=current_user.id).all()
+            g.unread_notifications_count = db.session.query(Notification).filter_by(
+                user_id=current_user.id, read=False
+            ).count()
         else:
             g.mini_cart_items = []
             g.unread_notifications_count = 0
 
     @current_app.context_processor
-    def inject_cart_info():
+    def inject_cart_info() -> Dict[str, Any]:
+        """
+        Inject cart information into the context for rendering templates.
+
+        :return: Dictionary with cart information
+        """
         return {
             "total_items": g.get('total_items', 0),
             "total_amount": g.get('total_amount', 0),
@@ -68,15 +89,22 @@ def register_request_handlers(current_app):
         }
 
     @current_app.after_request
-    def after_request(response):
-        if 'last_active' in session:
-            last_active = datetime.fromisoformat(session['last_active'])
+    def after_request(response: Response) -> Response:
+        """
+        Handler for tasks to run after each request.
+
+        :param response: Response object
+        :return: Modified response object
+        """
+        if 'last_active' in flask_session:
+            last_active = datetime.fromisoformat(flask_session['last_active'])
             if (datetime.now() - last_active) > AppConfig.PERMANENT_SESSION_LIFETIME:
                 db.session.remove()
-                session.clear()
+                flask_session.clear()
                 return redirect(url_for('auth.login'))
-        session['last_active'] = datetime.now().isoformat()
+        flask_session['last_active'] = datetime.now().isoformat()
 
+        # Set security headers
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['X-Content-Type-Options'] = 'nosniff'

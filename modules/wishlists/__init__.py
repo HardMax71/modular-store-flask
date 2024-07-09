@@ -2,7 +2,7 @@ from flask import Flask
 
 from .utils import (
     get_variant_options,
-    is_wishlist_item_exists,
+    wishlist_exists,
     remove_from_wishlist,
     add_wishlist_item
 )
@@ -17,7 +17,7 @@ def create_wishlist_routes(app: Flask) -> None:
 __all__ = [
     'create_wishlist_routes',
     'get_variant_options',
-    'is_wishlist_item_exists',
+    'wishlist_exists',
     'remove_from_wishlist',
     'add_wishlist_item'
 ]

@@ -1,13 +1,15 @@
 import json
 from math import ceil
+from typing import Optional, List, Dict
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
-from flask import send_from_directory
+from flask import send_from_directory, Flask
 from flask_babel import gettext as _
 from flask_login import current_user
-from sqlalchemy import exists
+from sqlalchemy import exists, desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload, selectinload
+from werkzeug import Response
 
 from config import AppConfig
 from modules.carts import apply_discount_code
@@ -23,11 +25,11 @@ main_bp = Blueprint('main', __name__)
 
 
 @main_bp.route("/")
-def index():
+def index() -> str:
     if 'filter_options' not in session:
         session['filter_options'] = get_filter_options()
 
-    page = request.args.get('page', 1, type=int)
+    page: int = request.args.get('page', 1, type=int)
     shirts_query = filter_products(None, None, None).options(joinedload(Goods.tags))
     paginated_query, in_total, total_pages, per_page = paginate_query(shirts_query, page)
 
@@ -37,38 +39,45 @@ def index():
 
 
 @main_bp.route("/search")
-def search_route():
-    query = request.args.get('query')
-    page = request.args.get('page', 1, type=int)
-    per_page = AppConfig.PER_PAGE
+def search_route() -> str:
+    query: Optional[str] = request.args.get('query')
+    page: int = request.args.get('page', 1, type=int)
+    per_page: int = AppConfig.PER_PAGE
 
     search_query = filter_products(name_query=query)
-    total = search_query.count()
-    offset = (page - 1) * per_page
-    paginated_shirts = search_query.offset(offset).limit(per_page).all()
-    total_pages = ceil(total / per_page)
+    total: int = search_query.count()
+    offset: int = (page - 1) * per_page
+    paginated_shirts: List[Goods] = search_query.offset(offset).limit(per_page).all()
+    total_pages: int = ceil(total / per_page)
 
     return render_template("index.html", shirts=paginated_shirts, query=query, total_pages=total_pages,
                            current_page=page, per_page=per_page, in_total=total, categories=get_categories(),
-                           promoted_products=get_promoted_products(), )
+                           promoted_products=get_promoted_products())
 
 
 @main_bp.route("/goods/<int:id>")
-def goods_page(id):
-    shirt = db.session.query(Goods).options(joinedload(Goods.category), joinedload(Goods.tags)).filter_by(id=id).first()
+def goods_page(id: int) -> Response | str:
+    shirt: Optional[Goods] = db.session.query(Goods).options(joinedload(Goods.category),
+                                                             joinedload(Goods.tags)).filter_by(id=id).first()
     if not shirt:
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
 
-    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(Review.date.desc()).limit(3).all()
-    variants = Variant.query.filter_by(goods_id=id).all()
-    variant_options = {variant.name: [v.value for v in variants if v.name == variant.name] for variant in variants}
+    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(
+        desc(Review.date)).limit(3).all()
+    variants: List[Variant] = (
+        db.session.query(Variant)
+        .filter_by(goods_id=id)
+        .all()
+    )
+    variant_options: Dict[str, List[str]] = {variant.name: [v.value for v in variants if v.name == variant.name] for
+                                             variant in variants}
 
-    user_id = current_user.id if current_user.is_authenticated else None
-    in_wishlist = False
-    no_review = True
-    user_has_purchased = False
-    product_in_comparison = False
+    user_id: int = current_user.id if current_user.is_authenticated else -1  # -1 is an invalid user ID
+    in_wishlist: bool = False
+    no_review: bool = True
+    user_has_purchased: bool = False
+    product_in_comparison: bool = False
 
     if current_user.is_authenticated:
         user_has_purchased = has_purchased(user_id, id)
@@ -76,13 +85,26 @@ def goods_page(id):
         in_wishlist = db.session.query(exists().where(Wishlist.user_id == user_id, Wishlist.goods_id == id)).scalar()
         update_recently_viewed_products(user_id, id)
 
-        comparison_history = ComparisonHistory.query.options(selectinload(ComparisonHistory.user)).filter_by(
-            user_id=user_id).order_by(ComparisonHistory.timestamp.desc()).first()
+        comparison_history: Optional[ComparisonHistory] = (
+            db.session.query(ComparisonHistory)
+            .options(selectinload(ComparisonHistory.user))
+            .filter_by(user_id=user_id)
+            .order_by(desc(ComparisonHistory.timestamp))
+            .first()
+        )
         if comparison_history:
             product_in_comparison = id in json.loads(comparison_history.product_ids)
 
-    related_products = Goods.query.filter(Goods.category_id == shirt.category_id, Goods.id != shirt.id,
-                                          Goods.stock > 0).limit(3).all()
+    related_products: List[Goods] = (
+        db.session.query(Goods)
+        .filter(
+            Goods.category_id == shirt.category_id,
+            Goods.id != shirt.id,
+            Goods.stock > 0
+        )
+        .limit(3)
+        .all()
+    )
 
     return render_template("goods_page.html", shirt=shirt, reviews=reviews, average_rating=shirt.avg_rating,
                            user_has_purchased=user_has_purchased, no_review=no_review,
@@ -93,13 +115,14 @@ def goods_page(id):
 
 @main_bp.route("/toggle-wishlist", methods=["POST"])
 @login_required_with_message()
-def toggle_wishlist():
-    goods_id = request.form.get("goods_id", type=int)
-    if not goods_id or not db.session.get(Goods, goods_id):  # id not entered or no product with this id
+def toggle_wishlist() -> Response:
+    goods_id: Optional[int] = request.form.get("goods_id", type=int)
+    if not goods_id or not db.session.get(Goods, goods_id):
         flash(_("Invalid product ID"), "error")
         return redirect(url_for('main.index'))
 
-    wishlist_item = db.session.query(Wishlist).filter_by(user_id=current_user.id, goods_id=goods_id).first()
+    wishlist_item: Optional[Wishlist] = db.session.query(Wishlist).filter_by(user_id=current_user.id,
+                                                                             goods_id=goods_id).first()
     if wishlist_item:
         db.session.delete(wishlist_item)
         message = _("Product removed from your wishlist.")
@@ -120,10 +143,15 @@ def toggle_wishlist():
 
 @main_bp.route("/recommendations")
 @login_required_with_message(redirect_back=True)
-def recommendations():
-    user_id = current_user.id
-    recently_viewed_products = RecentlyViewedProduct.query.filter_by(user_id=user_id).order_by(
-        RecentlyViewedProduct.timestamp.desc()).limit(4).all()
+def recommendations() -> str:
+    user_id: int = current_user.id
+    recently_viewed_products: List[RecentlyViewedProduct] = (
+        db.session.query(RecentlyViewedProduct)
+        .filter_by(user_id=user_id)
+        .order_by(desc(RecentlyViewedProduct.timestamp))
+        .limit(4)
+        .all()
+    )
     recs = get_recommended_products(user_id)
     return render_template("recommendations.html", recently_viewed_products=recently_viewed_products,
                            recommendations=recs)
@@ -131,9 +159,10 @@ def recommendations():
 
 @main_bp.route("/apply-discount", methods=["POST"])
 @login_required_with_message()
-def apply_discount():
-    discount_code = request.form.get("discount_code")
-    discount_applied = apply_discount_code(discount_code)
+def apply_discount() -> Response:
+    discount_code: str = request.form.get("discount_code", type=str,
+                                          default="")  # TODO: maybe set more reasonable default?
+    discount_applied: str = apply_discount_code(discount_code)
     if discount_applied == "success":
         flash(_("Discount code applied successfully."), "success")
     elif discount_applied == "already_used":
@@ -144,29 +173,29 @@ def apply_discount():
 
 
 @main_bp.route("/terms")
-def terms():
+def terms() -> str:
     return render_template("auth/terms.html")
 
 
 @main_bp.route("/return-policy")
-def return_policy():
+def return_policy() -> str:
     return render_template("auth/return_policy.html")
 
 
 @main_bp.route("/contact-us")
-def contact_us():
+def contact_us() -> str:
     return render_template("contact_us.html")
 
 
 @main_bp.route("/faq")
-def faq():
+def faq() -> str:
     return render_template("faq.html")
 
 
 @main_bp.route('/robots.txt')
-def robots():
+def robots() -> Response:
     return send_from_directory('static', 'robots.txt')
 
 
-def init_main(app):
+def init_main(app: Flask) -> None:
     app.register_blueprint(main_bp, url_prefix='/')

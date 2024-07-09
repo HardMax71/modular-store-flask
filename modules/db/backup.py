@@ -5,7 +5,7 @@ from datetime import datetime
 from config import AppConfig
 
 
-def backup_database(backup_dir=AppConfig.BACKUP_DIR):
+def backup_database(backup_dir=AppConfig.BACKUP_DIR) -> None:
     # if not exists - create folder
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)

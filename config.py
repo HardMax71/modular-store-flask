@@ -19,10 +19,11 @@ class AppConfig:
 
     PERMANENT_SESSION_LIFETIME: timedelta = timedelta(minutes=15)
     SHOP_NAME: str = 'Modular Store'
-    PROFILE_PICS_FOLDER: str = os.path.join(PROJECT_ROOT, 'static', 'img', 'profile_pictures')
-    IMG_FORMATS = ['.png', '.jpg', '.jpeg', '.bmp']
-    REVIEW_PICS_FOLDER: str = os.path.join('static', 'img', 'review_pictures')
     IMAGES_FOLDER: str = os.path.join('static', 'img')
+
+    PROFILE_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'profile_pictures')
+    REVIEW_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'review_pictures')
+    IMG_FORMATS = ['.png', '.jpg', '.jpeg', '.bmp']
     MAIL_DEFAULT_SENDER: str = 'default'
     WEBSITE_URL: str = 'https://monkfish-app-mbn3z.ondigitalocean.app/'
     PER_PAGE: int = 9  # Number of items per page shown in the shop
@@ -44,8 +45,8 @@ class AppConfig:
     MAIL_USERNAME = 'your_email@example.com'
     MAIL_PASSWORD = 'your_email_password'
 
-    STRIPE_SECRET_KEY: str = 'your_stripe_secret_key'
     STRIPE_PUBLIC_KEY: str = 'your_stripe_public_key'
+    STRIPE_SECRET_KEY: str = 'your_stripe_secret_key'
 
     LOCALE_PATH = os.getenv('LOCALE_PATH', './translations/')
     GETTEXT_DOMAIN = os.getenv('GETTEXT_DOMAIN', 'messages')

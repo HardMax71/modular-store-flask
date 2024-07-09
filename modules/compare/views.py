@@ -1,8 +1,10 @@
 import json
+from typing import Optional
 
 from flask import Blueprint, redirect, request, url_for, flash, render_template
 from flask_babel import gettext as _
 from flask_login import current_user
+from werkzeug.wrappers import Response
 
 from modules.db.database import db
 from modules.db.models import Goods, ComparisonHistory
@@ -13,8 +15,12 @@ compare_bp = Blueprint('compare', __name__)
 
 @compare_bp.route("/compare")
 @login_required_with_message()
-def compare_products():
-    comparison_history = ComparisonHistory.query.filter_by(user_id=current_user.id).first()
+def compare_products() -> str:
+    comparison_history: Optional[ComparisonHistory] = (
+        db.session.query(ComparisonHistory)
+        .filter_by(user_id=current_user.id)
+        .first()
+    )
 
     if comparison_history:
         product_ids = json.loads(comparison_history.product_ids)
@@ -27,13 +33,14 @@ def compare_products():
 
 @compare_bp.route("/remove-from-comparison", methods=["POST"])
 @login_required_with_message()
-def remove_from_comparison():
-    goods_id = request.form.get("goods_id", type=int)
-    comparison_history = db.session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
+def remove_from_comparison() -> Response:
+    goods_id: Optional[int] = request.form.get("goods_id", type=int)
+    comparison_history: Optional[ComparisonHistory] = db.session.query(ComparisonHistory).filter_by(
+        user_id=current_user.id).first()
 
     if comparison_history:
         product_ids = json.loads(comparison_history.product_ids)
-        if goods_id in product_ids:
+        if goods_id and goods_id in product_ids:
             product_ids.remove(goods_id)
             if product_ids:
                 comparison_history.product_ids = json.dumps(product_ids)
@@ -51,16 +58,20 @@ def remove_from_comparison():
 
 @compare_bp.route("/add-to-comparison", methods=["POST"])
 @login_required_with_message()
-def add_to_comparison():
-    goods_id = request.form.get("goods_id", type=int)
-    product = db.session.get(Goods, goods_id)
+def add_to_comparison() -> Response:
+    goods_id: Optional[int] = request.form.get("goods_id", type=int)
+    product: Optional[Goods] = db.session.get(Goods, goods_id)
 
     if product:
-        comparison_history = db.session.query(ComparisonHistory).filter_by(user_id=current_user.id).first()
+        comparison_history: Optional[ComparisonHistory] = (
+            db.session.query(ComparisonHistory)
+            .filter_by(user_id=current_user.id)
+            .first()
+        )
 
         if comparison_history:
             product_ids = json.loads(comparison_history.product_ids)
-            if goods_id not in product_ids:
+            if goods_id and goods_id not in product_ids:
                 if len(product_ids) >= 3:
                     flash(_("You can only compare up to 3 products at a time."), "warning")
                 else:
@@ -71,7 +82,8 @@ def add_to_comparison():
             else:
                 flash(_("Product is already in comparison."), "info")
         else:
-            new_comparison_history = ComparisonHistory(user_id=current_user.id, product_ids=json.dumps([goods_id]))
+            new_comparison_history: ComparisonHistory = ComparisonHistory(user_id=current_user.id,
+                                                                          product_ids=json.dumps([goods_id]))
             db.session.add(new_comparison_history)
             db.session.commit()
             flash(_("Product added to comparison."), "success")
@@ -81,5 +93,5 @@ def add_to_comparison():
     return redirect(url_for('main.goods_page', id=goods_id))
 
 
-def init_compare(app):
+def init_compare(app) -> None:
     app.register_blueprint(compare_bp)

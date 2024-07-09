@@ -1,46 +1,83 @@
 import os
+from typing import List, Optional
 
+from sqlalchemy import and_
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+from config import AppConfig
 from modules.db.database import db
-from modules.db.models import Review, Purchase, PurchaseItem, ReportedReview
+from modules.db.models import Purchase, PurchaseItem, ReportedReview, Review, ReviewImage
 
 
-def get_review(review_id):
+def get_review(review_id: int) -> Optional[Review]:
     return db.session.get(Review, review_id)
 
 
-def report_review_in_db(review_id, user_id, explanation):
+def report_review_in_db(review_id: int, user_id: int, explanation: str) -> None:
     reported_review = ReportedReview(review_id=review_id, user_id=user_id, explanation=explanation)
     db.session.add(reported_review)
     db.session.commit()
 
 
-def has_purchased(user_id, goods_id):
-    purchase_item = PurchaseItem.query.join(Purchase).filter(
-        Purchase.user_id == user_id,
-        PurchaseItem.goods_id == goods_id
-    ).first()
+def has_purchased(user_id: int, goods_id: int) -> bool:
+    purchase_item: Optional[PurchaseItem] = (
+        db.session.query(PurchaseItem)
+        .join(Purchase, and_(
+            Purchase.id == PurchaseItem.purchase_id,
+            Purchase.user_id == user_id
+        ))
+        .filter(PurchaseItem.goods_id == goods_id)
+        .first()
+    )
     return purchase_item is not None
 
 
-def has_already_reviewed(user_id, goods_id):
-    existing_review = Review.query.filter_by(user_id=user_id, goods_id=goods_id).first()
+def has_already_reviewed(user_id: int, goods_id: int) -> bool:
+    existing_review: Optional[Review] = (
+        db.session.query(Review)
+        .filter(Review.user_id == user_id,
+                Review.goods_id == goods_id)
+        .first()
+    )
     return existing_review is not None
 
 
-def handle_uploaded_images(files, upload_folder):
+def handle_uploaded_images(files: List[FileStorage], upload_folder: str) -> List[str]:
     images = []
     for file in files:
-        if file.filename:
+        if file and file.filename and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(upload_folder, filename)
             file.save(file_path)
             images.append(filename)
-    return ','.join(images)
+    return images
 
 
-def add_review_to_db(review_data):
-    new_review = Review(**review_data)
+def allowed_file(filename: str) -> bool:
+    if '.' in filename:
+        file_extension = '.' + filename.rsplit('.', 1)[1].lower()
+        return file_extension in AppConfig.IMG_FORMATS
+    return False
+
+
+def add_review_to_db(review_data: dict, images: List[FileStorage]) -> None:
+    new_review = Review(
+        user_id=review_data['user_id'],
+        goods_id=review_data['goods_id'],
+        rating=review_data['rating'],
+        review=review_data['review'],
+        title=review_data['title'],
+        pros=review_data['pros'],
+        cons=review_data['cons']
+    )
     db.session.add(new_review)
+    db.session.flush()
+
+    uploaded_images = handle_uploaded_images(images, upload_folder=AppConfig.REVIEW_PICS_FOLDER)
+
+    for image_filename in uploaded_images:
+        review_image = ReviewImage(review_id=new_review.id, _image=image_filename)
+        db.session.add(review_image)
+
     db.session.commit()

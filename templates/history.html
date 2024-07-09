@@ -20,7 +20,7 @@
                             <h5 class="purchase-title">{{ _('Order #%(id)d', id=purchase.id) }}</h5>
                             <div class="purchase-info">
                                 <p><strong>{{ _('Date') }}:</strong> {{ purchase.date.strftime('%Y-%m-%d %H:%M') }}</p>
-                                <p><strong>{{ _('Total Price') }}:</strong> <span class="price">{{ '%.2f' | format((purchase.items_subtotal + purchase.delivery_fee) / 100.0) }}</span></p>
+                                <p><strong>{{ _('Total Price') }}:</strong> <span class="price">{{ '%.2f' | format(purchase.total_price / 100.0) }}</span></p>
                                 <p>
                                     <strong>{{ _('Status') }}:</strong>
                                     <span class="purchase-status status-{{ purchase.status.lower() }}">

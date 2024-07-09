@@ -1,29 +1,31 @@
-from flask import Blueprint, redirect, url_for, flash, render_template
+from flask import Blueprint, redirect, url_for, flash, render_template, Flask
 from flask_babel import gettext as _
 from flask_login import current_user
+from werkzeug import Response
 
 from modules.db.database import db
 from modules.decorators import login_required_with_message
 from modules.email import send_email
-from .utils import get_purchase_history, get_purchase_by_id
-from ..db.models import Goods
+from ..db.models import Goods, Purchase
 
 purchase_history_bp = Blueprint('purchase_history', __name__)
 
 
 @purchase_history_bp.route("/")
 @login_required_with_message(message=_("You must be logged in to view your purchase history."))
-def purchase_history():
-    purchases = get_purchase_history(db.session)
+def purchase_history() -> str:
+    """Render the purchase history page for the current user."""
+    purchases = db.session.query(Purchase).filter_by(user_id=current_user.id).order_by(Purchase.date.desc()).all()
     return render_template("history.html", purchases=purchases)
 
 
 @purchase_history_bp.route("/details/<int:purchase_id>")
 @login_required_with_message(message=_("You must be logged in to view purchase details."))
-def purchase_details(purchase_id: int):
-    purchase = get_purchase_by_id(db.session, purchase_id)
+def purchase_details(purchase_id: int) -> tuple[str, int] | Response | str:
+    """Render the purchase details page for a specific purchase."""
+    purchase = db.session.get(Purchase, purchase_id)
     if not purchase:
-        return "Purchase not found", 404
+        return _("Purchase not found"), 404
     if purchase.user_id != current_user.id:
         flash(_("You don't have permission to view this purchase."), "danger")
         return redirect(url_for('purchase_history.purchase_history'))
@@ -32,8 +34,9 @@ def purchase_details(purchase_id: int):
 
 @purchase_history_bp.route("/cancel-order/<int:purchase_id>", methods=['POST'])
 @login_required_with_message(message=_("You must be logged in to cancel an order."))
-def cancel_order(purchase_id: int):
-    purchase = get_purchase_by_id(db.session, purchase_id)
+def cancel_order(purchase_id: int) -> tuple[str, int] | Response:
+    """Handle the cancellation of a specific purchase order."""
+    purchase = db.session.get(Purchase, purchase_id)
     if not purchase:
         return _("Purchase not found"), 404
     if purchase.user_id != current_user.id:
@@ -56,5 +59,6 @@ def cancel_order(purchase_id: int):
     return redirect(url_for('purchase_history.purchase_history'))
 
 
-def init_purchase_history(app):
+def init_purchase_history(app: Flask) -> None:
+    """Initialize the purchase history blueprint."""
     app.register_blueprint(purchase_history_bp, url_prefix='/purchase-history')

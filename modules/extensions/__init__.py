@@ -1,4 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask
 from flask_babel import Babel
 from flask_dance.contrib.facebook import make_facebook_blueprint
 from flask_dance.contrib.google import make_google_blueprint
@@ -15,7 +16,12 @@ mail = Mail()
 scheduler = BackgroundScheduler()
 
 
-def init_extensions(app):
+def init_extensions(app: Flask) -> None:
+    """
+    Initialize Flask extensions.
+
+    :param app: Flask application instance
+    """
     babel.init_app(app, locale_selector=get_locale)
     login_manager.init_app(app)
     mail.init_app(app)
@@ -26,7 +32,7 @@ def init_extensions(app):
     if not scheduler.running:
         scheduler.start()
 
-    # Register Flask-Dance blueprints
+    # Register Flask-Dance blueprints for OAuth
     facebook_bp = make_facebook_blueprint(
         client_id=app.config['FACEBOOK_OAUTH_CLIENT_ID'],
         client_secret=app.config['FACEBOOK_OAUTH_CLIENT_SECRET'],

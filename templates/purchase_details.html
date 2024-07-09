@@ -72,7 +72,7 @@
                 </div>
                 <div class="bento-grid mt-4">
                     <div class="bento-item">
-                        {% set items_subtotal = purchase.items|sum(attribute='price') %}
+                        {% set items_subtotal = purchase.items_subtotal %}
                         <p><strong>{{ _('Subtotal') }}:</strong> <span
                                 class="price">{{ '%.2f' | format(items_subtotal / 100.0) }}</span></p>
                         <p><strong>{{ _('Discount') }}:</strong> <span
@@ -82,7 +82,7 @@
                     </div>
                     <div class="bento-item text-right">
                         <h4><strong>{{ _('Total Price') }}:</strong> <span
-                                class="price">{{ '%.2f' | format((items_subtotal - purchase.discount_amount + purchase.delivery_fee)/100.0) }}</span>
+                                class="price">{{ '%.2f' | format(purchase.total_price / 100.0) }}</span>
                         </h4>
                     </div>
                 </div>

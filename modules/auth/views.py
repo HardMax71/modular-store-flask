@@ -1,10 +1,15 @@
+from typing import Optional
+
 from flask import Blueprint, redirect, render_template, request, flash, url_for
+from flask import Flask
 from flask_babel import gettext as _
+from flask_limiter import Limiter
 from flask_login import login_user, logout_user
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from itsdangerous.exc import BadSignature, SignatureExpired
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.wrappers import Response
 
 from config import AppConfig
 from forms.forms import RegistrationForm, LoginForm
@@ -16,18 +21,20 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route("/register", methods=['GET', 'POST'])
-def register():
+def register() -> Response | str:
     form = RegistrationForm()
     if form.validate_on_submit():
-        existing_user = (db.session.query(User.id)
-                         .filter_by(username=form.username.data).first())
+        existing_user: Optional[User] = (db.session.query(User.id)
+                                         .filter_by(username=form.username.data).first())
         if existing_user:
             flash(_("Username already exists. Please choose a different one."), "danger")
+        elif not form.password.data:
+            flash(_("Password cannot be empty."), "danger")
         else:
-            hashed_password = generate_password_hash(form.password.data)
-            new_user = User(username=form.username.data,
-                            password=hashed_password,
-                            email=form.email.data)
+            hashed_password: str = generate_password_hash(form.password.data)
+            new_user: User = User(username=form.username.data,
+                                  password=hashed_password,
+                                  email=form.email.data)
             db.session.add(new_user)
             db.session.commit()
             db.session.flush()
@@ -41,11 +48,11 @@ def register():
 
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
-def login():
+def login() -> Response | str:
     form = LoginForm()
     if form.validate_on_submit():
-        user = db.session.query(User).filter_by(username=form.username.data).first()
-        if user and check_password_hash(user.password, form.password.data):
+        user: Optional[User] = db.session.query(User).filter_by(username=form.username.data).first()
+        if user and form.password.data and check_password_hash(user.password, form.password.data):
             db.session.refresh(user)
             login_user(user)
             flash(_("Login successful."), "success")
@@ -57,18 +64,26 @@ def login():
 
 @auth_bp.route("/logout")
 @login_required_with_message(message=_("You must be logged in to log out."), category="danger")
-def logout():
+def logout() -> Response:
     logout_user()
     flash(_("You have been logged out."), "success")
     return redirect(url_for('main.index'))
 
 
 @auth_bp.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():
+def reset_password() -> Response | str:
     if request.method == 'POST':
-        email = request.form['email']
-        user = User.query.filter_by(email=email).first()
+        email: Optional[str] = request.form['email']
+        user: Optional[User] = (
+            db.session.query(User)
+            .filter_by(email=email)
+            .first()
+        )
         if user:
+            if not email:
+                flash(_('Please enter your email address first.'), 'warning')
+                return redirect(url_for('auth.reset_password'))
+
             # Generate password reset token
             s = Serializer(AppConfig.SECRET_KEY, str(1800))  # Token valid for 30 minutes
             token = s.dumps({'user_id': user.id})
@@ -94,7 +109,7 @@ def reset_password():
 
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password_token(token):
+def reset_password_token(token) -> Response | str:
     s = Serializer(AppConfig.SECRET_KEY)
     try:
         data = s.loads(token)
@@ -105,14 +120,18 @@ def reset_password_token(token):
         flash(_('Invalid token.'), 'danger')
         return redirect(url_for('auth.reset_password'))
 
-    user = User.query.get(data['user_id'])
+    user: Optional[User] = db.session.query(User).get(data['user_id'])
     if not user:
         flash(_('Invalid user.'), 'danger')
         return redirect(url_for('auth.reset_password'))
 
     if request.method == 'POST':
-        new_password = request.form['new_password']
-        confirm_password = request.form['confirm_password']
+        new_password: Optional[str] = request.form['new_password']
+        confirm_password: Optional[str] = request.form['confirm_password']
+        if not new_password or not confirm_password:
+            flash(_('Please enter a new password.'), 'warning')
+            return redirect(url_for('auth.reset_password_token', token=token))
+
         if new_password == confirm_password:
             user.password = generate_password_hash(new_password)
             db.session.commit()
@@ -124,6 +143,6 @@ def reset_password_token(token):
     return render_template('auth/reset_password_token.html')
 
 
-def init_auth(app, limiter):
+def init_auth(app: Flask, limiter: Limiter) -> None:
     app.register_blueprint(auth_bp)
     limiter.limit(AppConfig.DEFAULT_LIMIT_RATE)(auth_bp)

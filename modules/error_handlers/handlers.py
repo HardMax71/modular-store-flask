@@ -1,8 +1,13 @@
+from typing import Dict, Union, Optional
+
 from flask import Blueprint, request, session, render_template
+from flask import Flask
+from werkzeug.exceptions import HTTPException
 
 error_handlers_bp = Blueprint('error_handlers', __name__)
 
-error_explanations = {
+# Dictionary mapping error codes to their explanations
+error_explanations: Dict[int, str] = {
     400: "The server could not understand the request due to invalid syntax.",
     401: "The request has not been applied because it lacks valid authentication credentials for the target resource.",
     403: "Access to the requested resource is forbidden.",
@@ -13,29 +18,47 @@ error_explanations = {
 }
 
 
-def handle_error(e):
-    error_code = e.code if hasattr(e, 'code') else 500
-    ip = request.remote_addr
+def handle_error(e: Union[HTTPException, Exception]) -> tuple[str, int]:
+    """
+    Handle various HTTP errors and return appropriate error pages.
 
-    error_message = f"Error type: {error_code}\n{error_explanations.get(error_code, 'Error!')}\nIP: {ip}"
+    Args:
+        e (Union[HTTPException, Exception]): The exception that occurred.
 
+    Returns:
+        tuple[str, int]: A tuple containing the rendered error template and the HTTP status code.
+    """
+    error_code: int = e.code if hasattr(e, 'code') else 500
+    ip: Optional[str] = request.remote_addr
+
+    error_message: str = f"Error type: {error_code}\n{error_explanations.get(error_code, 'Error!')}\nIP: {ip or 'Unknown IP'}"
+
+    # Log the error message
     error_handlers_bp.logger.log(level=1, msg=error_message.replace('<br>', '\n'))
 
-    request_url = request.url
-    dont_show = 'user_id' not in session
+    request_url: str = request.url
+    dont_show: bool = 'user_id' not in session
 
-    traceback = None
+    traceback: Optional[str] = None
     if error_code == 500:
         original_exception = getattr(e, 'original_exception', e.args)
         if original_exception:
             traceback = str(original_exception)
 
-    return render_template('website_parts/error_page.html', error=error_message,
-                           request_url=request_url, dont_show=dont_show,
+    return render_template('website_parts/error_page.html',
+                           error=error_message,
+                           request_url=request_url,
+                           dont_show=dont_show,
                            traceback=traceback), error_code
 
 
-def init_error_handlers(app):
+def init_error_handlers(app: Flask) -> None:
+    """
+    Initialize error handlers for the Flask application.
+
+    Args:
+        app (Flask): The Flask application instance.
+    """
     for error_code in [400, 401, 403, 404, 429, 500]:
         app.register_error_handler(error_code, handle_error)
 

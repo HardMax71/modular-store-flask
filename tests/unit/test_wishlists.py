@@ -2,7 +2,7 @@ import unittest
 
 from modules.db.models import Wishlist, Goods
 from modules.wishlists.utils import (
-    get_variant_options, is_wishlist_item_exists, remove_from_wishlist, add_wishlist_item
+    get_variant_options, wishlist_exists, remove_from_wishlist, add_wishlist_item
 )
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -35,14 +35,14 @@ class TestWishlistsUnit(BaseTest):
         self.session.add(wishlist_item)
         self.session.commit()
 
-        result = is_wishlist_item_exists(user.id, goods.id, {})
+        result = wishlist_exists(user.id, goods.id)
         self.assertIsNotNone(result)
 
     def test_is_wishlist_item_not_exists(self):
         user = create_user(self)
         goods = self.create_goods()
 
-        result = is_wishlist_item_exists(user.id, goods.id, {})
+        result = wishlist_exists(user.id, goods.id)
         self.assertIsNone(result)
 
     def test_remove_from_wishlist(self):
@@ -52,7 +52,7 @@ class TestWishlistsUnit(BaseTest):
         self.session.add(wishlist_item)
         self.session.commit()
 
-        remove_from_wishlist(user.id, goods.id, {})
+        remove_from_wishlist(user.id, goods.id)
         result = Wishlist.query.filter_by(user_id=user.id, goods_id=goods.id).first()
         self.assertIsNone(result)
 

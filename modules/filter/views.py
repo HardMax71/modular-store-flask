@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request
+from typing import Optional
+
+from flask import Blueprint, render_template, request, Flask
 
 from .utils import filter_products, paginate_query, get_categories, get_promoted_products
 
@@ -6,12 +8,13 @@ filter_bp = Blueprint('filter', __name__)
 
 
 @filter_bp.route('/filter')
-def filter_route():
-    category_id = request.args.get('category_id')
-    name_query = request.args.get('name_query')
-    sort_by = request.args.get('sort_by')
-    tag_query = request.args.get('tag_query')
-    page = request.args.get('page', 1, type=int)
+def filter_route() -> str:
+    """Filter products based on various query parameters and render the results."""
+    category_id: Optional[str] = request.args.get('category_id')
+    name_query: Optional[str] = request.args.get('name_query')
+    sort_by: Optional[str] = request.args.get('sort_by')
+    tag_query: Optional[str] = request.args.get('tag_query')
+    page: int = request.args.get('page', 1, type=int)
 
     shirts_query = filter_products(category_query=category_id,
                                    name_query=name_query,
@@ -27,5 +30,6 @@ def filter_route():
                            promoted_products=promoted_products, per_page=per_page, in_total=in_total)
 
 
-def init_filter(app):
+def init_filter(app: Flask) -> None:
+    """Initialize the filter blueprint."""
     app.register_blueprint(filter_bp)

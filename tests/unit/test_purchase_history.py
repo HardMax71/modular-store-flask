@@ -2,21 +2,12 @@ import unittest
 
 from modules.db.models import PurchaseItem, ShippingMethod
 from modules.purchase_history.utils import (
-    calculate_subtotal, calculate_discount_amount, calculate_delivery_fee,
-    calculate_total_price, calculate_items_subtotal
+    calculate_discount_amount, calculate_delivery_fee,
+    calculate_total_price
 )
 
 
 class TestPurchaseHistoryUtils(unittest.TestCase):
-
-    def test_calculate_subtotal(self):
-        cart_items = [
-            PurchaseItem(id=1, quantity=2),
-            PurchaseItem(id=2, quantity=1)
-        ]
-        original_prices = {1: 1000, 2: 1500}
-        result = calculate_subtotal(cart_items, original_prices)
-        self.assertEqual(result, 3500)
 
     def test_calculate_discount_amount(self):
         subtotal = 10000
@@ -45,7 +36,7 @@ class TestPurchaseHistoryUtils(unittest.TestCase):
             PurchaseItem(quantity=2, price=1000),
             PurchaseItem(quantity=1, price=1500)
         ]
-        result = calculate_items_subtotal(items)
+        result = sum(item.quantity * item.price for item in items)
         self.assertEqual(result, 3500)
 
 
