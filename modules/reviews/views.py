@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 from flask import Blueprint, redirect, request, url_for, flash, render_template, Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user
-from werkzeug.wrappers import Response
 
 from modules.db.database import db
 from modules.db.models import Review, ReportedReview
@@ -19,7 +19,7 @@ reviews_bp = Blueprint('reviews', __name__)
 @reviews_bp.route("/review/<int:review_id>/report", methods=["POST"])
 @login_required_with_message(message=_("You must be logged in to report a review."),
                              redirect_back=True)
-def report_review(review_id: int) -> tuple[int, str] | Response:
+def report_review(review_id: int) -> tuple[int, str] | ResponseValue:
     review: Optional[Review] = get_review(review_id)
     if not review:
         return 404, _("Review not found")
@@ -36,7 +36,7 @@ def report_review(review_id: int) -> tuple[int, str] | Response:
 
 @reviews_bp.route("/add-review", methods=["POST"])
 @login_required_with_message(message=_("You must be logged in to review a product."))
-def add_review() -> Response:
+def add_review() -> ResponseValue:
     user_id: int = current_user.id
     goods_id: Optional[int] = request.form.get("goods_id", type=int)
     if not goods_id:
@@ -71,7 +71,7 @@ def add_review() -> Response:
 @reviews_bp.route('/admin/reported-reviews')
 @login_required_with_message()
 @admin_required()
-def reported_reviews() -> str:
+def reported_reviews() -> ResponseValue:
     all_reported_reviews: List[ReportedReview] = (
         db.session.query(ReportedReview)
         .all()
@@ -82,7 +82,7 @@ def reported_reviews() -> str:
 @reviews_bp.route('/admin/reported-review/<int:review_id>')
 @login_required_with_message()
 @admin_required()
-def reported_review_detail(review_id: int) -> Response | str:
+def reported_review_detail(review_id: int) -> ResponseValue:
     reported_review: Optional[ReportedReview] = (
         db.session.query(ReportedReview)
         .filter_by(review_id=review_id)
@@ -102,7 +102,7 @@ def reported_review_detail(review_id: int) -> Response | str:
 @reviews_bp.route('/admin/reported-review/<int:review_id>/leave', methods=['POST'])
 @login_required_with_message()
 @admin_required()
-def leave_review(review_id: int) -> Response:
+def leave_review(review_id: int) -> ResponseValue:
     reports_to_delete: List[ReportedReview] = (
         db.session.query(ReportedReview)
         .filter_by(review_id=review_id)
@@ -118,7 +118,7 @@ def leave_review(review_id: int) -> Response:
 @reviews_bp.route('/admin/reported-review/<int:review_id>/delete', methods=['POST'])
 @login_required_with_message()
 @admin_required()
-def delete_review(review_id: int) -> Response:
+def delete_review(review_id: int) -> ResponseValue:
     review: Optional[Review] = db.session.get(Review, review_id)
     reports_to_delete: List[ReportedReview] = (
         db.session.query(ReportedReview)

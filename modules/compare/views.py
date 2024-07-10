@@ -2,9 +2,9 @@ import json
 from typing import Optional
 
 from flask import Blueprint, redirect, request, url_for, flash, render_template
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user
-from werkzeug.wrappers import Response
 
 from modules.db.database import db
 from modules.db.models import Goods, ComparisonHistory
@@ -33,7 +33,7 @@ def compare_products() -> str:
 
 @compare_bp.route("/remove-from-comparison", methods=["POST"])
 @login_required_with_message()
-def remove_from_comparison() -> Response:
+def remove_from_comparison() -> ResponseValue:
     goods_id: Optional[int] = request.form.get("goods_id", type=int)
     comparison_history: Optional[ComparisonHistory] = db.session.query(ComparisonHistory).filter_by(
         user_id=current_user.id).first()
@@ -58,7 +58,7 @@ def remove_from_comparison() -> Response:
 
 @compare_bp.route("/add-to-comparison", methods=["POST"])
 @login_required_with_message()
-def add_to_comparison() -> Response:
+def add_to_comparison() -> ResponseValue:
     goods_id: Optional[int] = request.form.get("goods_id", type=int)
     product: Optional[Goods] = db.session.get(Goods, goods_id)
 

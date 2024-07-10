@@ -4,12 +4,12 @@ from typing import Optional, List, Dict
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask import send_from_directory, Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user
 from sqlalchemy import exists, desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload, selectinload
-from werkzeug import Response
 
 from config import AppConfig
 from modules.carts import apply_discount_code
@@ -25,7 +25,7 @@ main_bp = Blueprint('main', __name__)
 
 
 @main_bp.route("/")
-def index() -> str:
+def index() -> ResponseValue:
     if 'filter_options' not in session:
         session['filter_options'] = get_filter_options()
 
@@ -39,7 +39,7 @@ def index() -> str:
 
 
 @main_bp.route("/search")
-def search_route() -> str:
+def search_route() -> ResponseValue:
     query: Optional[str] = request.args.get('query')
     page: int = request.args.get('page', 1, type=int)
     per_page: int = AppConfig.PER_PAGE
@@ -56,7 +56,7 @@ def search_route() -> str:
 
 
 @main_bp.route("/goods/<int:id>")
-def goods_page(id: int) -> Response | str:
+def goods_page(id: int) -> ResponseValue:
     shirt: Optional[Goods] = db.session.query(Goods).options(joinedload(Goods.category),
                                                              joinedload(Goods.tags)).filter_by(id=id).first()
     if not shirt:
@@ -115,7 +115,7 @@ def goods_page(id: int) -> Response | str:
 
 @main_bp.route("/toggle-wishlist", methods=["POST"])
 @login_required_with_message()
-def toggle_wishlist() -> Response:
+def toggle_wishlist() -> ResponseValue:
     goods_id: Optional[int] = request.form.get("goods_id", type=int)
     if not goods_id or not db.session.get(Goods, goods_id):
         flash(_("Invalid product ID"), "error")
@@ -143,7 +143,7 @@ def toggle_wishlist() -> Response:
 
 @main_bp.route("/recommendations")
 @login_required_with_message(redirect_back=True)
-def recommendations() -> str:
+def recommendations() -> ResponseValue:
     user_id: int = current_user.id
     recently_viewed_products: List[RecentlyViewedProduct] = (
         db.session.query(RecentlyViewedProduct)
@@ -159,9 +159,12 @@ def recommendations() -> str:
 
 @main_bp.route("/apply-discount", methods=["POST"])
 @login_required_with_message()
-def apply_discount() -> Response:
-    discount_code: str = request.form.get("discount_code", type=str,
-                                          default="")  # TODO: maybe set more reasonable default?
+def apply_discount() -> ResponseValue:
+    discount_code: str = request.form.get("discount_code", type=str, default="")
+    if not discount_code:
+        flash(_("Please enter a discount code."), "warning")
+        return redirect(url_for('carts.cart'))
+
     discount_applied: str = apply_discount_code(discount_code)
     if discount_applied == "success":
         flash(_("Discount code applied successfully."), "success")
@@ -173,27 +176,27 @@ def apply_discount() -> Response:
 
 
 @main_bp.route("/terms")
-def terms() -> str:
+def terms() -> ResponseValue:
     return render_template("auth/terms.html")
 
 
 @main_bp.route("/return-policy")
-def return_policy() -> str:
+def return_policy() -> ResponseValue:
     return render_template("auth/return_policy.html")
 
 
 @main_bp.route("/contact-us")
-def contact_us() -> str:
+def contact_us() -> ResponseValue:
     return render_template("contact_us.html")
 
 
 @main_bp.route("/faq")
-def faq() -> str:
+def faq() -> ResponseValue:
     return render_template("faq.html")
 
 
 @main_bp.route('/robots.txt')
-def robots() -> Response:
+def robots() -> ResponseValue:
     return send_from_directory('static', 'robots.txt')
 
 

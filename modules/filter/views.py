@@ -1,6 +1,7 @@
 from typing import Optional
 
 from flask import Blueprint, render_template, request, Flask
+from flask.typing import ResponseValue
 
 from .utils import filter_products, paginate_query, get_categories, get_promoted_products
 
@@ -8,7 +9,7 @@ filter_bp = Blueprint('filter', __name__)
 
 
 @filter_bp.route('/filter')
-def filter_route() -> str:
+def filter_route() -> ResponseValue:
     """Filter products based on various query parameters and render the results."""
     category_id: Optional[str] = request.args.get('category_id')
     name_query: Optional[str] = request.args.get('name_query')

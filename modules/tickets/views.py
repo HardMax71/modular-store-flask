@@ -1,9 +1,9 @@
 from typing import Optional
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
-from werkzeug.wrappers import Response
 
 from modules.db.database import db
 from modules.db.models import Ticket, TicketMessage
@@ -13,7 +13,7 @@ tickets_bp = Blueprint('tickets', __name__)
 
 @tickets_bp.route('/create', methods=['GET', 'POST'])
 @login_required  # type: ignore
-def create_ticket() -> Response | str:
+def create_ticket() -> ResponseValue:
     if request.method == 'POST':
         title = request.form.get('title', type=str, default="No title")
         description = request.form.get('description', type=str, default="No description")
@@ -31,7 +31,7 @@ def create_ticket() -> Response | str:
 
 @tickets_bp.route('/')
 @login_required  # type: ignore
-def list_tickets() -> Response | str:
+def list_tickets() -> ResponseValue:
     user_tickets: list[Ticket] = (
         db.session.query(Ticket)
         .filter(Ticket.user_id == current_user.id)
@@ -47,7 +47,7 @@ def list_tickets() -> Response | str:
 
 @tickets_bp.route('/<int:ticket_id>/update', methods=['POST'])
 @login_required  # type: ignore
-def update_ticket(ticket_id: int) -> Response:
+def update_ticket(ticket_id: int) -> ResponseValue:
     if not current_user.is_admin:
         flash(_('You do not have permission to perform this action.'), 'danger')
         return redirect(url_for('tickets.ticket_details', ticket_id=ticket_id))
@@ -69,7 +69,7 @@ def update_ticket(ticket_id: int) -> Response:
 
 @tickets_bp.route('/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required  # type: ignore
-def ticket_details(ticket_id) -> Response | str:
+def ticket_details(ticket_id) -> ResponseValue:
     ticket: Optional[Ticket] = db.session.get(Ticket, ticket_id)
     if not ticket or (ticket.user_id != current_user.id and not current_user.is_admin):
         flash(_('Ticket not found or you do not have permission to view it.'), 'danger')

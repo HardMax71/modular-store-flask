@@ -2,6 +2,7 @@ from typing import Optional
 
 from flask import Blueprint, redirect, render_template, request, flash, url_for
 from flask import Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_limiter import Limiter
 from flask_login import login_user, logout_user
@@ -9,7 +10,6 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from itsdangerous.exc import BadSignature, SignatureExpired
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.wrappers import Response
 
 from config import AppConfig
 from forms.forms import RegistrationForm, LoginForm
@@ -21,7 +21,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route("/register", methods=['GET', 'POST'])
-def register() -> Response | str:
+def register() -> ResponseValue:
     form = RegistrationForm()
     if form.validate_on_submit():
         existing_user: Optional[User] = (db.session.query(User.id)
@@ -48,7 +48,7 @@ def register() -> Response | str:
 
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
-def login() -> Response | str:
+def login() -> ResponseValue:
     form = LoginForm()
     if form.validate_on_submit():
         user: Optional[User] = db.session.query(User).filter_by(username=form.username.data).first()
@@ -64,14 +64,14 @@ def login() -> Response | str:
 
 @auth_bp.route("/logout")
 @login_required_with_message(message=_("You must be logged in to log out."), category="danger")
-def logout() -> Response:
+def logout() -> ResponseValue:
     logout_user()
     flash(_("You have been logged out."), "success")
     return redirect(url_for('main.index'))
 
 
 @auth_bp.route('/reset_password', methods=['GET', 'POST'])
-def reset_password() -> Response | str:
+def reset_password() -> ResponseValue:
     if request.method == 'POST':
         email: Optional[str] = request.form['email']
         user: Optional[User] = (
@@ -109,7 +109,7 @@ def reset_password() -> Response | str:
 
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password_token(token) -> Response | str:
+def reset_password_token(token) -> ResponseValue:
     s = Serializer(AppConfig.SECRET_KEY)
     try:
         data = s.loads(token)

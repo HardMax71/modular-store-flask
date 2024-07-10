@@ -49,20 +49,20 @@ class User(Base, UserMixin):
                                                                                    backref='user', lazy='select')
     preferences: Mapped[List["UserPreference"]] = relationship('UserPreference', backref='user', lazy='select')
 
-    @property
+    @hybrid_property
     def profile_picture(self) -> str:
         if self._profile_picture is None:
             return 'user-icon.png'
 
-        image_path = os.path.join(AppConfig.PROFILE_PICS_FOLDER, self._profile_picture)
+        image_path = os.path.join(AppConfig.PROFILE_PICS_FOLDER, str(self._profile_picture))
 
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
             return 'user-icon.png'
 
-        return self._profile_picture
+        return str(self._profile_picture)
 
     @profile_picture.setter
-    def profile_picture(self, value):
+    def profile_picture(self, value: str) -> None:
         self._profile_picture = value
 
     def __str__(self):  # type: ignore
@@ -140,7 +140,7 @@ class Cart(Base):
         Update the stock of a goods item after a purchase.
         """
 
-        goods = db.session.query(Goods).get(goods_id)
+        goods: Optional[Goods] = db.session.get(Goods, goods_id)
         if goods:
             goods.stock -= quantity
             db.session.commit()
@@ -203,7 +203,7 @@ class Cart(Base):
             Discount.end_date >= current_date
         ).scalar() or 0.0
 
-        discount_amount = subtotal * max_discount
+        discount_amount = subtotal * (max_discount / 100.0)
         total_amount = subtotal - discount_amount
 
         current_user.discount = max_discount
@@ -237,7 +237,7 @@ class Goods(Base):
     category: Mapped["Category"] = relationship('Category', backref='goods', lazy='select')
     purchase_items: Mapped[List["PurchaseItem"]] = relationship('PurchaseItem', lazy='select', passive_deletes=True)
     reviews: Mapped[List["Review"]] = relationship('Review', backref='goods', lazy='select', passive_deletes=True)
-    wishlist_items: Mapped[List["Wishlist"]] = relationship('Wishlist', backref='goods', lazy='select',
+    wishlist_items: Mapped[List["Wishlist"]] = relationship('Wishlist', lazy='select',
                                                             passive_deletes=True)
     variants: Mapped[List["Variant"]] = relationship('Variant', backref='goods', lazy='select', passive_deletes=True)
     tags: Mapped[List["Tag"]] = relationship('Tag', secondary='goods_tags', backref='goods', lazy='select',
@@ -518,6 +518,8 @@ class Wishlist(Base):
     goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False)
     variant_options: Mapped[Optional[str]] = mapped_column(Text)
 
+    goods: Mapped["Goods"] = relationship("Goods", back_populates="wishlist_items")
+
     def __str__(self):  # type: ignore
         return f'Wishlist {self.id}'
 
@@ -656,4 +658,4 @@ class TicketMessage(Base):
     user: Mapped["User"] = relationship('User', backref='ticket_messages')
 
     def __str__(self):  # type: ignore
-        return f'TicketMessage {self.id}: {self.message[:20] if len(self.message) > 20+3 else self.message}...'
+        return f'TicketMessage {self.id}: {self.message[:20] if len(self.message) > 22 else self.message}...'

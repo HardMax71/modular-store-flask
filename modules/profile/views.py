@@ -1,6 +1,7 @@
 from typing import Optional
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_dance.contrib.facebook import facebook
 from flask_dance.contrib.google import google
@@ -20,7 +21,7 @@ profile_bp = Blueprint('profile', __name__)
 
 @profile_bp.route('/', methods=['GET', 'POST'])
 @login_required_with_message(message=_("You must be logged in to open profile."))
-def profile_info() -> str:
+def profile_info() -> ResponseValue:
     """Render the profile page and handle profile updates."""
     if request.method == 'POST':
         handle_profile_update()
@@ -33,7 +34,7 @@ def profile_info() -> str:
 
 @profile_bp.route('/notifications')
 @login_required  # type: ignore
-def notifications() -> str:
+def notifications() -> ResponseValue:
     """Render the notifications page for the current user."""
     user_notifications = db.session.query(Notification).filter_by(user_id=current_user.id).order_by(
         Notification.created_at.desc()).all()
@@ -43,7 +44,7 @@ def notifications() -> str:
 
 @profile_bp.route('/notifications/<int:notification_id>/mark-as-read', methods=['POST'])
 @login_required  # type: ignore
-def mark_notification_as_read(notification_id: int) -> Response:
+def mark_notification_as_read(notification_id: int) -> ResponseValue:
     """Mark a notification as read."""
     notification = db.session.get(Notification, notification_id)
     if not notification:
@@ -59,7 +60,7 @@ def mark_notification_as_read(notification_id: int) -> Response:
 
 @profile_bp.route('/add-address', methods=['GET', 'POST'])
 @login_required_with_message(message=_("You must be logged in to add an address."))
-def add_address() -> Response | str:
+def add_address() -> ResponseValue:
     """Add a new address for the current user."""
     if request.method == 'POST':
         address_data = {
@@ -90,7 +91,7 @@ def add_address() -> Response | str:
 
 @profile_bp.route('/addresses/edit/<int:address_id>', methods=['GET', 'POST'])
 @login_required  # type: ignore
-def edit_address(address_id: int) -> Response | str:
+def edit_address(address_id: int) -> ResponseValue:
     """Edit an existing address for the current user."""
     address = db.session.get(Address, address_id)
     if not address:
@@ -114,7 +115,7 @@ def edit_address(address_id: int) -> Response | str:
 
 @profile_bp.route('/addresses/delete/<int:address_id>', methods=['POST'])
 @login_required  # type: ignore
-def delete_address(address_id: int) -> Response:
+def delete_address(address_id: int) -> ResponseValue:
     """Delete an existing address for the current user."""
     address = db.session.get(Address, address_id)
     if not address:

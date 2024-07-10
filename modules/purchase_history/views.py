@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, flash, render_template, Flask
+from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user
-from werkzeug import Response
 
 from modules.db.database import db
 from modules.decorators import login_required_with_message
@@ -13,7 +13,7 @@ purchase_history_bp = Blueprint('purchase_history', __name__)
 
 @purchase_history_bp.route("/")
 @login_required_with_message(message=_("You must be logged in to view your purchase history."))
-def purchase_history() -> str:
+def purchase_history() -> ResponseValue:
     """Render the purchase history page for the current user."""
     purchases = db.session.query(Purchase).filter_by(user_id=current_user.id).order_by(Purchase.date.desc()).all()
     return render_template("history.html", purchases=purchases)
@@ -21,7 +21,7 @@ def purchase_history() -> str:
 
 @purchase_history_bp.route("/details/<int:purchase_id>")
 @login_required_with_message(message=_("You must be logged in to view purchase details."))
-def purchase_details(purchase_id: int) -> tuple[str, int] | Response | str:
+def purchase_details(purchase_id: int) -> tuple[str, int] | ResponseValue:
     """Render the purchase details page for a specific purchase."""
     purchase = db.session.get(Purchase, purchase_id)
     if not purchase:
@@ -34,7 +34,7 @@ def purchase_details(purchase_id: int) -> tuple[str, int] | Response | str:
 
 @purchase_history_bp.route("/cancel-order/<int:purchase_id>", methods=['POST'])
 @login_required_with_message(message=_("You must be logged in to cancel an order."))
-def cancel_order(purchase_id: int) -> tuple[str, int] | Response:
+def cancel_order(purchase_id: int) -> tuple[str, int] | ResponseValue:
     """Handle the cancellation of a specific purchase order."""
     purchase = db.session.get(Purchase, purchase_id)
     if not purchase:

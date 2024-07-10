@@ -17,7 +17,7 @@ def get_variant_options(variant_options_json: Optional[str]) -> Dict[str, str]:
     """
     if variant_options_json:
         try:
-            return json.loads(variant_options_json)
+            return json.loads(variant_options_json)  # type: ignore
         except json.JSONDecodeError:
             return {}
     return {}

@@ -3,12 +3,13 @@ import io
 import json
 from datetime import datetime, time
 from io import StringIO, BytesIO
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from typing import Optional
 
 import pandas as pd
 from flask import Blueprint, flash, redirect, url_for
 from flask import request, send_file
+from flask.typing import ResponseValue
 from flask_admin import Admin, AdminIndexView
 from flask_admin import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -19,7 +20,6 @@ from openpyxl import Workbook
 from sqlalchemy import func, Integer
 from sqlalchemy import inspect, select, Table
 from sqlalchemy.orm import aliased
-from werkzeug.wrappers import Response
 from ydata_profiling import ProfileReport
 
 import config
@@ -66,7 +66,7 @@ class AdminView(ModelView):
     def is_accessible(self) -> bool:
         return current_user.is_authenticated and current_user.is_admin
 
-    def inaccessible_callback(self, name: str, **kwargs) -> Response:
+    def inaccessible_callback(self, name: str, **kwargs) -> ResponseValue:
         return redirect(url_for('login', next=request.url))
 
 
@@ -74,7 +74,7 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     @login_required_with_message()
     @admin_required()
-    def index(self) -> Response:
+    def index(self) -> ResponseValue:
         if not current_user.is_admin:
             flash(_('You do not have permission to access this page.'), 'danger')
             return redirect(url_for('login'))
@@ -94,7 +94,7 @@ class TicketView(AdminView):
     column_list: list[str] = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
     @expose('/assign/<int:ticket_id>', methods=['POST'])  # type: ignore
-    def assign_ticket(self, ticket_id: int) -> Response:
+    def assign_ticket(self, ticket_id: int) -> ResponseValue:
         ticket: Optional[Ticket] = db.session.get(Ticket, ticket_id)
         if ticket:
             admin_id = request.form.get('admin_id', type=int)
@@ -125,7 +125,7 @@ class StatisticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
     @admin_required()
-    def index(self) -> Response:
+    def index(self) -> ResponseValue:
         inspector = inspect(db.engine)
         table_names = inspector.get_table_names()
 
@@ -174,7 +174,7 @@ class ReportsView(BaseView):
     @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
-    def index(self) -> Response:
+    def index(self) -> ResponseValue:
         inspector = inspect(db.engine)
         table_names = inspector.get_table_names()
 
@@ -216,7 +216,7 @@ class ReportsView(BaseView):
     def decode_if_bytes(value: Any) -> Any:
         return value.decode('utf-8') if isinstance(value, bytes) else value
 
-    def generate_csv(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+    def generate_csv(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
         output = StringIO()
         for table, rows in data.items():
             if rows:
@@ -232,7 +232,7 @@ class ReportsView(BaseView):
             download_name='data.csv'
         )
 
-    def generate_json(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+    def generate_json(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
         class CustomEncoder(json.JSONEncoder):
             def default(self, obj) -> Any:
                 if isinstance(obj, bytes):
@@ -247,7 +247,7 @@ class ReportsView(BaseView):
             download_name='data.json'
         )
 
-    def generate_excel(self, data: Dict[str, List[Dict[str, Any]]]) -> Response:
+    def generate_excel(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
         wb = Workbook()
         wb.remove(wb.active)  # Remove default sheet
         for table, rows in data.items():
@@ -320,18 +320,19 @@ class AnalyticsView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required_with_message()
     @admin_required()
-    def index(self) -> Response | str:
+    def index(self) -> ResponseValue:
         if request.method == 'POST':
-            start_date_str = request.form.get('start_date', type=str, default=datetime.today().strftime('%Y-%m-%d'))
-            end_date_str = request.form.get('end_date', type=str, default=datetime.today().strftime('%Y-%m-%d'))
+            start_date_str: str = request.form.get('start_date', type=str,
+                                                   default=datetime.today().strftime('%Y-%m-%d'))
+            end_date_str: str = request.form.get('end_date', type=str, default=datetime.today().strftime('%Y-%m-%d'))
 
             # Convert start_date and end_date to datetime objects
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+            start_date: datetime = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date: datetime = datetime.strptime(end_date_str, '%Y-%m-%d')
 
             # Set the time component for start_date and end_date
-            start_datetime = datetime.combine(start_date, time.min)
-            end_datetime = datetime.combine(end_date, time.max)
+            start_datetime: datetime = datetime.combine(start_date, time.min)
+            end_datetime: datetime = datetime.combine(end_date, time.max)
 
             # Retrieve request logs within the specified date range
             request_logs_query = db.session.query(RequestLog).filter(
@@ -339,20 +340,18 @@ class AnalyticsView(BaseView):
                 RequestLog.timestamp <= end_datetime
             )
 
-            total_requests = request_logs_query.count()
-            request_logs = request_logs_query.limit(10).all()
+            total_requests: int = request_logs_query.count()
+            request_logs: List[RequestLog] = request_logs_query.limit(10).all()
 
             # Calculate analytics metrics for all logs in the selected range
-            average_execution_time = 0
-            status_code_counts = {}
+            average_execution_time: Union[int, str] = 0
+            status_code_counts: Dict[int, int] = {}
 
             if total_requests > 0:
                 # Calculate average execution time
-                average_execution_time = (
-                    request_logs_query.with_entities(func.avg(RequestLog.execution_time))
-                    .scalar()
-                )
-                average_execution_time = f"{round(average_execution_time, 3)} s"
+                avg_execution_time: float = request_logs_query.with_entities(
+                    func.avg(RequestLog.execution_time)).scalar() or 0.0
+                average_execution_time = f"{round(avg_execution_time, 3)} s"
 
                 # Calculate status code counts using grouping
                 status_code_counts = dict(

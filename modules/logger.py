@@ -44,7 +44,7 @@ class DatabaseLogger:
         :param response: Response object
         :return: Modified response object
         """
-        execution_time = time.time() - request.start_time
+        execution_time = time.time() - request.start_time  # type: ignore
         user_id = current_user.id if current_user.is_authenticated else None
 
         # Handle the case when request.endpoint is None
