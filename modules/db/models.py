@@ -28,7 +28,7 @@ class User(Base, UserMixin):  # type: ignore
     lname: Mapped[Optional[str]] = mapped_column(Text)
     email: Mapped[Optional[str]] = mapped_column(Text, unique=True, index=True)
     phone: Mapped[Optional[str]] = mapped_column(Text)
-    _profile_picture: Mapped[str] = mapped_column(Text, default='user-icon.png')
+    profile_picture: Mapped[str] = mapped_column(Text, default='user-icon.png')
     language: Mapped[str] = mapped_column(String(5), default='en')
     stripe_customer_id: Mapped[str] = mapped_column(Text, default='nonexistent_stripe_customer_id')
     notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -52,22 +52,6 @@ class User(Base, UserMixin):  # type: ignore
                                                                                    backref='user', lazy='select')
     preferences: Mapped[List["UserPreference"]] = relationship('UserPreference',
                                                                backref='user', lazy='select')
-
-    @hybrid_property
-    def profile_picture(self) -> str:
-        if self._profile_picture is None:
-            return 'user-icon.png'
-
-        image_path = os.path.join(AppConfig.PROFILE_PICS_FOLDER, str(self._profile_picture))
-
-        if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return 'user-icon.png'
-
-        return str(self._profile_picture)
-
-    @profile_picture.setter  # type: ignore[no-redef]
-    def profile_picture(self, value: str) -> None:
-        self._profile_picture = value
 
     def __str__(self) -> str:
         return self.username
@@ -228,7 +212,7 @@ class Goods(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     samplename: Mapped[Optional[str]] = mapped_column(Text)
-    _image: Mapped[str] = mapped_column(Text, default='goods-icon.png')
+    image: Mapped[str] = mapped_column(Text, default='goods-icon.png')
     price: Mapped[Optional[int]] = mapped_column(Integer)  # Price in cents
     onSale: Mapped[Optional[int]] = mapped_column(Integer)
     onSalePrice: Mapped[Optional[int]] = mapped_column(Integer)  # Price in cents
@@ -254,21 +238,6 @@ class Goods(Base):
         lazy='select',
         passive_deletes=True
     )
-
-    @property
-    def image(self) -> str:
-        if self._image is None:
-            return 'goods-icon.png'
-
-        image_path = os.path.join(AppConfig.GOODS_PICS_FOLDER, str(self._image))
-        if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return 'goods-icon.png'
-
-        return self._image
-
-    @image.setter
-    def image(self, value: str) -> None:
-        self._image = value
 
     def __str__(self) -> str:
         sample_description = (self.description[:20] + '..') if self.description else 'No description'
