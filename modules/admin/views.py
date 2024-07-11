@@ -24,7 +24,7 @@ from sqlalchemy.orm import aliased
 from ydata_profiling import ProfileReport
 
 import config
-from modules.db.database import db, Base
+from modules.db.database import db, Base, Database
 from modules.db.models import RequestLog, Ticket, User, Goods, Category, Purchase, Review, Wishlist, Tag, \
     ProductPromotion, Discount, ShippingMethod, ReportedReview, TicketMessage
 from modules.decorators import login_required_with_message, admin_required
@@ -72,7 +72,7 @@ class AdminView(ModelView):
 
 
 class MyAdminIndexView(AdminIndexView):
-    @expose('/')
+    @expose('/')  # type: ignore
     @login_required_with_message()
     @admin_required()
     def index(self) -> ResponseValue:
@@ -90,7 +90,8 @@ class TicketView(AdminView):
 
     column_formatters = {
         _('actions'): lambda v, c, m, p: Markup(
-            f'<a href="{url_for("tickets.ticket_details", ticket_id=m.id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
+            f'<a href="{url_for("tickets.ticket_details", ticket_id=m.id)}" '
+            f'class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
     column_list: list[str] = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
@@ -138,7 +139,7 @@ class UserView(AdminView):
 
 
 class StatisticsView(BaseView):
-    @expose('/', methods=['GET', 'POST'])
+    @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
     def index(self) -> ResponseValue:
@@ -334,7 +335,7 @@ class CategoryView(AdminView):
 
 
 class AnalyticsView(BaseView):
-    @expose('/', methods=['GET', 'POST'])
+    @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
     def index(self) -> ResponseValue:
@@ -454,12 +455,13 @@ class ReportedReviewView(AdminView):
     form_excluded_columns = ['user', 'review']
     column_formatters = {
         _('actions'): lambda v, c, m, p: Markup(
-            f'<a href="{url_for("reviews.reported_review_detail", review_id=m.review_id)}" class="btn btn-primary btn-sm">{_("Details")}</a>'),
+            f'<a href="{url_for("reviews.reported_review_detail", review_id=m.review_id)}'
+            f'" class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
     column_list = ['review_id', 'review.user.username', 'review.goods.samplename', 'explanation', 'created_at',
                    'actions']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Reported Reviews')
         return view_args
@@ -473,20 +475,20 @@ def init_admin(app: Flask) -> None:
 
 
 # Add views to admin
-def init_admin_views(admin: Admin, db) -> None:
-    admin.add_view(UserView(User, db.session, name='Users'))
-    admin.add_view(GoodsView(Goods, db.session, name='Goods'))
-    admin.add_view(CategoryView(Category, db.session, name='Categories'))
-    admin.add_view(PurchaseView(Purchase, db.session, name='Purchases'))
-    admin.add_view(ReviewView(Review, db.session, name='Reviews'))
-    admin.add_view(WishlistView(Wishlist, db.session, name='Wishlists'))
-    admin.add_view(TagView(Tag, db.session, name='Tags'))
-    admin.add_view(ProductPromotionView(ProductPromotion, db.session, name='Promotions'))
-    admin.add_view(DiscountView(Discount, db.session, name='Discounts'))
-    admin.add_view(ShippingMethodView(ShippingMethod, db.session, name='Shipping Methods'))
-    admin.add_view(ReportedReviewView(ReportedReview, db.session, name='Reported Reviews'))
-    admin.add_view(TicketView(Ticket, db.session, name='Tickets'))
-    admin.add_view(TicketMessageView(TicketMessage, db.session, name='Ticket Messages'))
+def init_admin_views(admin: Admin, database: Database) -> None:
+    admin.add_view(UserView(User, database.session, name='Users'))
+    admin.add_view(GoodsView(Goods, database.session, name='Goods'))
+    admin.add_view(CategoryView(Category, database.session, name='Categories'))
+    admin.add_view(PurchaseView(Purchase, database.session, name='Purchases'))
+    admin.add_view(ReviewView(Review, database.session, name='Reviews'))
+    admin.add_view(WishlistView(Wishlist, database.session, name='Wishlists'))
+    admin.add_view(TagView(Tag, database.session, name='Tags'))
+    admin.add_view(ProductPromotionView(ProductPromotion, database.session, name='Promotions'))
+    admin.add_view(DiscountView(Discount, database.session, name='Discounts'))
+    admin.add_view(ShippingMethodView(ShippingMethod, database.session, name='Shipping Methods'))
+    admin.add_view(ReportedReviewView(ReportedReview, database.session, name='Reported Reviews'))
+    admin.add_view(TicketView(Ticket, database.session, name='Tickets'))
+    admin.add_view(TicketMessageView(TicketMessage, database.session, name='Ticket Messages'))
     admin.add_view(StatisticsView(name='Statistics', endpoint='statistics', category='Statistics'))
     admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports'))
     admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))

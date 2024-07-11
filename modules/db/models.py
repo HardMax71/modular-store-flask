@@ -40,14 +40,18 @@ class User(Base, UserMixin):
     cart_items: Mapped[List["Cart"]] = relationship('Cart', backref='user', lazy='select')
     purchases: Mapped[List["Purchase"]] = relationship('Purchase', backref='user', lazy='select')
     reviews: Mapped[List["Review"]] = relationship('Review', backref='user', lazy='select')
+    # Maybe consider using dynamic for collections that could be large?
     wishlist_items: Mapped[List["Wishlist"]] = relationship('Wishlist', backref='user',
-                                                            lazy='dynamic')  # Consider using dynamic for collections that could be large
-    notifications: Mapped[List["Notification"]] = relationship('Notification', backref='user', lazy='select')
-    social_accounts: Mapped[List["SocialAccount"]] = relationship('SocialAccount', back_populates='user', lazy='select')
+                                                            lazy='dynamic')
+    notifications: Mapped[List["Notification"]] = relationship('Notification',
+                                                               backref='user', lazy='select')
+    social_accounts: Mapped[List["SocialAccount"]] = relationship('SocialAccount',
+                                                                  back_populates='user', lazy='select')
 
     recently_viewed_products: Mapped[List["RecentlyViewedProduct"]] = relationship('RecentlyViewedProduct',
                                                                                    backref='user', lazy='select')
-    preferences: Mapped[List["UserPreference"]] = relationship('UserPreference', backref='user', lazy='select')
+    preferences: Mapped[List["UserPreference"]] = relationship('UserPreference',
+                                                               backref='user', lazy='select')
 
     @hybrid_property
     def profile_picture(self) -> str:
@@ -256,7 +260,7 @@ class Goods(Base):
         if self._image is None:
             return 'goods-icon.png'
 
-        image_path = os.path.join('static', 'img', 'goods_pictures', self._image)
+        image_path = os.path.join(AppConfig.GOODS_PICS_FOLDER, str(self._image))
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
             return 'goods-icon.png'
 
@@ -277,11 +281,11 @@ class Goods(Base):
         return 0
 
     @avg_rating.expression
-    def avg_rating(cls):
+    def avg_rating(self):
         return func.coalesce(
             db.session.query(func.avg(Review.rating))
-            .filter(Review.goods_id == cls.id)
-            .correlate(cls)
+            .filter(Review.goods_id == self.id)
+            .correlate(self)
             .scalar_subquery(),
             0
         )
@@ -291,10 +295,10 @@ class Goods(Base):
         return self.onSalePrice if self.onSale else self.price
 
     @current_price.expression
-    def current_price(cls):
+    def current_price(self):
         return case(
-            (cls.onSale == 1, cls.onSalePrice),
-            else_=cls.price
+            (self.onSale == 1, self.onSalePrice),
+            else_=self.price
         )
 
 
@@ -352,24 +356,26 @@ class Purchase(Base):
         return sum(item.quantity * item.price for item in self.items)
 
     @items_subtotal.expression
-    def items_subtotal(cls):
+    def items_subtotal(self):
         """SQL expression for calculating the subtotal."""
         return (
             db.select(func.sum(PurchaseItem.quantity * PurchaseItem.price))
-            .where(PurchaseItem.purchase_id == cls.id)
+            .where(PurchaseItem.purchase_id == self.id)
             .scalar_subquery()
         )
 
     @staticmethod
-    def update_stock(purchase: 'Purchase') -> None:
+    def update_stock(purchase: 'Purchase', reverse: bool = False) -> None:
         """
-        Update the stock of goods items after a purchase.
+        Update the stock of goods items after a purchase or cancellation.
         """
-
         for item in purchase.items:
             goods = db.session.get(Goods, item.goods_id)
             if goods:
-                goods.stock -= item.quantity
+                if reverse:
+                    goods.stock += item.quantity  # order cancelled, returning stock
+                else:
+                    goods.stock -= item.quantity  # order placed, reducing stock
         db.session.commit()
 
 

@@ -25,7 +25,7 @@ gettext.textdomain(AppConfig.GETTEXT_DOMAIN)
 _ = gettext.gettext
 
 
-def create_app(config_class=None) -> Flask:
+def create_app(config_class: Any=None) -> Flask:
     """
     Create and configure the Flask application.
 

@@ -2,14 +2,14 @@ import datetime
 from typing import List, Optional
 
 from flask_login import current_user
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import scoped_session, Session
 
 from modules.db.models import Purchase, PurchaseItem, ShippingAddress, Address, ShippingMethod, Cart
 from modules.email import send_email
 
 
 def save_purchase_history(
-        db_session: scoped_session,
+        db_session: scoped_session[Session],
         cart_items: List[Cart],
         shipping_address_id: int,
         shipping_method_id: int,
@@ -64,7 +64,9 @@ def save_purchase_history(
 
     db_session.commit()
     Purchase.update_stock(new_purchase)
-    send_order_confirmation_email(current_user.email)
+    send_email(current_user.email,
+               'Order Confirmation',
+               'Thank you for your order! Your order is being processed.')
 
     return new_purchase
 
@@ -87,7 +89,7 @@ def generate_tracking_number() -> str:
 
 
 def create_purchase_items(
-        db_session: scoped_session,
+        db_session: scoped_session[Session],
         purchase_id: int,
         cart_items: List[Cart]
 ) -> None:
@@ -100,9 +102,3 @@ def create_purchase_items(
         )
         db_session.add(new_purchase_item)
     db_session.flush()
-
-
-def send_order_confirmation_email(email: str) -> None:
-    send_email(email,
-               'Order Confirmation',
-               'Thank you for your order! Your order is being processed.')

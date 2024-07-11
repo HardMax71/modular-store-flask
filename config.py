@@ -17,12 +17,15 @@ class AppConfig:
     SQLALCHEMY_DATABASE_URI: str = 'sqlite:///' + DB_PATH + '/' + DB_NAME
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
 
+    LIMITER_STORAGE_URI: str = 'memory://'
+
     PERMANENT_SESSION_LIFETIME: timedelta = timedelta(minutes=15)
     SHOP_NAME: str = 'Modular Store'
     IMAGES_FOLDER: str = os.path.join('static', 'img')
 
     PROFILE_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'profile_pictures')
     REVIEW_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'review_pictures')
+    GOODS_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'goods_pictures')
     IMG_FORMATS = ['.png', '.jpg', '.jpeg', '.bmp']
     MAIL_DEFAULT_SENDER: str = 'default'
     WEBSITE_URL: str = 'https://monkfish-app-mbn3z.ondigitalocean.app/'

@@ -1,7 +1,7 @@
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker, Session
 
 
 class Base(DeclarativeBase):
@@ -19,7 +19,7 @@ class Database:
     def init_app(self, app: Flask) -> None:
         self._app = app
         app.before_request(self.open)
-        app.teardown_appcontext(self.close)
+        app.teardown_appcontext(self.close)  # type: ignore
 
     @property
     def engine(self):
@@ -44,7 +44,7 @@ class Database:
         if self._session is not None:
             self._session.remove()
 
-    def create_session(self, engine: Engine) -> scoped_session:
+    def create_session(self, engine: Engine) -> scoped_session[Session]:
         session_factory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         return scoped_session(session_factory)
 

@@ -1,6 +1,7 @@
 from flask import Flask
 
-from .views import init_cart, add_to_cart, apply_discount_code
+from .utils import add_to_cart, apply_discount_code
+from .views import init_cart
 
 
 def create_cart_routes(app: Flask) -> None:

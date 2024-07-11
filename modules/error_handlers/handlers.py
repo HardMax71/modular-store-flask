@@ -31,7 +31,9 @@ def handle_error(e: Union[HTTPException, Exception]) -> tuple[str, int]:
     error_code: int = e.code if hasattr(e, 'code') else 500
     ip: Optional[str] = request.remote_addr
 
-    error_message: str = f"Error type: {error_code}\n{error_explanations.get(error_code, 'Error!')}\nIP: {ip or 'Unknown IP'}"
+    error_message: str = (f"Error type: {error_code}\n"
+                          f"{error_explanations.get(error_code, 'Error!')}\n"
+                          f"IP: {ip or 'Unknown IP'}")
 
     # Log the error message
     error_handlers_bp.logger.log(level=1, msg=error_message.replace('<br>', '\n'))

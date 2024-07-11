@@ -18,7 +18,7 @@ class TestPurchaseHistoryIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.user = create_user(self)
-        self.goods = Goods(samplename='Test Product', price=10.0)
+        self.goods = Goods(samplename='Test Product', price=10.0, stock=10, description='Test description')
         self.shipping_method = ShippingMethod(name='Standard', price=5.0)
         self.session.add_all([self.user, self.goods, self.shipping_method])
         self.session.commit()
@@ -46,8 +46,12 @@ class TestPurchaseHistoryIntegration(BaseTest):
         self.session.commit()
 
     def test_purchase_history_flow(self):
+        # Saving initial stock to compare later - after cancelling the order
+        start_qty: int = self.goods.stock
+
         # Create a purchase
-        cart_item = Cart(user_id=self.user.id, goods_id=self.goods.id, quantity=1, price=self.goods.price)
+        cart_item = Cart(user_id=self.user.id, goods_id=self.goods.id,
+                         quantity=1, price=self.goods.price)
         self.session.add(cart_item)
         self.session.commit()
 
@@ -55,6 +59,7 @@ class TestPurchaseHistoryIntegration(BaseTest):
 
         with self.app.test_request_context():
             login_user(self.user)
+            # creating a purchase with 1 item, qty = 1, stock will be reduced by 1
             purchase = save_purchase_history(
                 self.session, cart_items,
                 self.address.id, self.shipping_method.id, 'Credit Card', '123'
@@ -83,11 +88,10 @@ class TestPurchaseHistoryIntegration(BaseTest):
         updated_purchase = self.session.query(Purchase).filter_by(id=purchase.id).first()
         self.assertEqual(updated_purchase.status, 'Cancelled')
 
-        # Verify that the stock has been updated
-        # TODO: Fix this test is failing because the stock is not being updated in test,
-        #  but it is being updated in the actual application
-        # updated_goods = self.session.query(Goods).filter_by(id=self.goods.id).first()
-        # self.assertEqual(updated_goods.stock, 1)  # Stock should be increased by 1
+        # Verify that the stock has been updated - just to be sure
+        self.session.refresh(self.goods)
+        # Since the order was cancelled, the stock should be increased by 1, see line 61
+        self.assertEqual(start_qty, self.goods.stock)
 
         # Try to cancel the order again (should fail)
         response = self.client.post(url_for('purchase_history.cancel_order', purchase_id=purchase.id),

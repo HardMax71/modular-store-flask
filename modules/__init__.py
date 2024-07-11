@@ -25,7 +25,7 @@ def init_modules(app: Flask) -> None:
         app=app,
         key_func=get_remote_address,
         default_limits=[app.config['DEFAULT_LIMIT_RATE']],
-        storage_uri="memory://"
+        storage_uri=app.config['LIMITER_STORAGE_URI'] or "memory://"
     )
 
     create_main_routes(app)

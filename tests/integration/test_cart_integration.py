@@ -436,7 +436,7 @@ class TestCartIntegration(BaseTest):
 
     @patch('modules.carts.views.stripe')
     @patch('modules.carts.utils.stripe')
-    @patch('modules.carts.views.save_purchase_history')
+    @patch('modules.carts.utils.save_purchase_history')
     def test_checkout_with_discount(self, mock_save_purchase, mock_stripe_utils, mock_stripe_views):
         # Set up mock stripe functionality
         mock_customer = MagicMock(id='cus_test123')

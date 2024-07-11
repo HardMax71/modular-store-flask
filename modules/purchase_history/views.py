@@ -6,7 +6,7 @@ from flask_login import current_user
 from modules.db.database import db
 from modules.decorators import login_required_with_message
 from modules.email import send_email
-from ..db.models import Goods, Purchase
+from ..db.models import Purchase
 
 purchase_history_bp = Blueprint('purchase_history', __name__)
 
@@ -35,7 +35,6 @@ def purchase_details(purchase_id: int) -> tuple[str, int] | ResponseValue:
 @purchase_history_bp.route("/cancel-order/<int:purchase_id>", methods=['POST'])
 @login_required_with_message(message=_("You must be logged in to cancel an order."))
 def cancel_order(purchase_id: int) -> tuple[str, int] | ResponseValue:
-    """Handle the cancellation of a specific purchase order."""
     purchase = db.session.get(Purchase, purchase_id)
     if not purchase:
         return _("Purchase not found"), 404
@@ -46,11 +45,7 @@ def cancel_order(purchase_id: int) -> tuple[str, int] | ResponseValue:
         flash(_("This order cannot be cancelled."), "danger")
         return redirect(url_for('purchase_history.purchase_details', purchase_id=purchase_id))
 
-    # Update the stock
-    for item in purchase.items:
-        goods = db.session.get(Goods, item.goods_id)
-        if goods:
-            goods.stock += item.quantity
+    Purchase.update_stock(purchase, reverse=True)  # Add a 'reverse' parameter to increase stock
 
     purchase.status = 'Cancelled'
     db.session.commit()
