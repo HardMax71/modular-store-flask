@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 
 class Database:
     # lazy initialization of the engine and session
-    def __init__(self):
+    def __init__(self) -> None:
         self._engine = None
         self._session = None
         self._app = None

@@ -449,7 +449,7 @@ class ReviewImage(Base):
     DEFAULT_IMAGE: str = 'review_image.png'
 
     @hybrid_property
-    def uploaded_image(self):
+    def uploaded_image(self) -> str:
         if self._image is None:
             return self.DEFAULT_IMAGE
 
@@ -458,7 +458,7 @@ class ReviewImage(Base):
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
             return self.DEFAULT_IMAGE
 
-        return self._image
+        return str(self._image)
 
     def __str__(self):  # type: ignore
         return f'ReviewImage {self.id} for Review {self.review_id}'

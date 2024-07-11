@@ -6,12 +6,12 @@ from modules.db.database import db
 from modules.db.models import User, Cart, ShippingMethod
 
 
-def get_stripe_customer_for_user_by_id(current_user: User):
+def get_stripe_customer_for_user_by_id(current_user: User) -> stripe.Customer:
     current_user_stripe_customer_id: Optional[str] = current_user.stripe_customer_id
     if not current_user_stripe_customer_id:
         # customer id is None
         customer = stripe.Customer.create(
-            email=current_user.email,
+            email=current_user.email or "no email specified",
             name=f"{current_user.fname} {current_user.lname}",
             metadata={"user_id": str(current_user.id)}
         )
@@ -22,14 +22,14 @@ def get_stripe_customer_for_user_by_id(current_user: User):
         customer = stripe.Customer.retrieve(current_user_stripe_customer_id)
         stripe.Customer.modify(
             current_user.stripe_customer_id,
-            email=current_user.email,
+            email=current_user.email or "no email specified",
             name=f"{current_user.fname} {current_user.lname}",
             metadata={"user_id": str(current_user.id)}
         )
     return customer
 
 
-def create_line_items_for_payment(cart_items: List[Cart], shipping_method: ShippingMethod):
+def create_line_items_for_payment(cart_items: List[Cart], shipping_method: ShippingMethod) -> List[dict]:
     line_items = [{
         'price_data': {
             'currency': 'usd',

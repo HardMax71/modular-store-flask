@@ -1,7 +1,8 @@
 from functools import wraps
 from typing import Callable, Any, Optional
 
-from flask import flash, redirect, request, url_for, Response
+from flask import flash, redirect, request, url_for
+from flask.wrappers import Response
 from flask_babel import gettext as _
 from flask_login import current_user
 

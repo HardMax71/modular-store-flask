@@ -7,12 +7,13 @@ from typing import List, Dict, Any, Union
 from typing import Optional
 
 import pandas as pd
-from flask import Blueprint, flash, redirect, url_for
+from flask import Blueprint, flash, redirect, url_for, Flask
 from flask import request, send_file
 from flask.typing import ResponseValue
 from flask_admin import Admin, AdminIndexView
 from flask_admin import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.model.base import ViewArgs
 from flask_babel import gettext as _
 from flask_login import current_user
 from markupsafe import Markup
@@ -32,7 +33,7 @@ from modules.decorators import login_required_with_message, admin_required
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
-def get_table_names() -> List[str]:
+def get_table_names() -> list[str]:
     """
     Get a list of all table names in the database.
 
@@ -93,7 +94,7 @@ class TicketView(AdminView):
     }
     column_list: list[str] = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Tickets Management')
         return view_args
@@ -116,7 +117,7 @@ class TicketMessageView(AdminView):
     column_filters = ['is_admin']
     form_excluded_columns = ['user', 'ticket']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Ticket Messages')
         return view_args
@@ -130,7 +131,7 @@ class UserView(AdminView):
     # hides password column from the user view
     column_exclude_list = ['password']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Users Management')
         return view_args
@@ -397,7 +398,7 @@ class ReviewView(AdminView):
     column_filters = ['moderated']
     column_editable_list = ['moderated']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Reviews Management')
         return view_args
@@ -406,7 +407,7 @@ class ReviewView(AdminView):
 class WishlistView(AdminView):
     column_searchable_list = ['user.username', 'goods.samplename']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Wishlists Management')
         return view_args
@@ -416,7 +417,7 @@ class TagView(AdminView):
     column_searchable_list = ['name']
     form_excluded_columns = ['goods']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Tags Management')
         return view_args
@@ -425,7 +426,7 @@ class TagView(AdminView):
 class ProductPromotionView(AdminView):
     form_excluded_columns = ['goods']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Promotions')
         return view_args
@@ -440,7 +441,7 @@ class DiscountView(AdminView):
 class ShippingMethodView(AdminView):
     column_searchable_list = ['name']
 
-    def _get_list_extra_args(self):
+    def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Shipping Methods')
         return view_args
@@ -465,14 +466,14 @@ class ReportedReviewView(AdminView):
 
 
 ############
-def init_admin(app):
+def init_admin(app: Flask) -> None:
     admin = Admin(name='Admin Panel', template_mode='bootstrap4', index_view=MyAdminIndexView())
     init_admin_views(admin, db)
     admin.init_app(app)
 
 
 # Add views to admin
-def init_admin_views(admin, db):
+def init_admin_views(admin: Admin, db) -> None:
     admin.add_view(UserView(User, db.session, name='Users'))
     admin.add_view(GoodsView(Goods, db.session, name='Goods'))
     admin.add_view(CategoryView(Category, db.session, name='Categories'))
