@@ -6,6 +6,9 @@
 
 {% block body %}
     <div class="container mt-4">
+        {% if view and view.page_title %}
+            <h2 class="mb-4">{{ view.page_title }}</h2>
+        {% endif %}
         {% block admin_content %}{% endblock %}
     </div>
 {% endblock %}

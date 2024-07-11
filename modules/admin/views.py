@@ -93,6 +93,11 @@ class TicketView(AdminView):
     }
     column_list: list[str] = ['id', 'user.username', 'title', 'status', 'priority', 'created_at', 'actions']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Tickets Management')
+        return view_args
+
     @expose('/assign/<int:ticket_id>', methods=['POST'])  # type: ignore
     def assign_ticket(self, ticket_id: int) -> ResponseValue:
         ticket: Optional[Ticket] = db.session.get(Ticket, ticket_id)
@@ -111,6 +116,11 @@ class TicketMessageView(AdminView):
     column_filters = ['is_admin']
     form_excluded_columns = ['user', 'ticket']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Ticket Messages')
+        return view_args
+
 
 class UserView(AdminView):
     column_searchable_list = ['username', 'email']
@@ -119,6 +129,11 @@ class UserView(AdminView):
     form_excluded_columns = ['password']
     # hides password column from the user view
     column_exclude_list = ['password']
+
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Users Management')
+        return view_args
 
 
 class StatisticsView(BaseView):
@@ -136,7 +151,8 @@ class StatisticsView(BaseView):
             profile_reports: List[ProfileReport] = []
             for table_name in tables:
                 if table_name in table_names:
-                    table = db.metadata.tables[table_name]
+                    # Reflect the table
+                    table = Table(table_name, db.metadata, autoload_with=db.engine)
 
                     # Create an alias for the table
                     aliased_table = aliased(table)
@@ -381,18 +397,38 @@ class ReviewView(AdminView):
     column_filters = ['moderated']
     column_editable_list = ['moderated']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Reviews Management')
+        return view_args
+
 
 class WishlistView(AdminView):
     column_searchable_list = ['user.username', 'goods.samplename']
+
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Wishlists Management')
+        return view_args
 
 
 class TagView(AdminView):
     column_searchable_list = ['name']
     form_excluded_columns = ['goods']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Tags Management')
+        return view_args
+
 
 class ProductPromotionView(AdminView):
     form_excluded_columns = ['goods']
+
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Promotions')
+        return view_args
 
 
 class DiscountView(AdminView):
@@ -404,8 +440,14 @@ class DiscountView(AdminView):
 class ShippingMethodView(AdminView):
     column_searchable_list = ['name']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Shipping Methods')
+        return view_args
+
 
 class ReportedReviewView(AdminView):
+    page_title = _('Reported Reviews')
     column_searchable_list = ['review.user.username', 'review.goods.samplename']
     column_filters = ['created_at']
     form_excluded_columns = ['user', 'review']
@@ -416,30 +458,34 @@ class ReportedReviewView(AdminView):
     column_list = ['review_id', 'review.user.username', 'review.goods.samplename', 'explanation', 'created_at',
                    'actions']
 
+    def _get_list_extra_args(self):
+        view_args = super()._get_list_extra_args()
+        view_args.extra_args["page_title"] = _('Reported Reviews')
+        return view_args
+
 
 ############
+def init_admin(app):
+    admin = Admin(name='Admin Panel', template_mode='bootstrap4', index_view=MyAdminIndexView())
+    init_admin_views(admin, db)
+    admin.init_app(app)
 
-# Create Admin instance
-admin = Admin(name='Admin Panel', template_mode='bootstrap4', index_view=MyAdminIndexView())
 
 # Add views to admin
-admin.add_view(UserView(User, db.session, name='Users'))
-admin.add_view(GoodsView(Goods, db.session, name='Goods'))
-admin.add_view(CategoryView(Category, db.session, name='Categories'))
-admin.add_view(PurchaseView(Purchase, db.session, name='Purchases'))
-admin.add_view(ReviewView(Review, db.session, name='Reviews'))
-admin.add_view(WishlistView(Wishlist, db.session, name='Wishlists'))
-admin.add_view(TagView(Tag, db.session, name='Tags'))
-admin.add_view(ProductPromotionView(ProductPromotion, db.session, name='Promotions'))
-admin.add_view(DiscountView(Discount, db.session, name='Discounts'))
-admin.add_view(ShippingMethodView(ShippingMethod, db.session, name='Shipping Methods'))
-admin.add_view(ReportedReviewView(ReportedReview, db.session, name='Reported Reviews'))
-admin.add_view(TicketView(Ticket, db.session, name='Tickets'))
-admin.add_view(TicketMessageView(TicketMessage, db.session, name='Ticket Messages'))
-admin.add_view(StatisticsView(name='Statistics', endpoint='statistics', category='Statistics'))
-admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports'))
-admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))
-
-
-def init_admin(app) -> None:
-    admin.init_app(app)
+def init_admin_views(admin, db):
+    admin.add_view(UserView(User, db.session, name='Users'))
+    admin.add_view(GoodsView(Goods, db.session, name='Goods'))
+    admin.add_view(CategoryView(Category, db.session, name='Categories'))
+    admin.add_view(PurchaseView(Purchase, db.session, name='Purchases'))
+    admin.add_view(ReviewView(Review, db.session, name='Reviews'))
+    admin.add_view(WishlistView(Wishlist, db.session, name='Wishlists'))
+    admin.add_view(TagView(Tag, db.session, name='Tags'))
+    admin.add_view(ProductPromotionView(ProductPromotion, db.session, name='Promotions'))
+    admin.add_view(DiscountView(Discount, db.session, name='Discounts'))
+    admin.add_view(ShippingMethodView(ShippingMethod, db.session, name='Shipping Methods'))
+    admin.add_view(ReportedReviewView(ReportedReview, db.session, name='Reported Reviews'))
+    admin.add_view(TicketView(Ticket, db.session, name='Tickets'))
+    admin.add_view(TicketMessageView(TicketMessage, db.session, name='Ticket Messages'))
+    admin.add_view(StatisticsView(name='Statistics', endpoint='statistics', category='Statistics'))
+    admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports'))
+    admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))

@@ -6,7 +6,6 @@ from typing import Any, Dict
 from flask import Flask, redirect, url_for, g
 from flask import session as flask_session
 from flask_login import current_user
-
 from werkzeug.wrappers.response import Response
 
 from config import AppConfig
@@ -26,7 +25,7 @@ gettext.textdomain(AppConfig.GETTEXT_DOMAIN)
 _ = gettext.gettext
 
 
-def create_app(config_class: type = AppConfig) -> Flask:
+def create_app(config_class=None) -> Flask:
     """
     Create and configure the Flask application.
 
@@ -34,7 +33,12 @@ def create_app(config_class: type = AppConfig) -> Flask:
     :return: Configured Flask app instance
     """
     current_app = Flask(__name__)
-    current_app.config.from_object(config_class)
+    if config_class:
+        current_app.config.from_object(config_class)
+    else:
+        current_app.config.from_object(AppConfig)
+
+    db.init_app(current_app)
 
     with current_app.app_context():
         db.init_db()
@@ -112,7 +116,6 @@ def register_request_handlers(current_app: Flask) -> None:
         return response
 
 
-app = create_app()
-
 if __name__ == "__main__":
+    app = create_app()  # was before init
     app.run()

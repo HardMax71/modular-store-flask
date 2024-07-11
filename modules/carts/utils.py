@@ -1,21 +1,13 @@
 from typing import Optional, List
 
 import stripe
-from flask import redirect, url_for, flash
-from flask_babel import gettext as _
 
 from modules.db.database import db
 from modules.db.models import User, Cart, ShippingMethod
 
 
 def get_stripe_customer_for_user_by_id(current_user: User):
-    # Retrieve or create Stripe customer
-    paying_user: Optional[User] = db.session.get(User, current_user.id)
-    if not paying_user:
-        flash(_("User not found."), "danger")
-        return redirect(url_for('carts.checkout'))
-
-    current_user_stripe_customer_id: Optional[str] = paying_user.stripe_customer_id
+    current_user_stripe_customer_id: Optional[str] = current_user.stripe_customer_id
     if not current_user_stripe_customer_id:
         # customer id is None
         customer = stripe.Customer.create(

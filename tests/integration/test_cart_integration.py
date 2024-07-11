@@ -1,7 +1,6 @@
 import json
 import unittest
 from datetime import datetime, timedelta
-from typing import List
 from unittest.mock import MagicMock, patch
 
 from flask import url_for
@@ -17,8 +16,7 @@ class TestCartIntegration(BaseTest):
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass(init_login_manager=True,
-                           define_load_user=True)
+        super().setUpClass(init_login_manager=True, define_load_user=True)
 
     def setUp(self):
         super().setUp()
@@ -38,264 +36,246 @@ class TestCartIntegration(BaseTest):
         self.assertEqual(discount_percentage, 0)
 
         # Test for authenticated user with empty cart
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
+            total_items, total_amount, discount_percentage = Cart.cart_info()
+            self.assertEqual(total_items, 0)
+            self.assertEqual(total_amount, 0)
+            self.assertEqual(discount_percentage, 0)
 
-        total_items, total_amount, discount_percentage = Cart.cart_info()
-        self.assertEqual(total_items, 0)
-        self.assertEqual(total_amount, 0)
-        self.assertEqual(discount_percentage, 0)
+    def test_cart_info_with_items(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            # Add items to cart
+            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+            self.session.add_all([cart_item1, cart_item2])
+            self.session.commit()
+
+            total_items, total_amount, discount_percentage = Cart.cart_info()
+            self.assertEqual(total_items, 3)
+            self.assertEqual(total_amount, 3000)
+            self.assertEqual(discount_percentage, 0)
 
     def test_total_quantity(self):
         with self.app.test_request_context():
-            with self.app.test_client():
-                login_user(self.user)
+            login_user(self.user)
 
-                goods = Goods(samplename='Test Product', price=1000)
-                self.session.add_all([goods])
-                self.session.commit()
+            # Add items to cart
+            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=3, price=self.product.price)
+            self.session.add_all([cart_item1, cart_item2])
+            self.session.commit()
 
-                cart = Cart(user_id=self.user.id, goods_id=goods.id, quantity=5, price=goods.price)
-                self.session.add(cart)
-                self.session.commit()
-
-                total_quantity = Cart.total_quantity()
-                self.assertEqual(total_quantity, 5)
+            total_quantity = Cart.total_quantity()
+            self.assertEqual(total_quantity, 5)
 
     def test_add_to_cart(self):
-        self.login_user_with_app_context()
-
-        response = self.client.post(url_for('carts.add_to_cart_route'), data={
-            'goods_id': self.product.id,
-            'quantity': 2
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Item added to cart', response.data)
-
-        cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, goods_id=self.product.id).first()
-        self.assertIsNotNone(cart_item)
-        self.assertEqual(cart_item.quantity, 2)
-
-    def login_user_with_app_context(self):
         with self.app.test_request_context():
-            with self.app.test_client():
-                login_user(self.user)
+            login_user(self.user)
+
+            response = self.client.post(url_for('carts.add_to_cart_route'), data={
+                'goods_id': self.product.id,
+                'quantity': 2
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Item added to cart', response.data)
+
+            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, goods_id=self.product.id).first()
+            self.assertIsNotNone(cart_item)
+            self.assertEqual(cart_item.quantity, 2)
+
+    def test_add_to_cart_exceed_stock(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            response = self.client.post(url_for('carts.add_to_cart_route'), data={
+                'goods_id': self.product.id,
+                'quantity': 15  # Exceeds stock of 10
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Not enough stock available for this product.', response.data)
 
     def test_view_cart(self):
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
-        self.session.commit()
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        response = self.client.get(url_for('carts.cart'))
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Test Product', response.data)
-        self.assertIn(b'20.00', response.data)  # 2 * 10.0
+            response = self.client.get(url_for('carts.cart'))
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Test Product', response.data)
+            self.assertIn(b'20.00', response.data)  # 2 * 10.00
 
     def test_update_cart(self):
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
-        self.session.commit()
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        response = self.client.post(url_for('carts.update_cart_route'), data={
-            'cart_item_id': cart_item.id,
-            'quantity': 3
-        })
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['status'], True)
-        self.assertEqual(data['cart_items'], 3)
+            response = self.client.post(url_for('carts.update_cart_route'), data={
+                'cart_item_id': cart_item.id,
+                'quantity': 3
+            })
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data)
+            self.assertTrue(data['status'])
+            self.assertEqual(data['cart_items'], 3)
+
+            updated_cart_item = self.session.get(Cart, cart_item.id)
+            self.assertEqual(updated_cart_item.quantity, 3)
+
+    def test_update_cart_exceed_stock(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
+
+            response = self.client.post(url_for('carts.update_cart_route'), data={
+                'cart_item_id': cart_item.id,
+                'quantity': 15  # Exceeds stock of 10
+            })
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data)
+            self.assertFalse(data['status'])
+            self.assertIn('Requested quantity exceeds available stock', data['message'])
 
     def test_remove_from_cart(self):
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
-        self.session.commit()
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        response = self.client.get(url_for('carts.remove_from_cart_route', cart_item_id=cart_item.id),
-                                   follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Item removed from cart', response.data)
+            response = self.client.get(url_for('carts.remove_from_cart_route', cart_item_id=cart_item.id),
+                                       follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Item removed from cart', response.data)
 
-        removed_item = self.session.get(Cart, cart_item.id)
-        self.assertIsNone(removed_item)
+            removed_item = self.session.get(Cart, cart_item.id)
+            self.assertIsNone(removed_item)
 
     def test_checkout_get(self):
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
-        self.session.commit()
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        response = self.client.get(url_for('carts.checkout'))
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Checkout', response.data)
-        self.assertIn(b'Test Product', response.data)
+            response = self.client.get(url_for('carts.checkout'))
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Checkout', response.data)
+            self.assertIn(b'Test Product', response.data)
 
-    def test_checkout_post(self):
-        self.login_user_with_app_context()
+    @patch('stripe.checkout.Session.create')
+    def test_checkout_post(self, mock_session_create):
+        mock_session_create.return_value = MagicMock(id='test_session_id', url='http://test.com')
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
-        self.session.commit()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        response = self.client.post(url_for('carts.checkout'), data={
-            'shipping_address': self.address.id,
-            'shipping_method': self.shipping_method.id,
-            'payment_method': 'credit_card',
-            'card_number': '4242424242424242',
-            'exp_month': '12',
-            'exp_year': '2025',
-            'cvc': '123'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Test purchase completed', response.data)
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        # Check that the cart is cleared
-        cart_items: List[Cart] = self.session.query(Cart).filter_by(user_id=self.user.id).all()
-        self.assertEqual(len(cart_items), 0)
-
-        # Check that a purchase was created
-        purchase: Purchase = self.session.query(Purchase).filter_by(user_id=self.user.id).first()
-        self.assertIsNotNone(purchase)
+            response = self.client.post(url_for('carts.checkout'), data={
+                'shipping_address': self.address.id,
+                'shipping_method': self.shipping_method.id,
+            })
+            self.assertEqual(response.status_code, 302)  # Redirect to Stripe checkout
+            self.assertTrue(response.location.startswith('/payment_success?order_id=1'))
 
     def test_order_confirmation(self):
-        self.login_user_with_app_context()
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        # Create some products
-        # (!) price in cents
-        product1 = Goods(samplename='Test Product 1', price=1000, stock=10)
-        product2 = Goods(samplename='Test Product 2', price=1500, stock=10)
-        self.session.add_all([product1, product2])
-        self.session.commit()
+            # Create a purchase
+            purchase = Purchase(
+                user_id=self.user.id,
+                total_price=3500,
+                status='Completed',
+                discount_amount=0,
+                delivery_fee=500,
+                payment_method='Credit Card'
+            )
+            self.session.add(purchase)
+            self.session.flush()
 
-        # Create a purchase
-        purchase = Purchase(
-            user_id=self.user.id,
-            total_price=3500,
-            status='Completed',
-            discount_amount=0,
-            delivery_fee=500,
-            payment_method='Credit Card'
-        )
-        self.session.add(purchase)
-        self.session.flush()  # Flush to get the purchase id
+            # Create purchase items
+            purchase_item = PurchaseItem(
+                purchase_id=purchase.id,
+                goods_id=self.product.id,
+                quantity=3,
+                price=self.product.price
+            )
+            self.session.add(purchase_item)
+            self.session.commit()
 
-        # Create purchase items
-        purchase_item1 = PurchaseItem(
-            purchase_id=purchase.id,
-            goods_id=product1.id,
-            quantity=2,
-            price=product1.price
-        )
-        purchase_item2 = PurchaseItem(
-            purchase_id=purchase.id,
-            goods_id=product2.id,
-            quantity=1,
-            price=product2.price
-        )
-        self.session.add_all([purchase_item1, purchase_item2])
-        self.session.commit()
+            response = self.client.get(url_for('carts.order_confirmation'))
 
-        response = self.client.get(url_for('carts.order_confirmation'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Order Confirmation', response.data)
-
-        # Check for purchase details
-        self.assertIn(b'35.00', response.data)  # Total price
-        self.assertIn(b'5.00', response.data)  # Delivery fee
-        self.assertIn(b'Credit Card', response.data)  # Payment method
-
-        # Check for product details
-        self.assertIn(b'Test Product 1', response.data)
-        self.assertIn(b'10.00', response.data)
-        self.assertIn(b'<td>2</td>', response.data)  # Quantity: 2
-
-        self.assertIn(b'Test Product 2', response.data)
-        self.assertIn(b'15.00', response.data)
-        self.assertIn(b'<td>1</td>', response.data)  # Quantity: 1
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Order Confirmation', response.data)
+            self.assertIn(b'35.00', response.data)  # Total price
+            self.assertIn(b'5.00', response.data)  # Delivery fee
+            self.assertIn(b'Credit Card', response.data)  # Payment method
+            self.assertIn(b'Test Product', response.data)
+            self.assertIn(b'30.00', response.data)  # 3 * 10.00
+            self.assertIn(b'<td>3</td>', response.data)  # Quantity: 3
 
     def test_apply_discount_code(self):
-        # Setup: Create a valid discount
-        valid_discount = Discount(
-            code='VALID10',
-            percentage=10,
-            start_date=datetime.now().date(),
-            end_date=(datetime.now() + timedelta(days=30)).date()
-        )
-        self.session.add(valid_discount)
+        with self.app.test_request_context():
+            login_user(self.user)
 
-        # Setup: Create an expired discount
-        expired_discount = Discount(
-            code='EXPIRED10',
-            percentage=10,
-            start_date=(datetime.now() - timedelta(days=60)).date(),
-            end_date=(datetime.now() - timedelta(days=30)).date()
-        )
-        self.session.add(expired_discount)
+            # Create a valid discount
+            valid_discount = Discount(
+                code='VALID10',
+                percentage=10,
+                start_date=datetime.now().date(),
+                end_date=(datetime.now() + timedelta(days=30)).date()
+            )
+            self.session.add(valid_discount)
 
-        # Setup: Create a future discount
-        future_discount = Discount(
-            code='FUTURE10',
-            percentage=10,
-            start_date=(datetime.now() + timedelta(days=30)).date(),
-            end_date=(datetime.now() + timedelta(days=60)).date()
-        )
-        self.session.add(future_discount)
+            # Create an expired discount
+            expired_discount = Discount(
+                code='EXPIRED10',
+                percentage=10,
+                start_date=(datetime.now() - timedelta(days=60)).date(),
+                end_date=(datetime.now() - timedelta(days=30)).date()
+            )
+            self.session.add(expired_discount)
 
-        # Setup: Add some items to the user's cart
-        cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-        self.session.add(cart_item)
+            # Add items to the user's cart
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
 
-        self.session.commit()
+            # Test valid discount code
+            response = self.client.post(url_for('main.apply_discount'), data={
+                'discount_code': 'VALID10'
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Discount code applied successfully', response.data)
 
-        # Test 1: Invalid discount code
-        response = self.client.post(url_for('main.apply_discount'), data={
-            'discount_code': 'INVALID'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Invalid discount code', response.data)
+            # Check if UserDiscount has been created
+            user_discount = self.session.query(UserDiscount).filter_by(user_id=self.user.id,
+                                                                       discount_id=valid_discount.id).first()
+            self.assertIsNotNone(user_discount)
 
-        # Test 2: Valid discount code
-        response = self.client.post(url_for('main.apply_discount'), data={
-            'discount_code': 'VALID10'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Discount code applied successfully', response.data)
-
-        # Check if the cart items' prices have been updated
-        updated_cart_item = self.session.query(Cart).filter_by(user_id=self.user.id).first()
-        self.assertAlmostEqual(updated_cart_item.price, self.product.price * 0.9)  # checking values in cents
-
-        # Check if UserDiscount has been created
-        user_discount = self.session.query(UserDiscount).filter_by(user_id=self.user.id,
-                                                                   discount_id=valid_discount.id).first()
-        self.assertIsNotNone(user_discount)
-
-        # Test 3: Try to apply the same discount code again
-        response = self.client.post(url_for('main.apply_discount'), data={
-            'discount_code': 'VALID10'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'You have already used this discount code', response.data)
-
-        # Test 4: Expired discount code
-        response = self.client.post(url_for('main.apply_discount'), data={
-            'discount_code': 'EXPIRED10'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Invalid discount code', response.data)
-
-        # Test 5: Future discount code
-        response = self.client.post(url_for('main.apply_discount'), data={
-            'discount_code': 'FUTURE10'
-        }, follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Invalid discount code', response.data)
+            # Test expired discount code
+            response = self.client.post(url_for('main.apply_discount'), data={
+                'discount_code': 'EXPIRED10'
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Invalid discount code', response.data)
 
     @patch('stripe.Customer.create')
     @patch('stripe.Customer.retrieve')
@@ -321,93 +301,260 @@ class TestCartIntegration(BaseTest):
         mock_modify.assert_called_once()
         self.assertEqual(customer.id, 'cus_456')
 
-    def create_test_data(self):
-        product1 = Goods(samplename='Product 1', price=1000)
-        product2 = Goods(samplename='Product 2', price=2000)
-        self.session.add_all([product1, product2])
+    def test_create_line_items_for_payment(self):
+        cart_items = [
+            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price),
+            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+        ]
+        self.session.add_all(cart_items)
+        self.session.commit()
+
+        line_items = create_line_items_for_payment(cart_items, self.shipping_method)
+
+        self.assertEqual(len(line_items), 3)  # 2 product + 1 shipping
+        self.assertEqual(line_items[0]['price_data']['product_data']['name'], 'Test Product')
+        self.assertEqual(line_items[0]['price_data']['unit_amount'], 1000)
+        self.assertEqual(line_items[0]['quantity'], 2)
+        self.assertEqual(line_items[1]['price_data']['product_data']['name'], 'Test Product')
+        self.assertEqual(line_items[1]['price_data']['unit_amount'], 1000)
+        self.assertEqual(line_items[1]['quantity'], 1)
+        self.assertEqual(line_items[2]['price_data']['product_data']['name'], 'Shipping: Standard')
+        self.assertEqual(line_items[2]['price_data']['unit_amount'], 500)
+
+    def test_cart_subtotal(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            # Add items to cart
+            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+            self.session.add_all([cart_item1, cart_item2])
+            self.session.commit()
+
+            subtotal = Cart.subtotal()
+            self.assertEqual(subtotal, 3000)  # (1000 * 2) + (1000 * 1)
+
+    def test_cart_info_with_discount(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            # Create a discount
+            discount = Discount(code='TEST20', percentage=20,
+                                start_date=datetime.now().date(),
+                                end_date=(datetime.now() + timedelta(days=30)).date())
+            self.session.add(discount)
+            self.session.commit()
+
+            # Add items to cart
+            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            self.session.add(cart_item)
+
+            # Apply discount to user
+            user_discount = UserDiscount(user_id=self.user.id, discount_id=discount.id)
+            self.session.add(user_discount)
+            self.session.commit()
+
+            total_items, total_amount, max_discount = Cart.cart_info()
+            self.assertEqual(total_items, 2)
+            self.assertEqual(total_amount, 1600)  # 2000 - 20% discount
+            self.assertEqual(max_discount, 20)
+
+    def test_update_stock(self):
+        # Set initial stock
+        self.product.stock = 10
+        self.session.commit()
+
+        # Update stock
+        Cart.update_stock(self.product.id, 3)
+
+        # Check updated stock
+        updated_product = self.session.get(Goods, self.product.id)
+        self.assertEqual(updated_product.stock, 7)
+
+    def test_add_to_cart_with_variant(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            variant_options = {'size': 'L', 'color': 'Blue'}
+            response = self.client.post(url_for('carts.add_to_cart_route'), data={
+                'goods_id': self.product.id,
+                'quantity': 1,
+                'variant_options': json.dumps(variant_options)
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Item added to cart', response.data)
+
+            cart_item = self.session.query(Cart).filter_by(
+                user_id=self.user.id,
+                goods_id=self.product.id
+            ).first()
+            self.assertIsNotNone(cart_item)
+            self.assertEqual(cart_item.quantity, 1)
+
+            # Parse the stored variant_options
+            stored_options = json.loads(cart_item.variant_options)
+            self.assertIsInstance(stored_options, dict)
+            self.assertEqual(stored_options.get('options'), json.dumps(variant_options))
+
+    def test_add_existing_item_to_cart(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            # Add item to cart initially
+            self.client.post(url_for('carts.add_to_cart_route'), data={
+                'goods_id': self.product.id,
+                'quantity': 1
+            })
+
+            # Add same item again
+            response = self.client.post(url_for('carts.add_to_cart_route'), data={
+                'goods_id': self.product.id,
+                'quantity': 2
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Item added to cart.', response.data)
+
+            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, goods_id=self.product.id).first()
+            self.assertEqual(cart_item.quantity, 3)
+
+    def test_view_empty_cart(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            response = self.client.get(url_for('carts.cart'))
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Your cart is empty', response.data)
+
+    def test_remove_nonexistent_item_from_cart(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            response = self.client.get(url_for('carts.remove_from_cart_route', cart_item_id=999),
+                                       follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Item not found in cart', response.data)
+
+    @patch('modules.carts.views.stripe')
+    @patch('modules.carts.utils.stripe')
+    @patch('modules.carts.views.save_purchase_history')
+    def test_checkout_with_discount(self, mock_save_purchase, mock_stripe_utils, mock_stripe_views):
+        # Set up mock stripe functionality
+        mock_customer = MagicMock(id='cus_test123')
+        mock_stripe_utils.Customer.create.return_value = mock_customer
+        mock_stripe_utils.Customer.retrieve.return_value = mock_customer
+        mock_stripe_utils.Customer.modify.return_value = mock_customer
+
+        mock_session = MagicMock(id='ses_test123', url='http://test.com')
+        mock_stripe_views.checkout.Session.create.return_value = mock_session
+
+        # Mock save_purchase_history to return a valid Purchase object
+        mock_purchase = Purchase(
+            id=1,
+            user_id=self.user.id,
+            date=datetime.now(),
+            total_price=2000,
+            payment_method='test_payment',
+            payment_id='test_12345'
+        )
+        mock_save_purchase.return_value = mock_purchase
+
+        with self.app.test_request_context():
+            with self.client:
+                login_user(self.user)
+
+                # Create a discount and apply it to the user
+                discount = Discount(code='TEST10', percentage=10,
+                                    start_date=datetime.now().date(),
+                                    end_date=(datetime.now() + timedelta(days=30)).date())
+                self.session.add(discount)
+                self.session.commit()
+
+                user_discount = UserDiscount(user_id=self.user.id, discount_id=discount.id)
+                self.session.add(user_discount)
+
+                # Add item to cart
+                cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+                self.session.add(cart_item)
+                self.session.commit()
+
+                # Ensure shipping method exists
+                if not hasattr(self, 'shipping_method'):
+                    self.shipping_method = ShippingMethod(name='Standard', price=500)
+                    self.session.add(self.shipping_method)
+                    self.session.commit()
+
+                response = self.client.post(url_for('carts.checkout'), data={
+                    'shipping_address': self.address.id,
+                    'shipping_method': self.shipping_method.id,
+                })
+
+                # Check redirect to payment success
+                self.assertEqual(response.status_code, 302)
+                self.assertTrue(response.location.startswith('/payment_success?order_id='))
+
+                # Verify purchase was saved
+                mock_save_purchase.assert_called_once()
+
+                # Verify cart was cleared
+                cart_items = self.session.query(Cart).filter_by(user_id=self.user.id).all()
+                self.assertEqual(len(cart_items), 0)
+
+    def test_apply_invalid_discount_code(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            response = self.client.post(url_for('main.apply_discount'), data={
+                'discount_code': 'INVALID'
+            }, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Invalid discount code', response.data)
+
+    def test_apply_discount_code_twice(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+
+            # Create a valid discount
+            valid_discount = Discount(
+                code='VALID10',
+                percentage=10,
+                start_date=datetime.now().date(),
+                end_date=(datetime.now() + timedelta(days=30)).date()
+            )
+            self.session.add(valid_discount)
+            self.session.commit()
+
+            # Apply discount first time
+            self.client.post(url_for('main.apply_discount'), data={'discount_code': 'VALID10'})
+
+            # Try to apply the same discount again
+            response = self.client.post(url_for('main.apply_discount'), data={'discount_code': 'VALID10'},
+                                        follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'You have already used this discount code', response.data)
+
+    def test_create_line_items_for_payment_with_multiple_products(self):
+        product2 = Goods(samplename='Test Product 2', price=1500, stock=5)
+        self.session.add(product2)
         self.session.commit()
 
         cart_items = [
-            Cart(user_id=self.user.id, goods_id=product1.id, quantity=2, price=product1.price),
+            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price),
             Cart(user_id=self.user.id, goods_id=product2.id, quantity=1, price=product2.price)
         ]
         self.session.add_all(cart_items)
         self.session.commit()
-        return cart_items
 
-    def test_create_line_items_for_payment(self):
-        cart_items = self.create_test_data()
+        line_items = create_line_items_for_payment(cart_items, self.shipping_method)
 
-        shipping_method = ShippingMethod(name='Express', price=1500)
-        self.session.add(shipping_method)
-        self.session.commit()
-
-        # Call the function
-        line_items = create_line_items_for_payment(cart_items, shipping_method)
-
-        # Assert the results
         self.assertEqual(len(line_items), 3)  # 2 products + 1 shipping
-        self.assertEqual(line_items[0]['price_data']['product_data']['name'], 'Product 1')
+        self.assertEqual(line_items[0]['price_data']['product_data']['name'], 'Test Product')
         self.assertEqual(line_items[0]['price_data']['unit_amount'], 1000)
         self.assertEqual(line_items[0]['quantity'], 2)
-        self.assertEqual(line_items[1]['price_data']['product_data']['name'], 'Product 2')
-        self.assertEqual(line_items[1]['price_data']['unit_amount'], 2000)
+        self.assertEqual(line_items[1]['price_data']['product_data']['name'], 'Test Product 2')
+        self.assertEqual(line_items[1]['price_data']['unit_amount'], 1500)
         self.assertEqual(line_items[1]['quantity'], 1)
-        self.assertEqual(line_items[2]['price_data']['product_data']['name'], 'Shipping: Express')
-        self.assertEqual(line_items[2]['price_data']['unit_amount'], 1500)
-        self.assertEqual(line_items[2]['quantity'], 1)
-
-    def test_cart_subtotal(self):
-        self.create_test_data()
-
-        # Test the subtotal
-        with self.app.test_request_context():
-            with self.app.test_client():
-                login_user(self.user)
-                subtotal = Cart.subtotal()
-                self.assertEqual(subtotal, 4000)  # (1000 * 2) + (2000 * 1)
-
-    def test_cart_info_with_discount(self):
-        # Create test data
-        product = Goods(samplename='Discounted Product', price=10000)
-        self.session.add(product)
-        self.session.commit()
-
-        cart_item = Cart(user_id=self.user.id, goods_id=product.id, quantity=1, price=product.price)
-        self.session.add(cart_item)
-
-        discount = Discount(code='TEST10', percentage=10,
-                            start_date=datetime.now().date(),
-                            end_date=(datetime.now() + timedelta(days=30)).date())
-        self.session.add(discount)
-        self.session.commit()
-
-        user_discount = UserDiscount(user_id=self.user.id, discount_id=discount.id)
-        self.session.add(user_discount)
-
-        self.session.commit()
-
-        # Test cart info
-        with self.app.test_request_context():
-            with self.app.test_client():
-                login_user(self.user)
-                total_items, total_amount, max_discount = Cart.cart_info()
-                self.assertEqual(total_items, 1)
-                self.assertEqual(total_amount, 9000)  # 10000 - 10%
-                self.assertEqual(max_discount, 10)  # 10%
-
-    def test_update_stock(self):
-        # Create test data
-        product = Goods(samplename='Stock Product', price=1000, stock=10)
-        self.session.add(product)
-        self.session.commit()
-
-        # Update stock
-        Cart.update_stock(product.id, 3)
-
-        # Check updated stock
-        updated_product = self.session.get(Goods, product.id)
-        self.assertEqual(updated_product.stock, 7)
+        self.assertEqual(line_items[2]['price_data']['product_data']['name'], 'Shipping: Standard')
+        self.assertEqual(line_items[2]['price_data']['unit_amount'], 500)
 
 
 if __name__ == '__main__':

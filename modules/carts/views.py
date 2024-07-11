@@ -82,6 +82,8 @@ def update_cart_route() -> ResponseValue:
             'cart_total': f'${total_amount * (1 - discount_percentage):,.2f}',
             'item_subtotal': f'${item_subtotal:,.2f}',
             'status': status,
+            'message': _('Item quantity updated successfully.') if status else _(
+                'Requested quantity exceeds available stock.')
         })
     except ValueError:
         return jsonify({'status': False})
@@ -90,8 +92,10 @@ def update_cart_route() -> ResponseValue:
 @cart_bp.route("/remove-from-cart/<int:cart_item_id>")
 @login_required_with_message()
 def remove_from_cart_route(cart_item_id: int) -> ResponseValue:
-    remove_from_cart(cart_item_id)
-    flash(_("Item removed from cart."), "success")
+    if remove_from_cart(cart_item_id):
+        flash(_("Item removed from cart."), "success")
+    else:
+        flash(_("Item not found in cart."), "danger")
     return redirect(url_for('carts.cart'))
 
 
@@ -266,7 +270,13 @@ def order_confirmation() -> str:
         .order_by(Purchase.id.desc())
         .first()
     )
-    total_amount: int = sum(item.price * item.quantity for item in latest_purchase.items) if latest_purchase else 0
+
+    total_amount: int = 0
+    if latest_purchase:
+        delivery_fee: int = latest_purchase.delivery_fee
+        total_amount = sum(item.price * item.quantity for item in latest_purchase.items)
+        total_amount += delivery_fee
+
     return render_template("order_confirmation.html",
                            purchase=latest_purchase,
                            total_amount=total_amount)
@@ -301,11 +311,13 @@ def update_cart(cart_item_id: int, quantity: int) -> bool:
     return False
 
 
-def remove_from_cart(cart_item_id: int) -> None:
+def remove_from_cart(cart_item_id: int) -> bool:
     cart_item: Optional[Cart] = db.session.get(Cart, cart_item_id)
     if cart_item and cart_item.user_id == current_user.id:
         db.session.delete(cart_item)
         db.session.commit()
+        return True
+    return False
 
 
 def add_to_cart(goods: Goods, quantity: int, variant_options: Dict[str, str]) -> bool:

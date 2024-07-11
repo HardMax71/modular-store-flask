@@ -9,17 +9,34 @@ from modules.db.database import db, Base
 from modules.db.models import User
 
 
+class TestConfig(AppConfig):
+    def __init__(self):
+        super().__init__()
+        self.TESTING = True
+        self.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+        self.WTF_CSRF_ENABLED = False
+        self.SERVER_NAME = 'localhost'
+
+    @classmethod
+    def create(cls, **kwargs):
+        config = cls()
+        for key, value in kwargs.items():
+            setattr(config, key, value)
+        return config
+
+
 class BaseTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, init_login_manager: bool = True,
                    csrf_enabled: bool = False,
                    server_name: str = 'localhost',
                    define_load_user: bool = False):
-        AppConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-        cls.app = create_app(AppConfig)
-        cls.app.config['TESTING'] = True
-        cls.app.config['WTF_CSRF_ENABLED'] = csrf_enabled
-        cls.app.config['SERVER_NAME'] = server_name
+        test_config = TestConfig.create(WTF_CSRF_ENABLED=csrf_enabled, SERVER_NAME=server_name)
+
+        # Ensure that we are using an in-memory database for testing
+        assert test_config.SQLALCHEMY_DATABASE_URI == 'sqlite:///:memory:'
+
+        cls.app = create_app(test_config)
 
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
