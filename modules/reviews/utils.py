@@ -61,7 +61,7 @@ def allowed_file(filename: str) -> bool:
     return False
 
 
-def add_review_to_db(review_data: dict, images: List[FileStorage]) -> None:
+def add_review_to_db(review_data: dict[str, int | str], images: List[FileStorage]) -> None:
     new_review = Review(
         user_id=review_data['user_id'],
         goods_id=review_data['goods_id'],

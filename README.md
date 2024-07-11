@@ -121,7 +121,7 @@ Each module listed below is per se a package, with:
 
 - `__init__.py`: Initializes the module and registers routes and views (in a blueprint).
 
-Also may contain any of the following files:
+Also, may contain any of the following files:
 
 - `views.py`: Contains the route definitions and view functions.
 - `utils.py`: Contains utility functions specific to the module.

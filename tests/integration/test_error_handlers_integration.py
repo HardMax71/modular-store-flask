@@ -22,7 +22,6 @@ class TestErrorHandlersIntegration(BaseTest):
         self.assertIn(404, self.app.error_handler_spec[None])
         self.assertIn(500, self.app.error_handler_spec[None])
         self.assertIn(error_handlers_bp.name, self.app.blueprints)
-        self.assertIsNotNone(error_handlers_bp.logger)
 
     def test_404_error(self):
         response = self.client.get('/nonexistent-page')
@@ -61,13 +60,12 @@ class TestErrorHandlersIntegration(BaseTest):
             self.assertEqual(status_code, 500)
             self.assertIn('traceback', mock_render.call_args[1])
 
-    @patch('modules.error_handlers.handlers.error_handlers_bp.logger.log')
-    def test_error_logging(self, mock_log):
+    def test_handle_not_found_error(self):
         with self.app.test_request_context('/'):
-            handle_error(NotFound())
-            mock_log.assert_called_once()
-            log_message = mock_log.call_args[1]['msg']
-            self.assertIn('Error type: 404', log_message)
+            response, status_code = handle_error(NotFound())
+            self.assertEqual(status_code, 404)
+            self.assertIn('Error type: 404', response)
+            self.assertIn('The server cannot find the requested page.', response)
 
 
 if __name__ == '__main__':

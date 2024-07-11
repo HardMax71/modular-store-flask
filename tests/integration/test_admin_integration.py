@@ -230,7 +230,7 @@ class TestAdminIntegration(BaseTest):
             'data_percentage': 100
         })
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.mimetype, 'text/html')
+        self.assertEqual(response.mimetype, 'application/zip')  # zip archive with 2 reports in .html format
 
     def test_create_discount(self):
         client = self.login_admin()

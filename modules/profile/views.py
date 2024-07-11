@@ -1,12 +1,9 @@
-from typing import Optional
-
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask
 from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_dance.contrib.facebook import facebook
 from flask_dance.contrib.google import google
 from flask_login import current_user, login_required
-from werkzeug import Response
 
 from config import AppConfig
 from modules.db.database import db
@@ -131,13 +128,13 @@ def delete_address(address_id: int) -> ResponseValue:
 
 
 @profile_bp.route('/facebook-login')
-def facebook_login() -> Optional[Response]:
+def facebook_login() -> ResponseValue:
     """Handle login via Facebook."""
     return handle_social_login(facebook, name='facebook')
 
 
 @profile_bp.route('/google-login')
-def google_login() -> Optional[Response]:
+def google_login() -> ResponseValue:
     """Handle login via Google."""
     return handle_social_login(google, name='google')
 

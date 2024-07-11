@@ -1,5 +1,6 @@
 # tests/base_test.py
 import unittest
+from dataclasses import dataclass
 
 from flask_login import LoginManager
 
@@ -9,6 +10,7 @@ from modules.db.database import db, Base
 from modules.db.models import User
 
 
+@dataclass
 class TestConfig(AppConfig):
     def __init__(self):
         super().__init__()

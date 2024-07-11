@@ -51,10 +51,10 @@ def add_review() -> ResponseValue:
         flash(_("You have already reviewed this product."), "danger")
         return redirect(url_for('main.goods_page', id=goods_id))
 
-    review_data = {
+    review_data: dict[str, int | str] = {
         'user_id': user_id,
         'goods_id': goods_id,
-        'rating': request.form.get("rating", type=int),
+        'rating': request.form.get("rating", type=int, default=5),
         'review': request.form["review"],
         'title': request.form["title"],
         'pros': request.form["pros"],

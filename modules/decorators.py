@@ -2,7 +2,6 @@ from functools import wraps
 from typing import Callable, Any, Optional
 
 from flask import flash, redirect, request, url_for
-from flask.wrappers import Response
 from flask_babel import gettext as _
 from flask_login import current_user
 
@@ -26,7 +25,7 @@ def login_required_with_message(message: str = _("You must be logged in to view 
 
     def decorator(f: RouteHandler) -> RouteHandler:
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Response:
+        def decorated_function(*args: Any, **kwargs: Any):  # type: ignore
             if not current_user.is_authenticated:
                 flash(_(message), category)
                 if redirect_back:

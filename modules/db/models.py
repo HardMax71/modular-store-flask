@@ -15,7 +15,7 @@ from config import AppConfig
 from modules.db.database import Base, db
 
 
-class User(Base, UserMixin):
+class User(Base, UserMixin):  # type: ignore
     """
     Represents a user in the system.
     """
@@ -65,11 +65,11 @@ class User(Base, UserMixin):
 
         return str(self._profile_picture)
 
-    @profile_picture.setter
+    @profile_picture.setter  # type: ignore[no-redef]
     def profile_picture(self, value: str) -> None:
         self._profile_picture = value
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return self.username
 
     @staticmethod
@@ -105,7 +105,7 @@ class RecentlyViewedProduct(Base):
 
     goods: Mapped["Goods"] = relationship('Goods', backref='recently_viewed_by', lazy='select')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'RecentlyViewedProduct {self.id}'
 
 
@@ -119,7 +119,7 @@ class UserPreference(Base):
 
     category: Mapped["Category"] = relationship('Category', backref='user_preferences', lazy='select')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'UserPreference {self.id} {self.interest_level}'
 
 
@@ -135,7 +135,7 @@ class Cart(Base):
 
     goods: Mapped["Goods"] = relationship('Goods', backref='cart_items', lazy='joined')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'Cart {self.id}'
 
     @staticmethod
@@ -197,8 +197,8 @@ class Cart(Base):
             func.sum(Cart.quantity * Cart.price).label('subtotal')
         ).filter_by(user_id=current_user.id).first()
 
-        total_items: int = int(cart_items.total_items or 0)
-        subtotal: float = float(cart_items.subtotal or 0.0)
+        total_items: int = cart_items.total_items if cart_items and cart_items.total_items else 0
+        subtotal: float = cart_items.subtotal if cart_items and cart_items.subtotal else 0.0
 
         current_date: date = datetime.now().date()
         max_discount: float = db.session.query(func.max(Discount.percentage)).join(UserDiscount).filter(
@@ -256,7 +256,7 @@ class Goods(Base):
     )
 
     @property
-    def image(self):
+    def image(self) -> str:
         if self._image is None:
             return 'goods-icon.png'
 
@@ -267,10 +267,10 @@ class Goods(Base):
         return self._image
 
     @image.setter
-    def image(self, value):
+    def image(self, value: str) -> None:
         self._image = value
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         sample_description = (self.description[:20] + '..') if self.description else 'No description'
         return f'{self.samplename}: {sample_description}'
 
@@ -280,12 +280,12 @@ class Goods(Base):
             return db.session.query(func.avg(Review.rating)).filter_by(goods_id=self.id).scalar() or 0
         return 0
 
-    @avg_rating.expression
-    def avg_rating(self):
+    @avg_rating.expression  # type: ignore[no-redef]
+    def avg_rating(cls) -> Optional[float]:
         return func.coalesce(
             db.session.query(func.avg(Review.rating))
-            .filter(Review.goods_id == self.id)
-            .correlate(self)
+            .filter(Review.goods_id == cls.id)
+            .correlate(cls)
             .scalar_subquery(),
             0
         )
@@ -294,11 +294,11 @@ class Goods(Base):
     def current_price(self):
         return self.onSalePrice if self.onSale else self.price
 
-    @current_price.expression
-    def current_price(self):
+    @current_price.expression  # type: ignore[no-redef]
+    def current_price(cls):
         return case(
-            (self.onSale == 1, self.onSalePrice),
-            else_=self.price
+            (cls.onSale == 1, cls.onSalePrice),
+            else_=cls.price
         )
 
 
@@ -313,7 +313,7 @@ class SocialAccount(Base):
 
     user: Mapped["User"] = relationship('User', back_populates='social_accounts')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return self.social_id
 
 
@@ -328,7 +328,7 @@ class ComparisonHistory(Base):
 
     user: Mapped["User"] = relationship('User', backref='comparison_history', lazy='joined')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'ComparisonHistory {self.id} {self.timestamp} {self.product_ids}'
 
 
@@ -352,12 +352,10 @@ class Purchase(Base):
 
     @hybrid_property
     def items_subtotal(self) -> int:
-        """Calculate the subtotal of all items in the purchase."""
         return sum(item.quantity * item.price for item in self.items)
 
-    @items_subtotal.expression
+    @items_subtotal.expression  # type: ignore[no-redef]
     def items_subtotal(self):
-        """SQL expression for calculating the subtotal."""
         return (
             db.select(func.sum(PurchaseItem.quantity * PurchaseItem.price))
             .where(PurchaseItem.purchase_id == self.id)
@@ -366,9 +364,6 @@ class Purchase(Base):
 
     @staticmethod
     def update_stock(purchase: 'Purchase', reverse: bool = False) -> None:
-        """
-        Update the stock of goods items after a purchase or cancellation.
-        """
         for item in purchase.items:
             goods = db.session.get(Goods, item.goods_id)
             if goods:
@@ -399,7 +394,7 @@ class PurchaseItem(Base):
     purchase: Mapped["Purchase"] = relationship("Purchase", back_populates="items")
     goods: Mapped["Goods"] = relationship("Goods", back_populates="purchase_items", lazy="joined")
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'PurchaseItem {self.id}: {self.quantity} x {self.goods.samplename if self.goods else "Unknown"}'
 
 
@@ -415,7 +410,7 @@ class ReportedReview(Base):
     review: Mapped["Review"] = relationship("Review", backref="reported_reviews")
     user: Mapped["User"] = relationship("User", backref="reported_reviews")
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'ReportedReview {self.id}'
 
 
@@ -440,7 +435,7 @@ class Review(Base):
         CheckConstraint('rating >= 1 AND rating <= 5'),
     )
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'Review {self.id}: {self.title}'
 
 
@@ -466,7 +461,7 @@ class ReviewImage(Base):
 
         return str(self._image)
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'ReviewImage {self.id} for Review {self.review_id}'
 
 
@@ -482,7 +477,7 @@ class Address(Base):
     zip_code: Mapped[str] = mapped_column(Text, nullable=False)
     country: Mapped[str] = mapped_column(Text, nullable=False)
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'{self.address_line1}'
 
 
@@ -496,7 +491,7 @@ class Category(Base):
     parent: Mapped[Optional["Category"]] = relationship('Category', remote_side=[id], backref='subcategories',
                                                         lazy='joined')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return self.name
 
 
@@ -512,7 +507,7 @@ class ShippingAddress(Base):
     zip_code: Mapped[str] = mapped_column(Text, nullable=False)
     country: Mapped[str] = mapped_column(Text, nullable=False)
 
-    def __repr__(self):
+    def __str__(self) -> str:
         return f'ShippingAddress {self.id}: {self.address_line1}>'
 
 
@@ -526,7 +521,7 @@ class Wishlist(Base):
 
     goods: Mapped["Goods"] = relationship("Goods", back_populates="wishlist_items")
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'Wishlist {self.id}'
 
 
@@ -538,7 +533,7 @@ class Variant(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     value: Mapped[str] = mapped_column(Text, nullable=False)
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'{self.name}: {self.value}'
 
 
@@ -551,7 +546,7 @@ class Discount(Base):
     start_date: Mapped[Date] = mapped_column(Date, nullable=False)
     end_date: Mapped[Date] = mapped_column(Date, nullable=False)
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'{self.code}: {self.percentage}%'
 
 
@@ -579,7 +574,7 @@ class Notification(Base):
     read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.current_timestamp())
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'{self.message[:20]}..' if len(self.message) > 22 else self.message
 
 
@@ -589,7 +584,7 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return self.name
 
 
@@ -626,7 +621,7 @@ class ProductPromotion(Base):
 
     goods: Mapped["Goods"] = relationship('Goods', backref='promotions', lazy='joined')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'{self.description[:20]}..' if len(self.description) > 22 else self.description
 
 
@@ -646,7 +641,7 @@ class Ticket(Base):
     user: Mapped["User"] = relationship('User', backref='tickets', foreign_keys=[user_id])
     admin: Mapped[Optional["User"]] = relationship('User', backref='assigned_tickets', foreign_keys=[admin_id])
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'Ticket {self.id}: {self.title}'
 
 
@@ -663,5 +658,5 @@ class TicketMessage(Base):
     ticket: Mapped["Ticket"] = relationship('Ticket', backref='messages')
     user: Mapped["User"] = relationship('User', backref='ticket_messages')
 
-    def __str__(self):  # type: ignore
+    def __str__(self) -> str:
         return f'TicketMessage {self.id}: {self.message[:20] if len(self.message) > 22 else self.message}...'

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -11,9 +13,9 @@ class Base(DeclarativeBase):
 class Database:
     # lazy initialization of the engine and session
     def __init__(self) -> None:
-        self._engine = None
-        self._session = None
-        self._app = None
+        self._engine: Optional[Engine] = None
+        self._session: Optional[scoped_session[Session]] = None
+        self._app: Optional[Flask] = None
         self.metadata = Base.metadata
 
     def init_app(self, app: Flask) -> None:
@@ -22,7 +24,7 @@ class Database:
         app.teardown_appcontext(self.close)  # type: ignore
 
     @property
-    def engine(self):
+    def engine(self) -> Engine:
         if self._engine is None:
             if self._app is None:
                 raise RuntimeError("Application not initialized. Call init_app() first.")
@@ -30,7 +32,7 @@ class Database:
         return self._engine
 
     @property
-    def session(self):
+    def session(self) -> scoped_session[Session]:
         if self._session is None:
             if self._app is None:
                 raise RuntimeError("Application not initialized. Call init_app() first.")

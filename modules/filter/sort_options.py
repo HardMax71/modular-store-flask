@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 from flask_babel import gettext as _
 from sqlalchemy import func
@@ -22,7 +22,7 @@ class SortOption:
         self.field = field
         self.order = order
 
-    def apply(self, query: Query) -> Query:
+    def apply(self, query: Query[Goods]) -> Query[Goods]:
         """
         Apply the sort option to the query.
 
@@ -41,7 +41,7 @@ class SortOptions:
     AVG_RATING_DESC = SortOption('rating', _('Rating: High to Low'), func.coalesce(func.avg(Review.rating), 0), 'desc')
 
     @classmethod
-    def get_all(cls) -> list[SortOption]:
+    def get_all(cls) -> List[SortOption]:
         """
         Get all sort options.
 

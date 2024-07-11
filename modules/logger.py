@@ -35,7 +35,7 @@ class DatabaseLogger:
         """
         Store the start time of the request.
         """
-        request.start_time = time.time()
+        request.start_time = time.time()  # type: ignore
 
     def after_request(self, response: Response) -> Response:
         """

@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 
-from flask import Blueprint, redirect, request, url_for, flash, render_template
+from flask import Blueprint, redirect, request, url_for, flash, render_template, Flask
 from flask.typing import ResponseValue
 from flask_babel import gettext as _
 from flask_login import current_user
@@ -93,5 +93,5 @@ def add_to_comparison() -> ResponseValue:
     return redirect(url_for('main.goods_page', id=goods_id))
 
 
-def init_compare(app) -> None:
+def init_compare(app: Flask) -> None:
     app.register_blueprint(compare_bp)

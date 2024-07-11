@@ -1,4 +1,3 @@
-import gettext
 import logging
 from datetime import datetime
 from typing import Any, Dict
@@ -16,16 +15,8 @@ from modules.error_handlers import create_error_handlers
 from modules.extensions import init_extensions
 from modules.logger import DatabaseLogger
 
-# Initialize logger
-logger = logging.getLogger(__name__)
 
-# Configure gettext for internationalization
-gettext.bindtextdomain(AppConfig.GETTEXT_DOMAIN, localedir=AppConfig.LOCALE_PATH)
-gettext.textdomain(AppConfig.GETTEXT_DOMAIN)
-_ = gettext.gettext
-
-
-def create_app(config_class: Any=None) -> Flask:
+def create_app(config_class: AppConfig | None = None) -> Flask:
     """
     Create and configure the Flask application.
 
@@ -37,6 +28,10 @@ def create_app(config_class: Any=None) -> Flask:
         current_app.config.from_object(config_class)
     else:
         current_app.config.from_object(AppConfig)
+
+    # Initialize logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
     db.init_app(current_app)
 

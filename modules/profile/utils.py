@@ -110,10 +110,13 @@ def handle_update_profile() -> None:
     current_user.phone = request.form['phone']
     if 'profile_picture' in request.files:
         file = request.files['profile_picture']
-        if file.filename != '':
+        if file.filename and file.filename != '':
             s, extension = os.path.splitext(file.filename)
             if extension and extension.lower() in AppConfig.IMG_FORMATS:
                 filename: str = secure_filename(file.filename)
+                if not filename:
+                    filename = f'{current_user.id}_profile_pic.png'
+
                 os.makedirs(AppConfig.PROFILE_PICS_FOLDER, exist_ok=True)
                 file.save(os.path.join(AppConfig.PROFILE_PICS_FOLDER, filename))
                 current_user.profile_picture = filename
@@ -143,7 +146,7 @@ def handle_update_notification_settings() -> None:
     flash(_('Notification settings updated successfully.'), 'success')
 
 
-def handle_social_login(provider, name: str = "facebook") -> Optional[Response]:
+def handle_social_login(provider: Any, name: str = "facebook") -> Response:
     """
     Handle social login process for various providers.
     Connects the social account to the user's profile if not already connected.

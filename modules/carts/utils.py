@@ -1,7 +1,7 @@
 import json
 import random
 from datetime import datetime
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Any
 
 import stripe
 from flask import redirect, request, url_for, flash, current_app, render_template
@@ -84,11 +84,11 @@ def process_stripe_payment(cart_items: List[Cart], shipping_address_id: int,
     return redirect(checkout_session.url or url_for('carts.checkout'), code=303)
 
 
-def create_stripe_checkout_session(customer_id: str, line_items: List[dict], shipping_address_id: int,
+def create_stripe_checkout_session(customer_id: str, line_items: List[dict[str, Any]], shipping_address_id: int,
                                    shipping_method_id: int) -> stripe.checkout.Session:
     return stripe.checkout.Session.create(
         payment_method_types=['card'],
-        line_items=line_items,
+        line_items=line_items,  # type: ignore
         mode='payment',
         customer=customer_id,
         client_reference_id=str(current_user.id),
@@ -101,30 +101,30 @@ def create_stripe_checkout_session(customer_id: str, line_items: List[dict], shi
     )
 
 
-def get_stripe_customer_for_user_by_id(current_user: User) -> stripe.Customer:
-    current_user_stripe_customer_id: Optional[str] = current_user.stripe_customer_id
+def get_stripe_customer_for_user_by_id(user: User) -> stripe.Customer:
+    current_user_stripe_customer_id: Optional[str] = user.stripe_customer_id
     if not current_user_stripe_customer_id:
         # customer id is None
         customer = stripe.Customer.create(
-            email=current_user.email or "no email specified",
-            name=f"{current_user.fname} {current_user.lname}",
-            metadata={"user_id": str(current_user.id)}
+            email=user.email or "no email specified",
+            name=f"{user.fname} {user.lname}",
+            metadata={"user_id": str(user.id)}
         )
-        current_user.stripe_customer_id = customer.id
+        user.stripe_customer_id = customer.id
         db.session.commit()
     else:
         # customer has stripe id
         customer = stripe.Customer.retrieve(current_user_stripe_customer_id)
         stripe.Customer.modify(
-            current_user.stripe_customer_id,
-            email=current_user.email or "no email specified",
-            name=f"{current_user.fname} {current_user.lname}",
-            metadata={"user_id": str(current_user.id)}
+            user.stripe_customer_id,
+            email=user.email or "no email specified",
+            name=f"{user.fname} {user.lname}",
+            metadata={"user_id": str(user.id)}
         )
     return customer
 
 
-def create_line_items_for_payment(cart_items: List[Cart], shipping_method: ShippingMethod) -> List[dict]:
+def create_line_items_for_payment(cart_items: List[Cart], shipping_method: ShippingMethod) -> List[Dict[str, Any]]:
     line_items = [{
         'price_data': {
             'currency': 'usd',

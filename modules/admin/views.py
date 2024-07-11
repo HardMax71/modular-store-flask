@@ -1,8 +1,8 @@
-import csv
 import io
-import json
+import tempfile
+import zipfile
 from datetime import datetime, time
-from io import StringIO, BytesIO
+from pathlib import Path
 from typing import List, Dict, Any, Union
 from typing import Optional
 
@@ -17,13 +17,13 @@ from flask_admin.model.base import ViewArgs
 from flask_babel import gettext as _
 from flask_login import current_user
 from markupsafe import Markup
-from openpyxl import Workbook
 from sqlalchemy import func, Integer
 from sqlalchemy import inspect, select, Table
 from sqlalchemy.orm import aliased
-from ydata_profiling import ProfileReport
+from ydata_profiling import ProfileReport  # type: ignore
 
 import config
+from modules.admin.utils import generate_csv, generate_json, generate_excel
 from modules.db.database import db, Base, Database
 from modules.db.models import RequestLog, Ticket, User, Goods, Category, Purchase, Review, Wishlist, Tag, \
     ProductPromotion, Discount, ShippingMethod, ReportedReview, TicketMessage
@@ -33,45 +33,29 @@ from modules.decorators import login_required_with_message, admin_required
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
-def get_table_names() -> list[str]:
-    """
-    Get a list of all table names in the database.
-
-    Returns:
-        List[str]: A list of table names.
-    """
+def get_table_names() -> List[str]:
     inspector = inspect(db.session.bind)
-    return inspector.get_table_names()
+    if not inspector:
+        return []
+    return inspector.get_table_names()  # type: ignore
 
 
-def _number_formatter(view: ModelView, context: Dict, model: Any, name: str) -> str:
-    """
-    Format a number to display two decimal places.
-
-    Args:
-        view (ModelView): The current view.
-        context (Dict): The context dictionary.
-        model (Any): The model instance.
-        name (str): The name of the attribute to format.
-
-    Returns:
-        str: The formatted number as a string.
-    """
+def _number_formatter(view: Any, context: Any, model: Any, name: str) -> str:
     value = getattr(model, name)
     if value is not None:
         return '{:.2f}'.format(value)
     return ''
 
 
-class AdminView(ModelView):
+class AdminView(ModelView):  # type: ignore
     def is_accessible(self) -> bool:
-        return current_user.is_authenticated and current_user.is_admin
+        return (current_user.is_authenticated and current_user.is_admin) or False
 
-    def inaccessible_callback(self, name: str, **kwargs) -> ResponseValue:
+    def inaccessible_callback(self, name: str, **kwargs: Any) -> ResponseValue:
         return redirect(url_for('login', next=request.url))
 
 
-class MyAdminIndexView(AdminIndexView):
+class MyAdminIndexView(AdminIndexView):  # type: ignore
     @expose('/')  # type: ignore
     @login_required_with_message()
     @admin_required()
@@ -79,7 +63,7 @@ class MyAdminIndexView(AdminIndexView):
         if not current_user.is_admin:
             flash(_('You do not have permission to access this page.'), 'danger')
             return redirect(url_for('login'))
-        return self.render('admin/index.html')
+        return self.render('admin/index.html')  # type: ignore
 
 
 class TicketView(AdminView):
@@ -138,7 +122,7 @@ class UserView(AdminView):
         return view_args
 
 
-class StatisticsView(BaseView):
+class StatisticsView(BaseView):  # type: ignore
     @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
@@ -150,45 +134,43 @@ class StatisticsView(BaseView):
             tables = request.form.getlist('tables')
             data_percentage = int(request.form.get('data_percentage', 100))
 
-            profile_reports: List[ProfileReport] = []
-            for table_name in tables:
-                if table_name in table_names:
-                    # Reflect the table
-                    table = Table(table_name, db.metadata, autoload_with=db.engine)
+            memory_file = io.BytesIO()
+            with zipfile.ZipFile(memory_file, 'w') as zf:
+                for table_name in tables:
+                    if table_name in table_names:
+                        table = Table(table_name, db.metadata, autoload_with=db.engine)
+                        aliased_table = aliased(table)
 
-                    # Create an alias for the table
-                    aliased_table = aliased(table)
+                        count_subq = select(func.count()).select_from(table).scalar_subquery()
+                        limit = select(func.cast(count_subq * (data_percentage / 100.0), Integer)).scalar_subquery()
 
-                    count_subq = select(func.count()).select_from(table).scalar_subquery()
-                    limit = select(func.cast(count_subq * (data_percentage / 100.0), Integer)).scalar_subquery()
+                        query = (
+                            select(aliased_table)
+                            .order_by(aliased_table.c.id.desc())
+                            .limit(limit)
+                        )
 
-                    query = (
-                        select(aliased_table)
-                        .order_by(aliased_table.c.id.desc())
-                        .limit(limit)
-                    )
+                        df = pd.read_sql(query, db.engine)
+                        profile = ProfileReport(df, title=f"{table_name.capitalize()} Dataset")
 
-                    df = pd.read_sql(query, db.engine)
-                    profile = ProfileReport(df, title=f"{table_name.capitalize()} Dataset")
-                    profile_reports.append(profile)
+                        with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as tmp:
+                            profile.to_file(tmp.name)
+                        with open(tmp.name, 'rb') as f:
+                            zf.writestr(f"{table_name}_report.html", f.read())
+                        Path(tmp.name).unlink()
 
-            if profile_reports:
-                merged_report: ProfileReport = profile_reports[0]
-                for report in profile_reports[1:]:
-                    merged_report.add_report(report)
+            memory_file.seek(0)
+            return send_file(
+                memory_file,
+                mimetype='application/zip',
+                as_attachment=True,
+                download_name='statistics_reports.zip'
+            )
 
-                profile_html = merged_report.to_html()
-
-                output = io.BytesIO()
-                output.write(profile_html.encode('utf-8'))
-                output.seek(0)
-                return send_file(output, mimetype='text/html', as_attachment=True,
-                                 download_name='statistics_report.html')
-
-        return self.render('admin/statistics.html', table_names=table_names)
+        return self.render('admin/statistics.html', table_names=table_names)  # type: ignore
 
 
-class ReportsView(BaseView):
+class ReportsView(BaseView):  # type: ignore
     @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
@@ -203,13 +185,13 @@ class ReportsView(BaseView):
             data = self.fetch_data(tables)
 
             if file_format == 'csv':
-                return self.generate_csv(data)
+                return generate_csv(data)
             elif file_format == 'json':
-                return self.generate_json(data)
+                return generate_json(data)
             elif file_format == 'excel':
-                return self.generate_excel(data)
+                return generate_excel(data)
 
-        return self.render('admin/reports.html', table_names=table_names)
+        return self.render('admin/reports.html', table_names=table_names)  # type: ignore
 
     def fetch_data(self, tables: List[str]) -> Dict[str, List[Dict[str, Any]]]:
         inspector = inspect(db.engine)
@@ -233,57 +215,6 @@ class ReportsView(BaseView):
     @staticmethod
     def decode_if_bytes(value: Any) -> Any:
         return value.decode('utf-8') if isinstance(value, bytes) else value
-
-    def generate_csv(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
-        output = StringIO()
-        for table, rows in data.items():
-            if rows:
-                writer = csv.DictWriter(output, fieldnames=rows[0].keys())
-                writer.writeheader()
-                writer.writerows(rows)
-                output.write('\n')
-        output.seek(0)
-        return send_file(
-            BytesIO(output.getvalue().encode('utf-8')),
-            mimetype='text/csv; charset=utf-8',
-            as_attachment=True,
-            download_name='data.csv'
-        )
-
-    def generate_json(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
-        class CustomEncoder(json.JSONEncoder):
-            def default(self, obj) -> Any:
-                if isinstance(obj, bytes):
-                    return obj.decode('utf-8')
-                return super().default(obj)
-
-        output = json.dumps(data, ensure_ascii=False, indent=2, cls=CustomEncoder)
-        return send_file(
-            BytesIO(output.encode('utf-8')),
-            mimetype='application/json; charset=utf-8',
-            as_attachment=True,
-            download_name='data.json'
-        )
-
-    def generate_excel(self, data: Dict[str, List[Dict[str, Any]]]) -> ResponseValue:
-        wb = Workbook()
-        wb.remove(wb.active)  # Remove default sheet
-        for table, rows in data.items():
-            ws = wb.create_sheet(title=table)
-            if rows:
-                headers = list(rows[0].keys())
-                ws.append(headers)
-                for row in rows:
-                    ws.append([row[header] for header in headers])
-        output = BytesIO()
-        wb.save(output)
-        output.seek(0)
-        return send_file(
-            output,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name='data.xlsx'
-        )
 
 
 class GoodsView(AdminView):
@@ -314,7 +245,7 @@ class GoodsView(AdminView):
         'onSalePrice': _number_formatter,
     }
 
-    def on_model_change(self, form, model, is_created) -> None:
+    def on_model_change(self, form: Any, model: Goods, is_created: bool) -> None:
         if not is_created and model.stock <= config.AppConfig.LOW_STOCK_THRESHOLD:
             goods_name = model.samplename
             notification_message = _(f"Low stock alert: {goods_name} is running low on stock.")
@@ -334,7 +265,7 @@ class CategoryView(AdminView):
     }
 
 
-class AnalyticsView(BaseView):
+class AnalyticsView(BaseView):  # type: ignore
     @expose('/', methods=['GET', 'POST'])  # type: ignore
     @login_required_with_message()
     @admin_required()
@@ -373,7 +304,7 @@ class AnalyticsView(BaseView):
 
                 # Calculate status code counts using grouping
                 status_code_counts = dict(
-                    request_logs_query.with_entities(
+                    (row[0], row[1]) for row in request_logs_query.with_entities(
                         RequestLog.status_code, func.count(RequestLog.status_code)
                     )
                     .group_by(RequestLog.status_code)
@@ -381,10 +312,13 @@ class AnalyticsView(BaseView):
                 )
 
             # Render the template with the analytics data
-            return self.render('admin/analytics.html', request_logs=request_logs, total_requests=total_requests,
-                               average_execution_time=average_execution_time, status_code_counts=status_code_counts)
+            return self.render('admin/analytics.html',  # type: ignore[no-any-return]
+                               request_logs=request_logs,
+                               total_requests=total_requests,
+                               average_execution_time=average_execution_time,
+                               status_code_counts=status_code_counts)
 
-        return self.render('admin/analytics.html')
+        return self.render('admin/analytics.html')  # type: ignore
 
 
 class PurchaseView(AdminView):

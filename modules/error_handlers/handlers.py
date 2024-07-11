@@ -35,9 +35,6 @@ def handle_error(e: Union[HTTPException, Exception]) -> tuple[str, int]:
                           f"{error_explanations.get(error_code, 'Error!')}\n"
                           f"IP: {ip or 'Unknown IP'}")
 
-    # Log the error message
-    error_handlers_bp.logger.log(level=1, msg=error_message.replace('<br>', '\n'))
-
     request_url: str = request.url
     dont_show: bool = 'user_id' not in session
 
@@ -65,4 +62,3 @@ def init_error_handlers(app: Flask) -> None:
         app.register_error_handler(error_code, handle_error)
 
     app.register_blueprint(error_handlers_bp)
-    error_handlers_bp.logger = app.logger

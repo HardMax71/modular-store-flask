@@ -24,8 +24,9 @@ auth_bp = Blueprint('auth', __name__)
 def register() -> ResponseValue:
     form = RegistrationForm()
     if form.validate_on_submit():
-        existing_user: Optional[User] = (db.session.query(User.id)
-                                         .filter_by(username=form.username.data).first())
+        existing_user: Optional[User] = (db.session.query(User)
+                                         .filter_by(username=form.username.data)
+                                         .first())
         if existing_user:
             flash(_("Username already exists. Please choose a different one."), "danger")
         elif not form.password.data:
@@ -109,7 +110,7 @@ def reset_password() -> ResponseValue:
 
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password_token(token) -> ResponseValue:
+def reset_password_token(token: str) -> ResponseValue:
     s = Serializer(AppConfig.SECRET_KEY)
     try:
         data = s.loads(token)
