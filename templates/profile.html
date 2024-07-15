@@ -298,20 +298,18 @@
                                         {% for item in user.wishlist_items %}
                                             <div class="col-md-4 mb-4">
                                                 <div class="card h-100">
-                                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + item.goods.image) }}"
-                                                         class="card-img-top lazy img-fluid"
-                                                         alt="{{ item.goods.samplename }}">
+                                                    {{ product_carousel(item.product) }}
                                                     <div class="card-body">
-                                                        <h6 class="card-title">{{ item.goods.samplename }}</h6>
-                                                        <p class="card-text text-truncate">{{ item.goods.description }}</p>
+                                                        <h6 class="card-title">{{ item.product.samplename }}</h6>
+                                                        <p class="card-text text-truncate">{{ item.product.description }}</p>
                                                         <div class="d-flex flex-wrap">
-                                                            <a href="{{ url_for('main.goods_page', id=item.goods.id) }}"
+                                                            <a href="{{ url_for('main.product_page', product_id=item.product.id) }}"
                                                                class="btn btn-primary btn-sm flex-shrink-1">{{ _('View') }}</a>
                                                             <form action="{{ url_for('wishlists.wishlist') }}"
                                                                   method="POST"
                                                                   class="d-inline">
-                                                                <input type="hidden" name="goods_id"
-                                                                       value="{{ item.goods.id }}">
+                                                                <input type="hidden" name="product_id"
+                                                                       value="{{ item.product.id }}">
                                                                 <button type="submit"
                                                                         class="btn btn-outline-danger btn-sm flex-shrink-1">
                                                                     <i class="fas fa-heart"></i> {{ _('Remove') }}

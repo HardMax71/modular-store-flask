@@ -5,8 +5,7 @@
             <div class="col mb-4">
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                             alt="{{ product.samplename }}" loading="lazy">
+                        {{ product_carousel(product) }}
                     </div>
                     <div class="product-details">
                         <h3 class="product-title">{{ product.samplename }}</h3>
@@ -50,7 +49,8 @@
                                     <span class="in-stock">{{ _('In Stock') }}</span>
                                 {% endif %}
                             </div>
-                            <a href="{{ url_for('main.goods_page', id=product.id) }}" class="view-details-btn">{{ _('View Details') }}</a>
+                            <a href="{{ url_for('main.product_page', product_id=product.id) }}"
+                               class="view-details-btn">{{ _('View Details') }}</a>
                         </div>
                     </div>
                     {% if product.is_new %}

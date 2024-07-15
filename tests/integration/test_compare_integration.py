@@ -4,7 +4,7 @@ import unittest
 from flask import url_for
 from flask_login import login_user
 
-from modules.db.models import Goods, ComparisonHistory
+from modules.db.models import Product, ComparisonHistory
 from tests.base_test import BaseTest
 from tests.util import create_user
 
@@ -17,10 +17,10 @@ class TestCompareIntegration(BaseTest):
 
     def setUp(self):
         super().setUp()
-        self.product1 = Goods(samplename='Product 1', price=1000, stock=10)
-        self.product2 = Goods(samplename='Product 2', price=2000, stock=20)
-        self.product3 = Goods(samplename='Product 3', price=3000, stock=30)
-        self.product4 = Goods(samplename='product 4', price=4000, stock=40)
+        self.product1 = Product(samplename='Product 1', price=1000, stock=10)
+        self.product2 = Product(samplename='Product 2', price=2000, stock=20)
+        self.product3 = Product(samplename='Product 3', price=3000, stock=30)
+        self.product4 = Product(samplename='product 4', price=4000, stock=40)
         self.session.add_all([self.product1, self.product2, self.product3, self.product4])
         self.session.commit()
 
@@ -51,12 +51,12 @@ class TestCompareIntegration(BaseTest):
         self.session.add(comparison)
         self.session.commit()
 
-        response = self.client.post(url_for('compare.remove_from_comparison'), data={'goods_id': self.product1.id},
+        response = self.client.post(url_for('compare.remove_from_comparison'), data={'product_id': self.product1.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product removed from comparison', response.data)
 
-        updated_comparison = ComparisonHistory.query.filter_by(user_id=self.user.id).first()
+        updated_comparison = self.session.query(ComparisonHistory).filter_by(user_id=self.user.id).first()
         self.assertEqual(json.loads(updated_comparison.product_ids), [self.product2.id])
 
     def test_remove_from_comparison_not_in_list(self):
@@ -64,18 +64,18 @@ class TestCompareIntegration(BaseTest):
         self.session.add(comparison)
         self.session.commit()
 
-        response = self.client.post(url_for('compare.remove_from_comparison'), data={'goods_id': self.product2.id},
+        response = self.client.post(url_for('compare.remove_from_comparison'), data={'product_id': self.product2.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product is not in comparison', response.data)
 
     def test_add_to_comparison_new(self):
-        response = self.client.post(url_for('compare.add_to_comparison'), data={'goods_id': self.product1.id},
+        response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': self.product1.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product added to comparison', response.data)
 
-        comparison = ComparisonHistory.query.filter_by(user_id=self.user.id).first()
+        comparison: ComparisonHistory = self.session.query(ComparisonHistory).filter_by(user_id=self.user.id).first()
         self.assertEqual(json.loads(comparison.product_ids), [self.product1.id])
 
     def test_add_to_comparison_existing(self):
@@ -83,12 +83,12 @@ class TestCompareIntegration(BaseTest):
         self.session.add(comparison)
         self.session.commit()
 
-        response = self.client.post(url_for('compare.add_to_comparison'), data={'goods_id': self.product2.id},
+        response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': self.product2.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product added to comparison', response.data)
 
-        updated_comparison = ComparisonHistory.query.filter_by(user_id=self.user.id).first()
+        updated_comparison = self.session.query(ComparisonHistory).filter_by(user_id=self.user.id).first()
         self.assertEqual(json.loads(updated_comparison.product_ids), [self.product1.id, self.product2.id])
 
     def test_add_to_comparison_limit_exceeded(self):
@@ -97,13 +97,13 @@ class TestCompareIntegration(BaseTest):
         self.session.add(comparison)
         self.session.commit()
 
-        response = self.client.post(url_for('compare.add_to_comparison'), data={'goods_id': 4},
+        response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': 4},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'You can only compare up to 3 products at a time', response.data)
 
     def test_add_to_comparison_nonexistent_product(self):
-        response = self.client.post(url_for('compare.add_to_comparison'), data={'goods_id': 999},
+        response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': 999},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product not found', response.data)

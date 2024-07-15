@@ -1,14 +1,15 @@
 import io
+import os
 import tempfile
 import zipfile
 from datetime import datetime, time
 from pathlib import Path
 from typing import List, Dict, Any, Union
-from typing import Optional
 
 import pandas as pd
-from flask import Blueprint, flash, redirect, url_for, Flask
-from flask import request, send_file
+from flask import Blueprint, Flask
+from flask import current_app, request, flash, redirect, url_for
+from flask import send_file
 from flask.typing import ResponseValue
 from flask_admin import Admin, AdminIndexView
 from flask_admin import BaseView, expose
@@ -16,18 +17,23 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.base import ViewArgs
 from flask_babel import gettext as _
 from flask_login import current_user
+from flask_wtf import FlaskForm
 from markupsafe import Markup
 from sqlalchemy import func, Integer
 from sqlalchemy import inspect, select, Table
 from sqlalchemy.orm import aliased
+from werkzeug.utils import secure_filename
+from wtforms import StringField, TextAreaField, SubmitField, FileField
+from wtforms.validators import DataRequired
 from ydata_profiling import ProfileReport  # type: ignore
 
 import config
 from modules.admin.utils import generate_csv, generate_json, generate_excel
 from modules.db.database import db, Base, Database
-from modules.db.models import RequestLog, Ticket, User, Goods, Category, Purchase, Review, Wishlist, Tag, \
+from modules.db.models import RequestLog, Ticket, User, Product, Category, Purchase, Review, Wishlist, Tag, \
     ProductPromotion, Discount, ShippingMethod, ReportedReview, TicketMessage
 from modules.decorators import login_required_with_message, admin_required
+from modules.email import send_email
 
 # Create Blueprint
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -86,8 +92,7 @@ class TicketView(AdminView):
 
     @expose('/assign/<int:ticket_id>', methods=['POST'])  # type: ignore
     def assign_ticket(self, ticket_id: int) -> ResponseValue:
-        ticket: Optional[Ticket] = db.session.get(Ticket, ticket_id)
-        if ticket:
+        if ticket := db.session.get(Ticket, ticket_id):
             admin_id = request.form.get('admin_id', type=int)
             ticket.admin_id = admin_id
             db.session.commit()
@@ -217,7 +222,7 @@ class ReportsView(BaseView):  # type: ignore
         return value.decode('utf-8') if isinstance(value, bytes) else value
 
 
-class GoodsView(AdminView):
+class ProductsViews(AdminView):
     column_searchable_list = ['samplename', 'description']
     column_filters = ['onSale', 'category']
     column_editable_list = ['price', 'onSale', 'onSalePrice', 'stock']
@@ -245,10 +250,10 @@ class GoodsView(AdminView):
         'onSalePrice': _number_formatter,
     }
 
-    def on_model_change(self, form: Any, model: Goods, is_created: bool) -> None:
+    def on_model_change(self, form: Any, model: Product, is_created: bool) -> None:
         if not is_created and model.stock <= config.AppConfig.LOW_STOCK_THRESHOLD:
-            goods_name = model.samplename
-            notification_message = _(f"Low stock alert: {goods_name} is running low on stock.")
+            product_name: str = model.samplename or 'Unknown Product'
+            notification_message = _(f"Low stock alert: {product_name} is running low on stock.")
 
             # Flash a message to the current admin user
             flash(notification_message, "info")
@@ -256,7 +261,7 @@ class GoodsView(AdminView):
 
 class CategoryView(AdminView):
     column_searchable_list = ['name']
-    form_excluded_columns = ['goods']
+    form_excluded_columns = ['product']
     form_ajax_refs = {
         'parent': {
             'fields': ['name'],
@@ -329,7 +334,7 @@ class PurchaseView(AdminView):
 
 
 class ReviewView(AdminView):
-    column_searchable_list = ['user.username', 'goods.samplename']
+    column_searchable_list = ['user.username', 'products.samplename']
     column_filters = ['moderated']
     column_editable_list = ['moderated']
 
@@ -340,7 +345,7 @@ class ReviewView(AdminView):
 
 
 class WishlistView(AdminView):
-    column_searchable_list = ['user.username', 'goods.samplename']
+    column_searchable_list = ['user.username', 'product.samplename']
 
     def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
@@ -350,7 +355,7 @@ class WishlistView(AdminView):
 
 class TagView(AdminView):
     column_searchable_list = ['name']
-    form_excluded_columns = ['goods']
+    form_excluded_columns = ['product']
 
     def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
@@ -359,7 +364,7 @@ class TagView(AdminView):
 
 
 class ProductPromotionView(AdminView):
-    form_excluded_columns = ['goods']
+    form_excluded_columns = ['product']
 
     def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
@@ -384,7 +389,7 @@ class ShippingMethodView(AdminView):
 
 class ReportedReviewView(AdminView):
     page_title = _('Reported Reviews')
-    column_searchable_list = ['review.user.username', 'review.goods.samplename']
+    column_searchable_list = ['review.user.username', 'review.products.samplename']
     column_filters = ['created_at']
     form_excluded_columns = ['user', 'review']
     column_formatters = {
@@ -392,13 +397,55 @@ class ReportedReviewView(AdminView):
             f'<a href="{url_for("reviews.reported_review_detail", review_id=m.review_id)}'
             f'" class="btn btn-primary btn-sm">{_("Details")}</a>'),
     }
-    column_list = ['review_id', 'review.user.username', 'review.goods.samplename', 'explanation', 'created_at',
+    column_list = ['review_id', 'review.user.username', 'review.products.samplename', 'explanation', 'created_at',
                    'actions']
 
     def _get_list_extra_args(self) -> ViewArgs:
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Reported Reviews')
         return view_args
+
+
+class EmailForm(FlaskForm):  # type: ignore
+    subject = StringField(_('Subject'), validators=[DataRequired()])
+    body = TextAreaField(_('Body'), validators=[DataRequired()])
+    attachments = FileField(_('Attachments'))
+    submit = SubmitField(_('Send Email'))
+
+
+class EmailView(BaseView):  # type: ignore
+    @expose('/', methods=['GET', 'POST'])
+    @login_required_with_message()
+    @admin_required()
+    def index(self, cls=None):  # type: ignore
+        form = EmailForm()
+        if form.validate_on_submit():
+            if not form.subject.data or not form.body.data:
+                flash(_('Subject and body are required'), 'danger')
+                return redirect(url_for('admin.send_emails'))
+
+            subject: str = form.subject.data
+            body: str = form.body.data
+
+            attachments = []
+            for file in request.files.getlist('attachments'):
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    attachments.append(file_path)
+
+            users = db.session.query(User).filter_by(email_notifications_enabled=True).all()
+            try:
+                for user in users:
+                    if user.email:
+                        send_email(user.email, subject, body, attachments)
+                flash(_('Emails sent successfully'), 'success')
+            except Exception as e:
+                flash(_('Error sending emails: %(error)', error=str(e)), 'danger')
+            finally:
+                return redirect(url_for('admin.index'))
+        return self.render('admin/send_email.html', form=form)
 
 
 ############
@@ -411,7 +458,7 @@ def init_admin(app: Flask) -> None:
 # Add views to admin
 def init_admin_views(admin: Admin, database: Database) -> None:
     admin.add_view(UserView(User, database.session, name='Users'))
-    admin.add_view(GoodsView(Goods, database.session, name='Goods'))
+    admin.add_view(ProductsViews(Product, database.session, name='Products'))
     admin.add_view(CategoryView(Category, database.session, name='Categories'))
     admin.add_view(PurchaseView(Purchase, database.session, name='Purchases'))
     admin.add_view(ReviewView(Review, database.session, name='Reviews'))
@@ -426,3 +473,4 @@ def init_admin_views(admin: Admin, database: Database) -> None:
     admin.add_view(StatisticsView(name='Statistics', endpoint='statistics', category='Statistics'))
     admin.add_view(ReportsView(name='Reports', endpoint='reports', category='Reports'))
     admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics', category='Reports'))
+    admin.add_view(EmailView(name='Send Emails', endpoint='send_emails', category='Marketing'))

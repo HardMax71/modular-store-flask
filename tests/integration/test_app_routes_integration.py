@@ -51,7 +51,7 @@ class TestAppRoutes(BaseTest):
         self.assertIn(b'Registration successful', response.data)
 
         # Check if user was actually created in the database
-        user = User.query.filter_by(username='testuser').first()
+        user = self.session.query(User).filter_by(username='testuser').first()
         self.assertIsNotNone(user)
         self.assertEqual(user.email, 'testuser@example.com')
 

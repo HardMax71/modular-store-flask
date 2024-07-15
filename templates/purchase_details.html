@@ -57,8 +57,8 @@
                         {% for item in purchase.items %}
                             <tr>
                                 <td>
-                                    {{ item.goods.samplename }}
-                                    <a href="{{ url_for('main.goods_page', id=item.goods.id) }}" class="goods-link"
+                                    {{ item.product.samplename }}
+                                    <a href="{{ url_for('main.product_page', product_id=item.product.id) }}" class="goods-link"
                                        title="{{ _('View Product Details') }}">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>

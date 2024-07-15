@@ -1,0 +1,109 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+    {{ super() }}
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
+    <style>
+        #dropzone-upload {
+            min-height: 150px;
+            border: 2px dashed #0087F7;
+            border-radius: 5px;
+        }
+
+        #file-list {
+            margin-top: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+    <h2>{{ _('Send Email to Users') }}</h2>
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.subject.label }}
+            {{ form.subject(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.body.label }}
+            <div id="editor"></div>
+            {{ form.body(style="display: none;", class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.attachments.label }}
+            <div id="dropzone-upload" class="dropzone"></div>
+            {{ form.attachments(style="display: none;", multiple=true) }}
+        </div>
+        <div id="file-list"></div>
+        {{ form.submit(class="btn btn-primary mt-3") }}
+    </form>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <script>
+        Dropzone.autoDiscover = false;
+        var quill;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{'header': [1, 2, 3, false]}],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['link', 'image'],
+                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ['clean']
+                    ]
+                }
+            });
+
+            quill.on('text-change', function () {
+                document.querySelector('textarea[name="body"]').value = quill.root.innerHTML;
+            });
+
+            // Initialize Dropzone
+            var myDropzone = new Dropzone("#dropzone-upload", {
+                url: "{{ url_for('send_emails.index') }}",
+                autoProcessQueue: false,
+                uploadMultiple: true,
+                parallelUploads: 5,
+                maxFiles: 5,
+                addRemoveLinks: true,
+                init: function () {
+                    this.on("addedfile", updateFileList);
+                    this.on("removedfile", updateFileList);
+                }
+            });
+
+            function updateFileList() {
+                var fileListElement = document.getElementById('file-list');
+                fileListElement.innerHTML = '';
+                if (myDropzone.files.length > 0) {
+                    var header = document.createElement('h4');
+                    header.textContent = 'Selected Files:';
+                    fileListElement.appendChild(header);
+                    var list = document.createElement('ul');
+                    myDropzone.files.forEach(function (file) {
+                        var item = document.createElement('li');
+                        item.textContent = file.name;
+                        list.appendChild(item);
+                    });
+                    fileListElement.appendChild(list);
+                }
+            }
+        });
+
+        function validateForm() {
+            var bodyInput = document.querySelector('textarea[name="body"]');
+            if (quill.root.innerHTML.trim() === '<p><br></p>') {
+                bodyInput.value = '';
+            }
+            if (!bodyInput.value) {
+                alert("Body field cannot be empty.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+{% endblock %}

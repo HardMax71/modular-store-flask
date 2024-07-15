@@ -52,7 +52,7 @@ class BaseTest(unittest.TestCase):
         if define_load_user:
             @cls.app.login_manager.user_loader
             def load_user(user_id):
-                return db.session.get(User, user_id)
+                return cls.session.get(User, user_id)
 
     @classmethod
     def tearDownClass(cls):

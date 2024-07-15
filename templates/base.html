@@ -20,11 +20,13 @@
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 
     <title>{% block title %}{% endblock %}</title>
-    {%  block head %}{% endblock %}
+    {% block head %}{% endblock %}
 </head>
 <body>
 {% include 'website_parts/header.html' %}
 {% include 'website_parts/flashed_messages.html' %}
+{% from "website_parts/_product_carousel.html" import product_carousel %}
+
 <div style="height: 50px"></div>
 <main>
     <div class="container">

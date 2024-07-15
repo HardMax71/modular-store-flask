@@ -3,7 +3,7 @@ import unittest
 from flask_login import login_user
 from flask_mail import Mail
 
-from modules.db.models import Goods, Wishlist
+from modules.db.models import Product, Wishlist
 from modules.email import send_email, send_wishlist_notifications, send_order_confirmation_email
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -36,13 +36,13 @@ class TestEmailFunctionsIntegration(BaseTest):
         with self.app.test_request_context():
             user = create_user(self)
 
-            goods_on_sale = Goods(samplename='On Sale Item', price=100, onSale=1, onSalePrice=50, stock=10)
-            goods_back_in_stock = Goods(samplename='Back in Stock Item', price=100, onSale=0, stock=10)
-            self.session.add_all([goods_on_sale, goods_back_in_stock])
+            product_on_sale = Product(samplename='On Sale Item', price=100, onSale=1, onSalePrice=50, stock=10)
+            product_back_in_stock = Product(samplename='Back in Stock Item', price=100, onSale=0, stock=10)
+            self.session.add_all([product_on_sale, product_back_in_stock])
             self.session.commit()
 
-            wishlist_item1 = Wishlist(user_id=user.id, goods_id=goods_on_sale.id)
-            wishlist_item2 = Wishlist(user_id=user.id, goods_id=goods_back_in_stock.id)
+            wishlist_item1 = Wishlist(user_id=user.id, product_id=product_on_sale.id)
+            wishlist_item2 = Wishlist(user_id=user.id, product_id=product_back_in_stock.id)
             self.session.add_all([wishlist_item1, wishlist_item2])
             self.session.commit()
 

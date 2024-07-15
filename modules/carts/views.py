@@ -8,10 +8,10 @@ from flask_babel import gettext as _
 from flask_login import current_user
 
 from config import AppConfig
-from modules.carts.utils import process_payment, remove_from_cart, update_cart, add_to_cart, process_successful_payment, \
-    handle_unsuccessful_payment, handle_stripe_error
+from modules.carts.utils import (process_payment, remove_from_cart, update_cart, add_to_cart,
+                                 process_successful_payment, handle_unsuccessful_payment, handle_stripe_error)
 from modules.db.database import db
-from modules.db.models import Goods, Cart, ShippingMethod, Purchase
+from modules.db.models import Product, Cart, ShippingMethod, Purchase
 from modules.decorators import login_required_with_message
 
 cart_bp = Blueprint('carts', __name__)
@@ -26,20 +26,20 @@ def from_json(value: str) -> Any:
 @login_required_with_message(redirect_back=True)
 def add_to_cart_route() -> ResponseValue:
     quantity: int = request.form.get('quantity', type=int, default=1)
-    goods_id: Optional[int] = request.form.get('goods_id', type=int)
+    product_id: Optional[int] = request.form.get('product_id', type=int)
 
     variant_options: Dict[str, str] = {
         key.split('variant_')[1]: value
         for key, value in request.form.items() if key.startswith('variant_')
     }
 
-    goods: Optional[Goods] = db.session.get(Goods, goods_id)
-    if goods:
-        add_to_cart(goods, quantity, variant_options)
+    product: Optional[Product] = db.session.get(Product, product_id)
+    if product:
+        add_to_cart(product, quantity, variant_options)
     else:
         flash(_("Product not found"), "danger")
 
-    return redirect(request.referrer or url_for('main.goods_page', id=goods_id))
+    return redirect(request.referrer or url_for('main.product_page', product_id=product_id))
 
 
 @cart_bp.route("/cart")

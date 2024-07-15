@@ -44,7 +44,7 @@ class TestAdminUnit(BaseTest):
 
     def test_get_table_names(self):
         table_names = get_table_names()
-        expected_tables = ['users', 'goods', 'categories', 'purchases', 'reviews', 'wishlists', 'tags',
+        expected_tables = ['users', 'products', 'categories', 'purchases', 'reviews', 'wishlists', 'tags',
                            'product_promotions', 'discounts', 'shipping_methods', 'reported_reviews', 'tickets',
                            'ticket_messages']
         for table in expected_tables:

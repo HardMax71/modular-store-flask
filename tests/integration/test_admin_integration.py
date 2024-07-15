@@ -7,7 +7,7 @@ from flask import url_for
 from flask_login import login_user
 
 from modules.db.models import (
-    Goods, Category, Ticket, RequestLog, Review,
+    Product, Category, Ticket, RequestLog, Review,
     ShippingMethod,
     ReportedReview, Discount, Purchase
 )
@@ -24,7 +24,7 @@ class TestAdminIntegration(BaseTest):
         super().setUp()
         self.admin_user = create_user(self, is_admin=True)
         self.regular_user = create_user(self)
-        self.product = Goods(samplename='Test Product', price=1000, stock=10)
+        self.product = Product(samplename='Test Product', price=1000, stock=10)
         self.category = Category(name='Test Category')
         self.discount = Discount(code='TESTDISCOUNT', percentage=10, start_date=datetime.now().date(),
                                  end_date=(datetime.now() + timedelta(days=30)).date())
@@ -52,9 +52,9 @@ class TestAdminIntegration(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Users Management', response.data)
 
-    def test_goods_view(self):
+    def test_products_view(self):
         client = self.login_admin()
-        response = client.get(url_for('goods.index_view'))
+        response = client.get(url_for('product.index_view'))
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.product.samplename.encode(), response.data)
 
@@ -157,7 +157,7 @@ class TestAdminIntegration(BaseTest):
     def test_generate_reports(self):
         client = self.login_admin()
         response = client.post(url_for('reports.index'), data={
-            'tables': ['users', 'goods'],
+            'tables': ['users', 'products'],
             'file_format': 'csv'
         })
         self.assertEqual(response.status_code, 200)
@@ -207,7 +207,7 @@ class TestAdminIntegration(BaseTest):
             'price': random.randint(1000, 10000),
             'stock': random.randint(1, 100),
         }
-        response = client.post(url_for('goods.edit_view', id=self.product.id),
+        response = client.post(url_for('product.edit_view', id=self.product.id),
                                data=product, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(product['samplename'].encode(), response.data)
@@ -226,7 +226,7 @@ class TestAdminIntegration(BaseTest):
 
         client = self.login_admin()
         response = client.post(url_for('statistics.index'), data={
-            'tables': ['users', 'goods'],
+            'tables': ['users', 'products'],
             'data_percentage': 100
         })
         self.assertEqual(response.status_code, 200)
@@ -258,7 +258,7 @@ class TestAdminIntegration(BaseTest):
         self.assertIn(b'Express', response.data)
 
     def test_view_reported_review_details(self):
-        review = Review(user_id=self.regular_user.id, goods_id=self.product.id, rating=5, review='Great product!')
+        review = Review(user_id=self.regular_user.id, product_id=self.product.id, rating=5, review='Great product!')
         self.session.add(review)
         self.session.commit()
 
@@ -276,7 +276,7 @@ class TestAdminIntegration(BaseTest):
         client = self.login_admin()
         promotion_description = 'Special offer!' + str(datetime.now().timestamp())
         response = client.post(url_for('productpromotion.create_view'), data={
-            'goods_id': self.product.id,
+            'product_id': self.product.id,
             'start_date': datetime.now().date(),
             'end_date': (datetime.now() + timedelta(days=7)).date(),
             'description': promotion_description

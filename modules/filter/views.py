@@ -17,16 +17,16 @@ def filter_route() -> ResponseValue:
     tag_query: Optional[str] = request.args.get('tag_query')
     page: int = request.args.get('page', 1, type=int)
 
-    shirts_query = filter_products(category_query=category_id,
-                                   name_query=name_query,
-                                   sort_by=sort_by,
-                                   tag_query=tag_query)
-    shirts, in_total, total_pages, per_page = paginate_query(shirts_query, page)
+    products_query = filter_products(category_query=category_id,
+                                     name_query=name_query,
+                                     sort_by=sort_by,
+                                     tag_query=tag_query)
+    products, in_total, total_pages, per_page = paginate_query(products_query, page)
 
     categories = get_categories()
-    promoted_products = get_promoted_products(shirts_query)
+    promoted_products = get_promoted_products(products_query)
 
-    return render_template('index.html', shirts=shirts,
+    return render_template('index.html', products=products,
                            current_page=page, total_pages=total_pages, categories=categories,
                            promoted_products=promoted_products, per_page=per_page, in_total=in_total)
 

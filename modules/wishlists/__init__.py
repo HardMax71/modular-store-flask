@@ -1,7 +1,7 @@
 from flask import Flask
 
 from .utils import (
-    get_variant_options,
+    get_product_selection_options,
     wishlist_exists,
     remove_from_wishlist,
     add_wishlist_item
@@ -16,7 +16,7 @@ def create_wishlist_routes(app: Flask) -> None:
 # Expose necessary functions
 __all__ = [
     'create_wishlist_routes',
-    'get_variant_options',
+    'get_product_selection_options',
     'wishlist_exists',
     'remove_from_wishlist',
     'add_wishlist_item'

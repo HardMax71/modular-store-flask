@@ -1,7 +1,7 @@
 import os
 import unittest
-from unittest.mock import patch, MagicMock
 from typing import List
+from unittest.mock import patch, MagicMock
 
 from config import AppConfig
 from modules.db.models import Review, ReportedReview, Purchase, PurchaseItem, ReviewImage
@@ -32,7 +32,7 @@ class TestReviewUtils(BaseTest):
                 os.remove(file_path)
 
     def test_get_review(self) -> None:
-        mock_review = Review(id=1, user_id=1, goods_id=1, rating=5)
+        mock_review = Review(id=1, user_id=1, product_id=1, rating=5)
         self.session.add(mock_review)
         self.session.commit()
 
@@ -41,7 +41,7 @@ class TestReviewUtils(BaseTest):
 
     def test_report_review_in_db(self) -> None:
         report_review_in_db(1, 1, "Test explanation")
-        reported_review = ReportedReview.query.first()
+        reported_review = self.session.query(ReportedReview).first()
         self.assertIsNotNone(reported_review)
         self.assertEqual(reported_review.review_id, 1)
         self.assertEqual(reported_review.user_id, 1)
@@ -49,7 +49,7 @@ class TestReviewUtils(BaseTest):
 
     def test_has_purchased(self) -> None:
         purchase = Purchase(id=1, user_id=1, total_price=1000)
-        purchase_item = PurchaseItem(purchase_id=1, goods_id=1, quantity=1, price=1000)
+        purchase_item = PurchaseItem(purchase_id=1, product_id=1, quantity=1, price=1000)
         self.session.add_all([purchase, purchase_item])
         self.session.commit()
 
@@ -60,7 +60,7 @@ class TestReviewUtils(BaseTest):
         self.assertFalse(result)
 
     def test_has_already_reviewed(self) -> None:
-        review = Review(user_id=1, goods_id=1, rating=5, review='Great!')
+        review = Review(user_id=1, product_id=1, rating=5, review='Great!')
         self.session.add(review)
         self.session.commit()
 
@@ -101,7 +101,7 @@ class TestReviewUtils(BaseTest):
 
         review_data = {
             'user_id': 1,
-            'goods_id': 1,
+            'product_id': 1,
             'rating': 5,
             'review': 'Great product!',
             'title': 'Excellent',
@@ -111,12 +111,12 @@ class TestReviewUtils(BaseTest):
 
         add_review_to_db(review_data, image_paths)
 
-        added_review = Review.query.first()
+        added_review = self.session.query(Review).first()
         self.assertIsNotNone(added_review)
         for key, value in review_data.items():
             self.assertEqual(getattr(added_review, key), value)
 
-        review_images: List[ReviewImage] = ReviewImage.query.filter_by(review_id=added_review.id).all()
+        review_images: List[ReviewImage] = self.session.query(ReviewImage).filter_by(review_id=added_review.id).all()
         self.assertEqual(len(review_images), 2)
         self.assertEqual(review_images[0]._image, 'image1.jpg')
         self.assertEqual(review_images[1]._image, 'image2.jpg')

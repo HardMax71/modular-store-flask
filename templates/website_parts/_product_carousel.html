@@ -1,0 +1,32 @@
+{% macro product_carousel(item, wrapper_class='') %}
+{% set unique_id = range(1000000) | random %}
+<div class="{{ wrapper_class }}">
+    <div id="carousel{{ item.id }}_{{ unique_id }}" class="carousel slide position-relative" data-ride="carousel" data-interval="false">
+        <div class="carousel-inner">
+            {% set primary_image = item.images|selectattr('is_primary', 'eq', true)|first %}
+            {% if not primary_image %}
+                {% set primary_image = item.images|first %}
+            {% endif %}
+            {% for image in item.images %}
+                <div class="carousel-item {% if image == primary_image %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='img/products_pictures/' + image.image) }}"
+                         alt="{{ item.samplename }}"
+                         class="img-thumbnail mr-3 img-fluid"
+                         data-toggle="modal"
+                         data-target="#imageModal{{ item.id }}_{{ unique_id }}">
+                </div>
+            {% endfor %}
+        </div>
+        {% if item.images|length > 1 %}
+            <a class="carousel-control-prev" href="#carousel{{ item.id }}_{{ unique_id }}" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true" style="width: 40px; height: 40px;"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carousel{{ item.id }}_{{ unique_id }}" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true" style="width: 40px; height: 40px;"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}

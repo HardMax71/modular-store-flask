@@ -1,35 +1,35 @@
+import os
 from smtplib import SMTPException
-from typing import List
+from typing import List, Optional
 
-from flask import current_app, flash
+from flask import current_app
+from flask import flash
 from flask_babel import gettext as _
 from flask_login import current_user
-from flask_mail import Message, BadHeaderError
+from flask_mail import BadHeaderError
+from flask_mail import Message
 
 from config import AppConfig
-from modules.db.models import User, Goods
+from modules.db.models import User, Product
 
 
-def send_email(to: str, subject: str, body: str) -> None:
-    """
-    Send an email.
-
-    :param to: Recipient email address
-    :param subject: Subject of the email
-    :param body: Body of the email
-    """
-    mail_to_send = current_app.extensions['mail']
-    msg = Message(subject, recipients=[to])
+def send_email(recipient: str, subject: str, body: str, attachments: Optional[list[str]] = None) -> None:
+    mail = current_app.extensions['mail']
+    msg = Message(subject, recipients=[recipient])
     msg.body = body
+
+    if attachments:
+        for attachment in attachments:
+            with current_app.open_resource(attachment) as fp:
+                msg.attach(os.path.basename(attachment), "application/octet-stream", fp.read())
+
     try:
-        mail_to_send.send(msg)
-        flash(_("Email sent successfully"), "success")
-    except BadHeaderError:
-        flash(_("Invalid email header"), "danger")
-    except SMTPException as e:
-        flash(_("SMTP error occurred: {}").format(str(e)), "danger")
+        mail.send(msg)
+        for attachment in attachments or []:
+            os.remove(attachment)  # Clean up uploaded files after sending
     except Exception as e:
-        flash(_("Unexpected error sending email: {}").format(str(e)), "danger")
+        current_app.logger.error(f"Error sending email: {str(e)}")
+        raise
 
 
 def send_wishlist_notifications() -> None:
@@ -52,7 +52,7 @@ def send_wishlist_notifications() -> None:
         send_wishlist_email(msg)
 
 
-def create_wishlist_message(on_sale_items: List[Goods], back_in_stock_items: List[Goods]) -> str:
+def create_wishlist_message(on_sale_items: List[Product], back_in_stock_items: List[Product]) -> str:
     """
     Create the message body for wishlist notifications.
 

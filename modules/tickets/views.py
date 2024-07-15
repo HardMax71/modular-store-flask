@@ -17,9 +17,10 @@ def create_ticket() -> ResponseValue:
     if request.method == 'POST':
         title = request.form.get('title', type=str, default="No title")
         description = request.form.get('description', type=str, default="No description")
-        priority = request.form.get('priority', type=int, default=1)
+        priority = request.form.get('priority', type=str, default="Normal")
 
-        new_ticket = Ticket(user_id=current_user.id, title=title, description=description, priority=priority)
+        new_ticket = Ticket(user_id=current_user.id, title=title,
+                            description=description, priority=priority)
         db.session.add(new_ticket)
         db.session.commit()
 
@@ -42,7 +43,9 @@ def list_tickets() -> ResponseValue:
     if current_user.is_admin:
         assigned_tickets = db.session.query(Ticket).filter(Ticket.admin_id == current_user.id).order_by(
             Ticket.created_at.desc()).all()
-    return render_template('tickets/list_tickets.html', user_tickets=user_tickets, assigned_tickets=assigned_tickets)
+    return render_template('tickets/list_tickets.html',
+                           user_tickets=user_tickets,
+                           assigned_tickets=assigned_tickets)
 
 
 @tickets_bp.route('/<int:ticket_id>/update', methods=['POST'])

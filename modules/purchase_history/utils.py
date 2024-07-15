@@ -96,7 +96,7 @@ def create_purchase_items(
     for item in cart_items:
         new_purchase_item = PurchaseItem(
             purchase_id=purchase_id,
-            goods_id=item.goods_id,
+            product_id=item.product_id,
             quantity=item.quantity,
             price=item.price
         )

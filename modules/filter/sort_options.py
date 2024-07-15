@@ -4,7 +4,7 @@ from flask_babel import gettext as _
 from sqlalchemy import func
 from sqlalchemy.orm import Query
 
-from modules.db.models import Goods, Review
+from modules.db.models import Product, Review
 
 
 class SortOption:
@@ -22,7 +22,7 @@ class SortOption:
         self.field = field
         self.order = order
 
-    def apply(self, query: Query[Goods]) -> Query[Goods]:
+    def apply(self, query: Query[Product]) -> Query[Product]:
         """
         Apply the sort option to the query.
 
@@ -30,14 +30,14 @@ class SortOption:
         :return: Modified query with sorting applied
         """
         if self.key == 'rating':
-            query = query.outerjoin(Review, Review.goods_id == Goods.id).group_by(Goods.id)
+            query = query.outerjoin(Review, Review.product_id == Product.id).group_by(Product.id)
         order_func = getattr(self.field, self.order)
         return query.order_by(order_func().nullslast())
 
 
 class SortOptions:
-    PRICE_ASC = SortOption('price_asc', _('Price: Low to High'), Goods.current_price, 'asc')
-    PRICE_DESC = SortOption('price_desc', _('Price: High to Low'), Goods.current_price, 'desc')
+    PRICE_ASC = SortOption('price_asc', _('Price: Low to High'), Product.current_price, 'asc')
+    PRICE_DESC = SortOption('price_desc', _('Price: High to Low'), Product.current_price, 'desc')
     AVG_RATING_DESC = SortOption('rating', _('Rating: High to Low'), func.coalesce(func.avg(Review.rating), 0), 'desc')
 
     @classmethod

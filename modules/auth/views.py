@@ -24,10 +24,7 @@ auth_bp = Blueprint('auth', __name__)
 def register() -> ResponseValue:
     form = RegistrationForm()
     if form.validate_on_submit():
-        existing_user: Optional[User] = (db.session.query(User)
-                                         .filter_by(username=form.username.data)
-                                         .first())
-        if existing_user:
+        if db.session.query(User).filter_by(username=form.username.data).first():  # such user already exists
             flash(_("Username already exists. Please choose a different one."), "danger")
         elif not form.password.data:
             flash(_("Password cannot be empty."), "danger")
@@ -121,7 +118,7 @@ def reset_password_token(token: str) -> ResponseValue:
         flash(_('Invalid token.'), 'danger')
         return redirect(url_for('auth.reset_password'))
 
-    user: Optional[User] = db.session.query(User).get(data['user_id'])
+    user: Optional[User] = db.session.get(User, data['user_id'])
     if not user:
         flash(_('Invalid user.'), 'danger')
         return redirect(url_for('auth.reset_password'))

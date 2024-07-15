@@ -1,22 +1,25 @@
 from datetime import datetime
-from typing import Optional, List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any
+from typing import Optional
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, exists, and_, or_
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.query import Query
 
 from config import AppConfig
 from modules.db.database import db
-from modules.db.models import Goods, Category, Tag, goods_tags, ProductPromotion
+from modules.db.models import Product, Category, Tag, products_tags, ProductPromotion
 from modules.filter.sort_options import SortOptions
 
 
 def filter_products(
-    query: Optional[Query[Goods]] = None,
-    name_query: Optional[str] = None,
-    category_query: Optional[str] = None,
-    sort_by: Optional[str] = None,
-    tag_query: Optional[str] = None
-) -> Query[Goods]:
+        query: Optional[Query[Product]] = None,
+        name_query: Optional[str] = None,
+        category_query: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        tag_query: Optional[str] = None
+) -> Query[Product]:
     """
     Filter products based on various criteria.
 
@@ -28,21 +31,30 @@ def filter_products(
     :return: Filtered query
     """
     if query is None:
-        query = db.session.query(Goods).filter(Goods.stock > 0)
+        query = db.session.query(Product).filter(Product.stock > 0)
 
-    if name_query:
-        query = query.filter(Goods.samplename.ilike(f'%{name_query}%'))
+    query = query.options(selectinload(Product.category), selectinload(Product.tags))
 
-    if category_query:
+    if name_query:  # Case-insensitive search
+        query = query.filter(func.lower(Product.samplename).contains(name_query.lower()))
+
+    if category_query:  # Filter by category and its subcategories
         subcategories = select(Category.id).where(
             or_(Category.id == category_query, Category.parent_id == category_query)
         ).scalar_subquery()
-        query = query.filter(Goods.category_id.in_(subcategories))
+        query = query.filter(Product.category_id.in_(subcategories))
 
-    if tag_query:
-        query = query.join(goods_tags).join(Tag).filter(Tag.name.ilike(f'%{tag_query}%'))
+    if tag_query:  # Filter by tag
+        tag_subquery = exists().where(
+            and_(
+                products_tags.c.product_id == Product.id,
+                Tag.id == products_tags.c.tag_id,
+                func.lower(Tag.name).contains(tag_query.lower())
+            )
+        )
+        query = query.filter(tag_subquery)
 
-    if sort_by:
+    if sort_by:  # Apply sorting if provided
         sort_option = SortOptions.get_by_key(sort_by)
         if sort_option:
             query = sort_option.apply(query)
@@ -69,11 +81,6 @@ def get_filter_options() -> Dict[str, Any]:
 
 
 def get_categories() -> List[Dict[str, Any]]:
-    """
-    Get a list of all categories.
-
-    :return: List of categories with their details
-    """
     categories_query = db.session.query(Category).all()
     return [{'id': category.id, 'name': category.name, 'parent_id': category.parent_id} for category in
             categories_query]
@@ -89,24 +96,24 @@ def get_tags() -> List[Dict[str, Any]]:
     return [{'id': tag.id, 'name': tag.name} for tag in tags_query]
 
 
-def get_promoted_products(shirts_query: Optional[Query[Goods]] = None) -> List[Goods]:
+def get_promoted_products(products_query: Optional[Query[Product]] = None) -> List[Product]:
     """
     Get a list of promoted products.
 
-    :param shirts_query: Initial query to apply promotions on
+    :param products_query: Initial query to apply promotions on
     :return: List of promoted products
     """
-    if shirts_query is None:
-        shirts_query = db.session.query(Goods).filter(Goods.stock > 0)
+    if products_query is None:
+        products_query = db.session.query(Product).filter(Product.stock > 0)
 
     current_timestamp = datetime.now()
-    return shirts_query.join(ProductPromotion).filter(
+    return products_query.join(ProductPromotion).filter(
         ProductPromotion.start_date <= current_timestamp,
         ProductPromotion.end_date >= current_timestamp
     ).all()
 
 
-def paginate_query(query: Query[Goods], page: int) -> Tuple[List[Goods], int, int, int]:
+def paginate_query(query: Query[Product], page: int) -> Tuple[List[Product], int, int, int]:
     """
     Paginate a query.
 

@@ -27,33 +27,33 @@ def report_review(review_id: int) -> tuple[int, str] | ResponseValue:
     explanation: Optional[str] = request.form.get("explanation", type=str)
     if not explanation:
         flash(_("Please provide an explanation for reporting the review."), "danger")
-        return redirect(url_for("main.goods_page", id=review.goods_id))
+        return redirect(url_for("main.product_page", product_id=review.product_id))
 
     report_review_in_db(review.id, current_user.id, explanation)
     flash(_("Review reported. Thank you for your feedback."), "success")
-    return redirect(url_for("main.goods_page", id=review.goods_id))
+    return redirect(url_for("main.product_page", product_id=review.product_id))
 
 
 @reviews_bp.route("/add-review", methods=["POST"])
 @login_required_with_message(message=_("You must be logged in to review a product."))
 def add_review() -> ResponseValue:
     user_id: int = current_user.id
-    goods_id: Optional[int] = request.form.get("goods_id", type=int)
-    if not goods_id:
+    product_id: Optional[int] = request.form.get("product_id", type=int)
+    if not product_id:
         flash(_("Invalid product ID"), "danger")
         return redirect(url_for('main.index'))
 
-    if not has_purchased(user_id, goods_id):
+    if not has_purchased(user_id, product_id):
         flash(_("You must purchase the product before reviewing it."), "danger")
-        return redirect(url_for('main.goods_page', id=goods_id))
+        return redirect(url_for('main.product_page', product_id=product_id))
 
-    if has_already_reviewed(user_id, goods_id):
+    if has_already_reviewed(user_id, product_id):
         flash(_("You have already reviewed this product."), "danger")
-        return redirect(url_for('main.goods_page', id=goods_id))
+        return redirect(url_for('main.product_page', product_id=product_id))
 
     review_data: dict[str, int | str] = {
         'user_id': user_id,
-        'goods_id': goods_id,
+        'product_id': product_id,
         'rating': request.form.get("rating", type=int, default=5),
         'review': request.form["review"],
         'title': request.form["title"],
@@ -65,7 +65,7 @@ def add_review() -> ResponseValue:
 
     add_review_to_db(review_data, uploaded_images)
     flash(_("Your review has been added!"), "success")
-    return redirect(url_for('main.goods_page', id=goods_id))
+    return redirect(url_for('main.product_page', product_id=product_id))
 
 
 @reviews_bp.route('/admin/reported-reviews')

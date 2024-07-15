@@ -14,40 +14,19 @@ class DatabaseLogger:
     """
 
     def __init__(self, app: Optional[Flask] = None) -> None:
-        """
-        Initialize the logger. If an app is provided, initialize it with the app.
-
-        :param app: Flask application instance
-        """
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app: Flask) -> None:
-        """
-        Initialize the logger with the given Flask application.
-
-        :param app: Flask application instance
-        """
         app.before_request(self.before_request)
         app.after_request(self.after_request)
 
     def before_request(self) -> None:
-        """
-        Store the start time of the request.
-        """
         request.start_time = time.time()  # type: ignore
 
     def after_request(self, response: Response) -> Response:
-        """
-        Log the request details and store them in the database after the request is processed.
-
-        :param response: Response object
-        :return: Modified response object
-        """
         execution_time = time.time() - request.start_time  # type: ignore
         user_id = current_user.id if current_user.is_authenticated else None
-
-        # Handle the case when request.endpoint is None
         endpoint = request.endpoint if request.endpoint else 'unknown'
 
         log_data = {

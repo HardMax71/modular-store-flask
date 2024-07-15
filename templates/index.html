@@ -18,71 +18,71 @@
 
     <!-- Product List Section -->
     <section class="container my-5">
-        {% if shirts|length > 0 %}
+        {% if products|length > 0 %}
             {% set start_index = (current_page - 1) * per_page + 1 %}
-            {% set end_index = start_index + shirts|length - 1 %}
+            {% set end_index = start_index + products|length - 1 %}
             <div class="mb-4 d-flex justify-content-between align-items-center">
                 <h3>{{ _('All Products') }}</h3>
                 <span>{{ _('Showing') }} {{ start_index }} - {{ end_index }} {{ _('of') }} {{ in_total }} {{ _('products') }}</span>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-                {% for shirt in shirts %}
+                {% for product in products %}
                     <div class="col mb-4">
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="{{ url_for('static', filename='img/goods_pictures/' + shirt.image) }}"
-                                     alt="{{ shirt.samplename }}" loading="lazy">
+                                {{ product_carousel(product, 'product-carousel')}}
                             </div>
                             <div class="product-details">
-                                <h3 class="product-title">{{ shirt.samplename }}</h3>
+                                <h3 class="product-title">{{ product.samplename }}</h3>
                                 <div class="product-meta">
-                                    <div class="product-category">{{ shirt.category.name }}</div>
+                                    <div class="product-category">{{ product.category.name }}</div>
                                     <div class="product-rating">
-                                        {% if shirt.avg_rating %}
-                                            <div class="stars" style="--rating: {{ shirt.avg_rating }};"></div>
-                                            <span class="rating-count">({{ shirt.reviews|length }})</span>
+                                        {% if product.avg_rating %}
+                                            <div class="stars" style="--rating: {{ product.avg_rating }};"></div>
+                                            <span class="rating-count">({{ product.reviews|length }})</span>
                                         {% else %}
                                             <span class="no-rating">{{ _('No ratings') }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="product-price">
-                                    {% if shirt.onSale %}
-                                        <span class="sale-price">${{ '{:,.2f}'.format(shirt.onSalePrice / 100.0) }}</span>
-                                        <span class="original-price">${{ '{:,.2f}'.format(shirt.price / 100.0) }}</span>
-                                        <span class="discount-percentage">-{{ ((shirt.price - shirt.onSalePrice) / shirt.price * 100)|round|int }}%</span>
+                                    {% if product.onSale %}
+                                        <span class="sale-price">${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
+                                        <span class="original-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
+                                        <span class="discount-percentage">-{{ ((product.price - product.onSalePrice) / product.price * 100)|round|int }}%</span>
                                     {% else %}
-                                        <span class="regular-price">${{ '{:,.2f}'.format(shirt.price / 100.0) }}</span>
+                                        <span class="regular-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
                                     {% endif %}
                                 </div>
                                 <div class="product-description">
-                                    {{ shirt.description[:100] if shirt.description else '' }}...
+                                    {{ product.description[:100] if product.description else '' }}...
                                 </div>
                                 <div class="product-tags">
-                                    {% for tag in shirt.tags[:3] %}
+                                    {% for tag in product.tags[:3] %}
                                         <span class="tag">{{ tag.name }}</span>
                                     {% endfor %}
                                 </div>
                                 <div class="product-actions">
                                     <div class="stock-status">
-                                        {% if shirt.stock == 0 %}
+                                        {% if product.stock == 0 %}
                                             <span class="out-of-stock">Out of Stock</span>
-                                        {% elif shirt.stock < 3 %}
-                                            <span class="low-stock">Low Stock: {{ shirt.stock }}</span>
-                                        {% elif shirt.stock < 10 %}
-                                            <span class="limited-stock">Limited Stock: {{ shirt.stock }}</span>
+                                        {% elif product.stock < 3 %}
+                                            <span class="low-stock">Low Stock: {{ product.stock }}</span>
+                                        {% elif product.stock < 10 %}
+                                            <span class="limited-stock">Limited Stock: {{ product.stock }}</span>
                                         {% else %}
                                             <span class="in-stock">In Stock</span>
                                         {% endif %}
                                     </div>
-                                    <a href="{{ url_for('main.goods_page', id=shirt.id) }}" class="view-details-btn">View
+                                    <a href="{{ url_for('main.product_page', product_id=product.id) }}"
+                                       class="view-details-btn">View
                                         Details</a>
                                 </div>
                             </div>
-                            {% if shirt.is_new %}
+                            {% if product.is_new %}
                                 <div class="new-badge">New</div>
                             {% endif %}
-                            {% if shirt.onSale %}
+                            {% if product.onSale %}
                                 <div class="sale-badge">Sale</div>
                             {% endif %}
                         </div>

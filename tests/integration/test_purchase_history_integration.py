@@ -3,7 +3,7 @@ import unittest
 from flask import url_for
 from flask_login import login_user, logout_user
 
-from modules.db.models import Purchase, ShippingMethod, Address, Goods, ShippingAddress, Cart
+from modules.db.models import Purchase, ShippingMethod, Address, Product, ShippingAddress, Cart
 from modules.purchase_history.utils import save_purchase_history
 from tests.base_test import BaseTest
 from tests.util import create_user
@@ -18,9 +18,9 @@ class TestPurchaseHistoryIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.user = create_user(self)
-        self.goods = Goods(samplename='Test Product', price=10.0, stock=10, description='Test description')
-        self.shipping_method = ShippingMethod(name='Standard', price=5.0)
-        self.session.add_all([self.user, self.goods, self.shipping_method])
+        self.product = Product(samplename='Test Product', price=10, stock=10, description='Test description')
+        self.shipping_method = ShippingMethod(name='Standard', price=5)
+        self.session.add_all([self.user, self.product, self.shipping_method])
         self.session.commit()
 
         self.address = Address(
@@ -30,9 +30,9 @@ class TestPurchaseHistoryIntegration(BaseTest):
         self.session.add(self.address)
         self.session.commit()
 
-        self.purchase = Purchase(user_id=self.user.id, total_price=15.0, discount_amount=0.0, delivery_fee=5.0,
+        self.purchase = Purchase(user_id=self.user.id, total_price=15, discount_amount=0, delivery_fee=5,
                                  status='Pending', tracking_number='123', shipping_method='Standard',
-                                 payment_method='Credit Card', payment_id=123)
+                                 payment_method='Credit Card', payment_id='123')
         self.session.add(self.purchase)
         self.session.commit()
 
@@ -47,11 +47,11 @@ class TestPurchaseHistoryIntegration(BaseTest):
 
     def test_purchase_history_flow(self):
         # Saving initial stock to compare later - after cancelling the order
-        start_qty: int = self.goods.stock
+        start_qty: int = self.product.stock
 
         # Create a purchase
-        cart_item = Cart(user_id=self.user.id, goods_id=self.goods.id,
-                         quantity=1, price=self.goods.price)
+        cart_item = Cart(user_id=self.user.id, product_id=self.product.id,
+                         quantity=1, price=self.product.price)
         self.session.add(cart_item)
         self.session.commit()
 
@@ -89,9 +89,9 @@ class TestPurchaseHistoryIntegration(BaseTest):
         self.assertEqual(updated_purchase.status, 'Cancelled')
 
         # Verify that the stock has been updated - just to be sure
-        self.session.refresh(self.goods)
+        self.session.refresh(self.product)
         # Since the order was cancelled, the stock should be increased by 1, see line 61
-        self.assertEqual(start_qty, self.goods.stock)
+        self.assertEqual(start_qty, self.product.stock)
 
         # Try to cancel the order again (should fail)
         response = self.client.post(url_for('purchase_history.cancel_order', purchase_id=purchase.id),
@@ -109,8 +109,8 @@ class TestPurchaseHistoryIntegration(BaseTest):
         true_other = create_user(self)
         other_user = create_user(self)
 
-        cart_item = Cart(user_id=self.user.id, goods_id=self.goods.id,
-                         quantity=1, price=self.goods.price)
+        cart_item = Cart(user_id=self.user.id, product_id=self.product.id,
+                         quantity=1, price=self.product.price)
         self.session.add(cart_item)
         self.session.commit()
 

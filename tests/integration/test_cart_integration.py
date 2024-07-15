@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 from flask import url_for
 from flask_login import login_user
 
-from modules.carts.utils import create_line_items_for_payment, get_stripe_customer_for_user_by_id
-from modules.db.models import Cart, Goods, ShippingMethod, Address, Purchase, UserDiscount, Discount, PurchaseItem
+from modules.carts.utils import create_line_items_for_payment, get_stripe_acc_for_customer_by_stripe_customer_id
+from modules.db.models import Cart, Product, ShippingMethod, Address, Purchase, UserDiscount, Discount, PurchaseItem
 from tests.base_test import BaseTest
 from tests.util import create_user
 
@@ -21,7 +21,7 @@ class TestCartIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.user = create_user(self)
-        self.product = Goods(samplename='Test Product', price=1000, stock=10)
+        self.product = Product(samplename='Test Product', price=1000, stock=10)
         self.shipping_method = ShippingMethod(name='Standard', price=500)
         self.address = Address(user_id=self.user.id, address_line1='123 Test St', city='Test City',
                                state='TS', zip_code='12345', country='Testland')
@@ -48,8 +48,8 @@ class TestCartIntegration(BaseTest):
             login_user(self.user)
 
             # Add items to cart
-            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+            cart_item1 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=self.product.price)
             self.session.add_all([cart_item1, cart_item2])
             self.session.commit()
 
@@ -63,8 +63,8 @@ class TestCartIntegration(BaseTest):
             login_user(self.user)
 
             # Add items to cart
-            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=3, price=self.product.price)
+            cart_item1 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=3, price=self.product.price)
             self.session.add_all([cart_item1, cart_item2])
             self.session.commit()
 
@@ -76,13 +76,13 @@ class TestCartIntegration(BaseTest):
             login_user(self.user)
 
             response = self.client.post(url_for('carts.add_to_cart_route'), data={
-                'goods_id': self.product.id,
+                'product_id': self.product.id,
                 'quantity': 2
             }, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'Item added to cart', response.data)
 
-            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, goods_id=self.product.id).first()
+            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, product_id=self.product.id).first()
             self.assertIsNotNone(cart_item)
             self.assertEqual(cart_item.quantity, 2)
 
@@ -91,7 +91,7 @@ class TestCartIntegration(BaseTest):
             login_user(self.user)
 
             response = self.client.post(url_for('carts.add_to_cart_route'), data={
-                'goods_id': self.product.id,
+                'product_id': self.product.id,
                 'quantity': 15  # Exceeds stock of 10
             }, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
@@ -101,7 +101,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -114,7 +114,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -134,7 +134,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -151,7 +151,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -167,7 +167,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -183,7 +183,7 @@ class TestCartIntegration(BaseTest):
         with self.app.test_request_context():
             login_user(self.user)
 
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -213,7 +213,7 @@ class TestCartIntegration(BaseTest):
             # Create purchase items
             purchase_item = PurchaseItem(
                 purchase_id=purchase.id,
-                goods_id=self.product.id,
+                product_id=self.product.id,
                 quantity=3,
                 price=self.product.price
             )
@@ -254,7 +254,7 @@ class TestCartIntegration(BaseTest):
             self.session.add(expired_discount)
 
             # Add items to the user's cart
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
             self.session.commit()
 
@@ -285,7 +285,7 @@ class TestCartIntegration(BaseTest):
         self.user.stripe_customer_id = None
         mock_create.return_value = MagicMock(id='cus_123')
 
-        customer = get_stripe_customer_for_user_by_id(self.user)
+        customer = get_stripe_acc_for_customer_by_stripe_customer_id(self.user)
 
         mock_create.assert_called_once()
         self.assertEqual(customer.id, 'cus_123')
@@ -295,7 +295,7 @@ class TestCartIntegration(BaseTest):
         self.user.stripe_customer_id = 'cus_456'
         mock_retrieve.return_value = MagicMock(id='cus_456')
 
-        customer = get_stripe_customer_for_user_by_id(self.user)
+        customer = get_stripe_acc_for_customer_by_stripe_customer_id(self.user)
 
         mock_retrieve.assert_called_once_with('cus_456')
         mock_modify.assert_called_once()
@@ -303,8 +303,8 @@ class TestCartIntegration(BaseTest):
 
     def test_create_line_items_for_payment(self):
         cart_items = [
-            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price),
-            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+            Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price),
+            Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=self.product.price)
         ]
         self.session.add_all(cart_items)
         self.session.commit()
@@ -326,8 +326,8 @@ class TestCartIntegration(BaseTest):
             login_user(self.user)
 
             # Add items to cart
-            cart_item1 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
-            cart_item2 = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=1, price=self.product.price)
+            cart_item1 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item2 = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=self.product.price)
             self.session.add_all([cart_item1, cart_item2])
             self.session.commit()
 
@@ -346,7 +346,7 @@ class TestCartIntegration(BaseTest):
             self.session.commit()
 
             # Add items to cart
-            cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
             self.session.add(cart_item)
 
             # Apply discount to user
@@ -368,7 +368,7 @@ class TestCartIntegration(BaseTest):
         Cart.update_stock(self.product.id, 3)
 
         # Check updated stock
-        updated_product = self.session.get(Goods, self.product.id)
+        updated_product = self.session.get(Product, self.product.id)
         self.assertEqual(updated_product.stock, 7)
 
     def test_add_to_cart_with_variant(self):
@@ -377,7 +377,7 @@ class TestCartIntegration(BaseTest):
 
             variant_options = {'size': 'L', 'color': 'Blue'}
             response = self.client.post(url_for('carts.add_to_cart_route'), data={
-                'goods_id': self.product.id,
+                'product_id': self.product.id,
                 'quantity': 1,
                 'variant_options': json.dumps(variant_options)
             }, follow_redirects=True)
@@ -386,7 +386,7 @@ class TestCartIntegration(BaseTest):
 
             cart_item = self.session.query(Cart).filter_by(
                 user_id=self.user.id,
-                goods_id=self.product.id
+                product_id=self.product.id
             ).first()
             self.assertIsNotNone(cart_item)
             self.assertEqual(cart_item.quantity, 1)
@@ -402,19 +402,19 @@ class TestCartIntegration(BaseTest):
 
             # Add item to cart initially
             self.client.post(url_for('carts.add_to_cart_route'), data={
-                'goods_id': self.product.id,
+                'product_id': self.product.id,
                 'quantity': 1
             })
 
             # Add same item again
             response = self.client.post(url_for('carts.add_to_cart_route'), data={
-                'goods_id': self.product.id,
+                'product_id': self.product.id,
                 'quantity': 2
             }, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'Item added to cart.', response.data)
 
-            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, goods_id=self.product.id).first()
+            cart_item = self.session.query(Cart).filter_by(user_id=self.user.id, product_id=self.product.id).first()
             self.assertEqual(cart_item.quantity, 3)
 
     def test_view_empty_cart(self):
@@ -473,7 +473,7 @@ class TestCartIntegration(BaseTest):
                 self.session.add(user_discount)
 
                 # Add item to cart
-                cart_item = Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price)
+                cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price)
                 self.session.add(cart_item)
                 self.session.commit()
 
@@ -533,13 +533,13 @@ class TestCartIntegration(BaseTest):
             self.assertIn(b'You have already used this discount code', response.data)
 
     def test_create_line_items_for_payment_with_multiple_products(self):
-        product2 = Goods(samplename='Test Product 2', price=1500, stock=5)
+        product2 = Product(samplename='Test Product 2', price=1500, stock=5)
         self.session.add(product2)
         self.session.commit()
 
         cart_items = [
-            Cart(user_id=self.user.id, goods_id=self.product.id, quantity=2, price=self.product.price),
-            Cart(user_id=self.user.id, goods_id=product2.id, quantity=1, price=product2.price)
+            Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=self.product.price),
+            Cart(user_id=self.user.id, product_id=product2.id, quantity=1, price=product2.price)
         ]
         self.session.add_all(cart_items)
         self.session.commit()

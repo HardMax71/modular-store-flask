@@ -52,7 +52,7 @@
                                 <tbody>
                                 {% for item in purchase.items %}
                                     <tr>
-                                        <td>{{ item.goods.samplename }}</td>
+                                        <td>{{ item.product.samplename }}</td>
                                         <td>{{ item.quantity }}</td>
                                         <td>${{ "%.2f"|format(item.price / 100.0) }}</td>
                                         <td>${{ "%.2f"|format(item.price / 100.0 * item.quantity) }}</td>

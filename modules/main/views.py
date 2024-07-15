@@ -14,7 +14,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from config import AppConfig
 from modules.carts import apply_discount_code
 from modules.db.database import db
-from modules.db.models import Goods, Variant, Review, User, Wishlist, RecentlyViewedProduct, \
+from modules.db.models import Product, ProductSelectionOption, Review, User, Wishlist, RecentlyViewedProduct, \
     ComparisonHistory
 from modules.decorators import login_required_with_message
 from modules.filter import get_filter_options, filter_products, paginate_query, get_promoted_products, get_categories
@@ -30,10 +30,10 @@ def index() -> ResponseValue:
         session['filter_options'] = get_filter_options()
 
     page: int = request.args.get('page', 1, type=int)
-    shirts_query = filter_products(None, None, None).options(joinedload(Goods.tags))
-    paginated_query, in_total, total_pages, per_page = paginate_query(shirts_query, page)
+    products_query = filter_products(None, None, None).options(selectinload(Product.tags))
+    paginated_query, in_total, total_pages, per_page = paginate_query(products_query, page)
 
-    return render_template("index.html", shirts=paginated_query, current_page=page, total_pages=total_pages,
+    return render_template("index.html", products=paginated_query, current_page=page, total_pages=total_pages,
                            categories=get_categories(), promoted_products=get_promoted_products(), per_page=per_page,
                            in_total=in_total)
 
@@ -47,31 +47,34 @@ def search_route() -> ResponseValue:
     search_query = filter_products(name_query=query)
     total: int = search_query.count()
     offset: int = (page - 1) * per_page
-    paginated_shirts: List[Goods] = search_query.offset(offset).limit(per_page).all()
+    paginated_products: List[Product] = search_query.offset(offset).limit(per_page).all()
     total_pages: int = ceil(total / per_page)
 
-    return render_template("index.html", shirts=paginated_shirts, query=query, total_pages=total_pages,
-                           current_page=page, per_page=per_page, in_total=total, categories=get_categories(),
-                           promoted_products=get_promoted_products())
+    return render_template("index.html", products=paginated_products, query=query,
+                           total_pages=total_pages, current_page=page, per_page=per_page, in_total=total,
+                           categories=get_categories(), promoted_products=get_promoted_products())
 
 
-@main_bp.route("/goods/<int:id>")
-def goods_page(id: int) -> ResponseValue:
-    shirt: Optional[Goods] = db.session.query(Goods).options(joinedload(Goods.category),
-                                                             joinedload(Goods.tags)).filter_by(id=id).first()
-    if not shirt:
+@main_bp.route("/products/<int:product_id>")
+def product_page(product_id: int) -> ResponseValue:
+    product: Optional[Product] = (db.session.query(Product)
+                                  .options(joinedload(Product.category), selectinload(Product.tags))
+                                  .filter_by(id=product_id)
+                                  .first())
+    if not product:
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
 
-    reviews = db.session.query(Review, User).join(User).filter(Review.goods_id == id).order_by(
+    reviews = db.session.query(Review, User).join(User).filter(Review.product_id == product_id).order_by(
         desc(Review.date)).limit(3).all()
-    variants: List[Variant] = (
-        db.session.query(Variant)
-        .filter_by(goods_id=id)
+    selection_options: List[ProductSelectionOption] = (
+        db.session.query(ProductSelectionOption)
+        .filter_by(product_id=product_id)
         .all()
     )
-    variant_options: Dict[str, List[str]] = {variant.name: [v.value for v in variants if v.name == variant.name] for
-                                             variant in variants}
+    variant_options: Dict[str, List[str]] = {
+        variant.name: [v.value for v in selection_options if v.name == variant.name] for
+        variant in selection_options}
 
     user_id: int = current_user.id if current_user.is_authenticated else -1  # -1 is an invalid user ID
     in_wishlist: bool = False
@@ -80,10 +83,12 @@ def goods_page(id: int) -> ResponseValue:
     product_in_comparison: bool = False
 
     if current_user.is_authenticated:
-        user_has_purchased = has_purchased(user_id, id)
-        no_review = not db.session.query(exists().where(Review.user_id == user_id, Review.goods_id == id)).scalar()
-        in_wishlist = db.session.query(exists().where(Wishlist.user_id == user_id, Wishlist.goods_id == id)).scalar()
-        update_recently_viewed_products(user_id, id)
+        user_has_purchased = has_purchased(user_id, product_id)
+        no_review = not db.session.query(
+            exists().where(Review.user_id == user_id, Review.product_id == product_id)).scalar()
+        in_wishlist = db.session.query(
+            exists().where(Wishlist.user_id == user_id, Wishlist.product_id == product_id)).scalar()
+        update_recently_viewed_products(user_id, product_id)
 
         comparison_history: Optional[ComparisonHistory] = (
             db.session.query(ComparisonHistory)
@@ -93,22 +98,23 @@ def goods_page(id: int) -> ResponseValue:
             .first()
         )
         if comparison_history:
-            product_in_comparison = id in json.loads(comparison_history.product_ids)
+            product_in_comparison = product_id in json.loads(comparison_history.product_ids)
 
-    related_products: List[Goods] = (
-        db.session.query(Goods)
+    related_products: List[Product] = (
+        db.session.query(Product)
         .filter(
-            Goods.category_id == shirt.category_id,
-            Goods.id != shirt.id,
-            Goods.stock > 0
+            Product.category_id == product.category_id,
+            Product.id != product.id,
+            Product.stock > 0
         )
         .limit(3)
         .all()
     )
 
-    return render_template("goods_page.html", shirt=shirt, reviews=reviews, average_rating=shirt.avg_rating,
+    return render_template("product_page.html", product=product, reviews=reviews,
+                           average_rating=product.avg_rating,
                            user_has_purchased=user_has_purchased, no_review=no_review,
-                           related_products=related_products, tags=shirt.tags,
+                           related_products=related_products, tags=product.tags,
                            variant_names=list(variant_options.keys()), in_wishlist=in_wishlist,
                            variant_options=variant_options, product_in_comparison=product_in_comparison)
 
@@ -116,18 +122,18 @@ def goods_page(id: int) -> ResponseValue:
 @main_bp.route("/toggle-wishlist", methods=["POST"])
 @login_required_with_message()
 def toggle_wishlist() -> ResponseValue:
-    goods_id: Optional[int] = request.form.get("goods_id", type=int)
-    if not goods_id or not db.session.get(Goods, goods_id):
+    product_id: Optional[int] = request.form.get("product_id", type=int)
+    if not product_id or not db.session.get(Product, product_id):
         flash(_("Invalid product ID"), "error")
         return redirect(url_for('main.index'))
 
     wishlist_item: Optional[Wishlist] = db.session.query(Wishlist).filter_by(user_id=current_user.id,
-                                                                             goods_id=goods_id).first()
+                                                                             product_id=product_id).first()
     if wishlist_item:
         db.session.delete(wishlist_item)
         message = _("Product removed from your wishlist.")
     else:
-        new_wishlist_item = Wishlist(user_id=current_user.id, goods_id=goods_id)
+        new_wishlist_item = Wishlist(user_id=current_user.id, product_id=product_id)
         db.session.add(new_wishlist_item)
         message = _("Product added to your wishlist!")
 
@@ -138,7 +144,7 @@ def toggle_wishlist() -> ResponseValue:
         db.session.rollback()
         flash(_("An error occurred while updating your wishlist. Please try again."), "error")
 
-    return redirect(request.referrer or url_for('main.goods_page', id=goods_id))
+    return redirect(request.referrer or url_for('main.product_page', product_id=product_id))
 
 
 @main_bp.route("/recommendations")

@@ -20,24 +20,24 @@ def report_review_in_db(review_id: int, user_id: int, explanation: str) -> None:
     db.session.commit()
 
 
-def has_purchased(user_id: int, goods_id: int) -> bool:
+def has_purchased(user_id: int, product_id: int) -> bool:
     purchase_item: Optional[PurchaseItem] = (
         db.session.query(PurchaseItem)
         .join(Purchase, and_(
             Purchase.id == PurchaseItem.purchase_id,
             Purchase.user_id == user_id
         ))
-        .filter(PurchaseItem.goods_id == goods_id)
+        .filter(PurchaseItem.product_id == product_id)
         .first()
     )
     return purchase_item is not None
 
 
-def has_already_reviewed(user_id: int, goods_id: int) -> bool:
+def has_already_reviewed(user_id: int, product_id: int) -> bool:
     existing_review: Optional[Review] = (
         db.session.query(Review)
         .filter(Review.user_id == user_id,
-                Review.goods_id == goods_id)
+                Review.product_id == product_id)
         .first()
     )
     return existing_review is not None
@@ -64,7 +64,7 @@ def allowed_file(filename: str) -> bool:
 def add_review_to_db(review_data: dict[str, int | str], images: List[FileStorage]) -> None:
     new_review = Review(
         user_id=review_data['user_id'],
-        goods_id=review_data['goods_id'],
+        product_id=review_data['product_id'],
         rating=review_data['rating'],
         review=review_data['review'],
         title=review_data['title'],

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from flask_login import login_user
 
-from modules.db.models import Goods, Category, Tag, ProductPromotion
+from modules.db.models import Product, Category, Tag, ProductPromotion
 from tests.base_test import BaseTest
 from tests.util import create_user
 
@@ -18,8 +18,8 @@ class TestFilterViews(BaseTest):
         self.session.commit()
 
     def create_product(self, name, price, category, tags=None, stock=10):
-        product = Goods(samplename=name, price=price,
-                        category_id=category.id, stock=stock, description='Test Description')
+        product = Product(samplename=name, price=price,
+                          category_id=category.id, stock=stock, description='Test Description')
         if tags:
             product.tags.extend(tags)
         self.session.add(product)
@@ -110,7 +110,7 @@ class TestFilterViews(BaseTest):
 
     def test_promoted_products(self):
         product = self.create_product('Promoted Product', 10.0, self.category)
-        promotion = ProductPromotion(goods_id=product.id,
+        promotion = ProductPromotion(product_id=product.id,
                                      start_date=datetime.now() - timedelta(days=1),
                                      end_date=datetime.now() + timedelta(days=1),
                                      description='Test Promotion')

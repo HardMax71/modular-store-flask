@@ -28,7 +28,7 @@ class User(Base, UserMixin):  # type: ignore
     lname: Mapped[Optional[str]] = mapped_column(Text)
     email: Mapped[Optional[str]] = mapped_column(Text, unique=True, index=True)
     phone: Mapped[Optional[str]] = mapped_column(Text)
-    profile_picture: Mapped[str] = mapped_column(Text, default='user-icon.png')
+    _profile_picture: Mapped[str] = mapped_column(Text, default='user-icon.png')
     language: Mapped[str] = mapped_column(String(5), default='en')
     stripe_customer_id: Mapped[str] = mapped_column(Text, default='nonexistent_stripe_customer_id')
     notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -56,25 +56,42 @@ class User(Base, UserMixin):  # type: ignore
     def __str__(self) -> str:
         return self.username
 
+    @hybrid_property
+    def full_name(self) -> str:
+        return f'{self.fname} {self.lname}'
+
+    @full_name.expression  # type: ignore[no-redef]
+    def full_name(cls):
+        return func.concat(cls.fname, ' ', cls.lname)
+
+    @hybrid_property
+    def profile_picture(self) -> str:
+        image_path = os.path.join(AppConfig.PROFILE_PICS_FOLDER, self._profile_picture)
+
+        if not os.path.exists(image_path) or not os.path.isfile(image_path):
+            return AppConfig.DEFAULT_PROFILE_PIC
+
+        return str(self._profile_picture)
+
     @staticmethod
-    def get_wishlist_notifications() -> Tuple[List['Goods'], List['Goods']]:
+    def get_wishlist_notifications() -> Tuple[List['Product'], List['Product']]:
         """
         Get the user's wishlist notifications for items on sale and back in stock.
         """
 
-        wishlist_items = db.session.query(Wishlist).options(joinedload(Wishlist.goods)).filter_by(
+        wishlist_items: list[Wishlist] = db.session.query(Wishlist).options(joinedload(Wishlist.product)).filter_by(
             user_id=current_user.id).all()  # Eager loading
 
         on_sale_items = []
         back_in_stock_items = []
 
         for item in wishlist_items:
-            goods = item.goods
+            product = item.product
 
-            if goods.onSale:
-                on_sale_items.append(goods)
-            elif goods.stock > 0:
-                back_in_stock_items.append(goods)
+            if product.onSale:
+                on_sale_items.append(product)
+            elif product.stock > 0:
+                back_in_stock_items.append(product)
 
         return on_sale_items, back_in_stock_items
 
@@ -84,10 +101,10 @@ class RecentlyViewedProduct(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    goods: Mapped["Goods"] = relationship('Goods', backref='recently_viewed_by', lazy='select')
+    product: Mapped["Product"] = relationship('Product', backref='recently_viewed_by', lazy='select')
 
     def __str__(self) -> str:
         return f'RecentlyViewedProduct {self.id}'
@@ -112,25 +129,25 @@ class Cart(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     price: Mapped[int] = mapped_column(Integer, nullable=False)  # Price in cents
     variant_options: Mapped[Optional[str]] = mapped_column(Text)
 
-    goods: Mapped["Goods"] = relationship('Goods', backref='cart_items', lazy='joined')
+    product: Mapped["Product"] = relationship('Product', backref='cart_items', lazy='joined')
 
     def __str__(self) -> str:
         return f'Cart {self.id}'
 
     @staticmethod
-    def update_stock(goods_id: int, quantity: int) -> None:
+    def update_stock(product_id: int, quantity: int) -> None:
         """
-        Update the stock of a goods item after a purchase.
+        Update the stock of a product item after a purchase.
         """
 
-        goods: Optional[Goods] = db.session.get(Goods, goods_id)
-        if goods:
-            goods.stock -= quantity
+        product: Optional[Product] = db.session.get(Product, product_id)
+        if product:
+            product.stock -= quantity
             db.session.commit()
 
     @staticmethod
@@ -202,38 +219,48 @@ class Cart(Base):
 related_products = Table(
     'related_products',
     Base.metadata,
-    Column('goods_id1', Integer, ForeignKey('goods.id', ondelete='CASCADE'), primary_key=True),
-    Column('goods_id2', Integer, ForeignKey('goods.id', ondelete='CASCADE'), primary_key=True)
+    Column('product_id1', Integer, ForeignKey('products.id', ondelete='CASCADE'), primary_key=True),
+    Column('product_id2', Integer, ForeignKey('products.id', ondelete='CASCADE'), primary_key=True)
 )
 
 
-class Goods(Base):
-    __tablename__ = 'goods'
+class Product(Base):
+    __tablename__ = 'products'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     samplename: Mapped[Optional[str]] = mapped_column(Text)
-    image: Mapped[str] = mapped_column(Text, default='goods-icon.png')
     price: Mapped[Optional[int]] = mapped_column(Integer)  # Price in cents
     onSale: Mapped[Optional[int]] = mapped_column(Integer)
     onSalePrice: Mapped[Optional[int]] = mapped_column(Integer)  # Price in cents
     kind: Mapped[Optional[str]] = mapped_column(Text)
-    goods_type: Mapped[Optional[str]] = mapped_column(Text)
+    product_type: Mapped[Optional[str]] = mapped_column(Text)
     description: Mapped[Optional[str]] = mapped_column(Text)
     category_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('categories.id'), index=True)
     stock: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    category: Mapped["Category"] = relationship('Category', backref='goods', lazy='select')
+    category: Mapped["Category"] = relationship('Category', backref='products', lazy='select')
     purchase_items: Mapped[List["PurchaseItem"]] = relationship('PurchaseItem', lazy='select', passive_deletes=True)
-    reviews: Mapped[List["Review"]] = relationship('Review', backref='goods', lazy='select', passive_deletes=True)
+    reviews: Mapped[List["Review"]] = relationship('Review', backref='products', lazy='select', passive_deletes=True)
     wishlist_items: Mapped[List["Wishlist"]] = relationship('Wishlist', lazy='select',
                                                             passive_deletes=True)
-    variants: Mapped[List["Variant"]] = relationship('Variant', backref='goods', lazy='select', passive_deletes=True)
-    tags: Mapped[List["Tag"]] = relationship('Tag', secondary='goods_tags', backref='goods', lazy='select',
+    options: Mapped[List["ProductSelectionOption"]] = relationship('ProductSelectionOption', backref='products',
+                                                                   lazy='select', passive_deletes=True)
+    tags: Mapped[List["Tag"]] = relationship('Tag', secondary='products_tags', backref='products', lazy='selectin',
                                              passive_deletes=True)
-    related_products: Mapped[List["Goods"]] = relationship(
-        'Goods', secondary='related_products',
-        primaryjoin=(id == related_products.c.goods_id1),
-        secondaryjoin=(id == related_products.c.goods_id2),
+    images: Mapped[List["ProductImage"]] = relationship('ProductImage', back_populates='product', lazy='select',
+                                                        cascade='all, delete-orphan')
+
+    promotions: Mapped[List["ProductPromotion"]] = relationship(
+        'ProductPromotion',
+        back_populates='product',
+        cascade='all, delete-orphan',
+        passive_deletes=True
+    )
+
+    related_products: Mapped[List["Product"]] = relationship(
+        'Product', secondary='related_products',
+        primaryjoin=(id == related_products.c.product_id1),
+        secondaryjoin=(id == related_products.c.product_id2),
         backref=backref('related_to', lazy='select'),
         lazy='select',
         passive_deletes=True
@@ -246,14 +273,14 @@ class Goods(Base):
     @hybrid_property
     def avg_rating(self) -> Optional[float]:
         if self.reviews:
-            return db.session.query(func.avg(Review.rating)).filter_by(goods_id=self.id).scalar() or 0
+            return db.session.query(func.avg(Review.rating)).filter_by(product_id=self.id).scalar() or 0
         return 0
 
     @avg_rating.expression  # type: ignore[no-redef]
     def avg_rating(cls) -> Optional[float]:
         return func.coalesce(
             db.session.query(func.avg(Review.rating))
-            .filter(Review.goods_id == cls.id)
+            .filter(Review.product_id == cls.id)
             .correlate(cls)
             .scalar_subquery(),
             0
@@ -269,6 +296,30 @@ class Goods(Base):
             (cls.onSale == 1, cls.onSalePrice),
             else_=cls.price
         )
+
+
+class ProductImage(Base):
+    __tablename__ = 'product_images'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False, index=True)
+    _image: Mapped[str] = mapped_column('image', Text, nullable=False)
+    is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    description: Mapped[Optional[str]] = mapped_column(Text)
+
+    product: Mapped["Product"] = relationship("Product", back_populates="images")
+
+    @hybrid_property
+    def image(self) -> str:
+        image_path = os.path.join(AppConfig.PRODUCTS_PICS_FOLDER, self._image)
+
+        if not os.path.exists(image_path) or not os.path.isfile(image_path):
+            return AppConfig.DEFAULT_PRODUCT_PIC
+
+        return str(self._image)
+
+    def __str__(self) -> str:
+        return f'ProductImage {self.id} for Product {self.product_id}'
 
 
 class SocialAccount(Base):
@@ -334,12 +385,12 @@ class Purchase(Base):
     @staticmethod
     def update_stock(purchase: 'Purchase', reverse: bool = False) -> None:
         for item in purchase.items:
-            goods = db.session.get(Goods, item.goods_id)
-            if goods:
+            product = db.session.get(Product, item.product_id)
+            if product:
                 if reverse:
-                    goods.stock += item.quantity  # order cancelled, returning stock
+                    product.stock += item.quantity  # order cancelled, returning stock
                 else:
-                    goods.stock -= item.quantity  # order placed, reducing stock
+                    product.stock -= item.quantity  # order placed, reducing stock
         db.session.commit()
 
 
@@ -356,15 +407,15 @@ class PurchaseItem(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     purchase_id: Mapped[int] = mapped_column(Integer, ForeignKey('purchases.id'), nullable=False, index=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     price: Mapped[int] = mapped_column(Integer, nullable=False)  # Price in cents
 
     purchase: Mapped["Purchase"] = relationship("Purchase", back_populates="items")
-    goods: Mapped["Goods"] = relationship("Goods", back_populates="purchase_items", lazy="joined")
+    product: Mapped["Product"] = relationship("Product", back_populates="purchase_items", lazy="joined")
 
     def __str__(self) -> str:
-        return f'PurchaseItem {self.id}: {self.quantity} x {self.goods.samplename if self.goods else "Unknown"}'
+        return f'PurchaseItem {self.id}: {self.quantity} x {self.product.samplename if self.product else "Unknown"}'
 
 
 class ReportedReview(Base):
@@ -388,7 +439,7 @@ class Review(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     review: Mapped[Optional[str]] = mapped_column(Text)
     title: Mapped[Optional[str]] = mapped_column(Text)
@@ -414,19 +465,19 @@ class ReviewImage(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     review_id: Mapped[int] = mapped_column(Integer, ForeignKey('reviews.id'), nullable=False, index=True)
     _image: Mapped[str] = mapped_column('image', Text, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text)
 
     review: Mapped["Review"] = relationship("Review", back_populates="images")
-    DEFAULT_IMAGE: str = 'review_image.png'
 
     @hybrid_property
     def uploaded_image(self) -> str:
         if self._image is None:
-            return self.DEFAULT_IMAGE
+            return AppConfig.DEFAULT_REVIEW_PIC
 
         image_path = os.path.join(AppConfig.REVIEW_PICS_FOLDER, self._image)
 
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return self.DEFAULT_IMAGE
+            return AppConfig.DEFAULT_REVIEW_PIC
 
         return str(self._image)
 
@@ -485,20 +536,20 @@ class Wishlist(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False)
     variant_options: Mapped[Optional[str]] = mapped_column(Text)
 
-    goods: Mapped["Goods"] = relationship("Goods", back_populates="wishlist_items")
+    product: Mapped["Product"] = relationship("Product", back_populates="wishlist_items")
 
     def __str__(self) -> str:
         return f'Wishlist {self.id}'
 
 
-class Variant(Base):
-    __tablename__ = 'variants'
+class ProductSelectionOption(Base):
+    __tablename__ = 'product_selection_option'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     value: Mapped[str] = mapped_column(Text, nullable=False)
 
@@ -557,9 +608,9 @@ class Tag(Base):
         return self.name
 
 
-goods_tags = Table(
-    'goods_tags', Base.metadata,
-    Column('goods_id', Integer, ForeignKey('goods.id', ondelete='CASCADE'), primary_key=True),
+products_tags = Table(
+    'products_tags', Base.metadata,
+    Column('product_id', Integer, ForeignKey('products.id', ondelete='CASCADE'), primary_key=True),
     Column('tag_id', Integer, ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
 )
 
@@ -583,12 +634,12 @@ class ProductPromotion(Base):
     __tablename__ = 'product_promotions'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    goods_id: Mapped[int] = mapped_column(Integer, ForeignKey('goods.id'), nullable=False)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id', ondelete='CASCADE'), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     end_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    goods: Mapped["Goods"] = relationship('Goods', backref='promotions', lazy='joined')
+    product: Mapped["Product"] = relationship('Product', back_populates='promotions')
 
     def __str__(self) -> str:
         return f'{self.description[:20]}..' if len(self.description) > 22 else self.description

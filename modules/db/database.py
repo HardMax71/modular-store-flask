@@ -11,8 +11,7 @@ class Base(DeclarativeBase):
 
 
 class Database:
-    # lazy initialization of the engine and session
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # lazy initialization
         self._engine: Optional[Engine] = None
         self._session: Optional[scoped_session[Session]] = None
         self._app: Optional[Flask] = None
@@ -20,7 +19,6 @@ class Database:
 
     def init_app(self, app: Flask) -> None:
         self._app = app
-        app.before_request(self.open)
         app.teardown_appcontext(self.close)  # type: ignore
 
     @property
@@ -28,7 +26,11 @@ class Database:
         if self._engine is None:
             if self._app is None:
                 raise RuntimeError("Application not initialized. Call init_app() first.")
-            self._engine = create_engine(self._app.config['SQLALCHEMY_DATABASE_URI'])
+            self._engine = create_engine(
+                self._app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///:memory:'),
+                echo=self._app.config.get('SQLALCHEMY_ECHO', False),
+                pool_size=self._app.config.get('SQLALCHEMY_POOL_SIZE', 5),
+            )
         return self._engine
 
     @property
@@ -39,10 +41,7 @@ class Database:
             self._session = self.create_session(self.engine)
         return self._session
 
-    def open(self) -> None:
-        pass  # The session is now created on-demand
-
-    def close(self, exception: Exception) -> None:
+    def close(self, exception: Optional[Exception] = None) -> None:
         if self._session is not None:
             self._session.remove()
 
@@ -51,8 +50,7 @@ class Database:
         return scoped_session(session_factory)
 
     def init_db(self) -> None:
-        Base.query = self.session.query_property()
-        Base.metadata.create_all(bind=self.engine)
+        self.metadata.create_all(bind=self.engine)
 
 
 db = Database()

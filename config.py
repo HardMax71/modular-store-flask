@@ -24,8 +24,17 @@ class AppConfig:
     IMAGES_FOLDER: str = os.path.join('static', 'img')
 
     PROFILE_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'profile_pictures')
+    DEFAULT_PROFILE_PIC: str = 'default_profile.png'
+
     REVIEW_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'review_pictures')
-    GOODS_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'goods_pictures')
+    DEFAULT_REVIEW_PIC: str = 'default_review.png'
+
+    PRODUCTS_PICS_FOLDER: str = os.path.join(IMAGES_FOLDER, 'products_pictures')
+    DEFAULT_PRODUCT_PIC: str = 'default_product.png'
+
+    UPLOAD_FOLDER: str = os.path.join(IMAGES_FOLDER, 'uploads')  # Folder for uploaded images for admin emails
+    MAX_CONTENT_LENGTH: int = 16 * 1024 * 1024  # 16 MB max file size
+
     IMG_FORMATS = ['.png', '.jpg', '.jpeg', '.bmp']
     MAIL_DEFAULT_SENDER: str = 'default'
     WEBSITE_URL: str = 'https://monkfish-app-mbn3z.ondigitalocean.app/'

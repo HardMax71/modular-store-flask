@@ -10,18 +10,16 @@ html {% extends "base.html" %}
             <h2 class="mb-4">{{ _('Recently Viewed Products') }}</h2>
             {% if recently_viewed_products %}
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                    {% for product in recently_viewed_products %}
+                    {% for recently_viewed in recently_viewed_products %}
                         <div class="col">
                             <div class="card h-100 shadow">
-                                <img src="{{ url_for('static', filename='img/goods_pictures/' + product.goods.image) }}"
-                                     class="card-img-top img-fluid" alt="{{ product.goods.samplename }}">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">{{ product.goods.samplename }}</h5>
-                                    <p class="card-text flex-grow-1">{{ product.goods.description[:100] if product.goods.description else '' }}...</p>
-                                    <a href="{{ url_for('main.goods_page', id=product.goods.id) }}"
-                                       class="btn btn-primary mt-auto">{{ _('View Details') }}</a>
-                                </div>
+                                {{ product_carousel(recently_viewed.product) }}
+                                <h5 class="card-title">{{ recently_viewed.product.samplename }}</h5>
+                                <p class="card-text flex-grow-1">{{ recently_viewed.product.description }}</p>
+                                <a href="{{ url_for('main.product_page', product_id=recently_viewed.product.id) }}"
+                                   class="btn btn-primary mt-auto">{{ _('View Details') }}</a>
                             </div>
+                        </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -33,52 +31,51 @@ html {% extends "base.html" %}
                     <p class="mb-0">{{ _('Start browsing our collection to see personalized recommendations.') }}</p>
                 </div>
             {% endif %}
-        </div>
+    </div>
 
-        <div class="recommended-section">
-            <h2 class="mb-4">{{ _('Recommended for You') }}</h2>
-            {% if recommendations %}
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                    {% for product in recommendations %}
-                        <div class="col">
-                            <div class="card h-100 shadow">
-                                <div class="position-relative">
-                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                                         class="card-img-top img-fluid" alt="{{ product.samplename }}">
-                                    {% if product.onSale %}
-                                        <span class="badge bg-danger text-white position-absolute top-0 end-0 m-2">{{ _('On Sale!') }}</span>
-                                    {% endif %}
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">{{ product.samplename }}</h5>
-                                    <p class="card-text flex-grow-1">{{ product.description[:100] if product.description else '' }}...</p>
-                                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                                        <div class="price-container">
-                                            {% if product.onSale %}
-                                                <span class="price text-danger fs-5">{{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
-                                                <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(product.price / 100.0) }}</del></span>
-                                            {% else %}
-                                                <span class="price fs-5">{{ '{:,.2f}'.format(product.price / 100.0) }}</span>
-                                            {% endif %}
-                                        </div>
+    <div class="recommended-section">
+        <h2 class="mb-4">{{ _('Recommended for You') }}</h2>
+        {% if recommendations %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for product in recommendations %}
+                    <div class="col">
+                        <div class="card h-100 shadow">
+                            <div class="position-relative">
+                                {{ product_carousel(product) }}
+                                {% if product.onSale %}
+                                    <span class="badge bg-danger text-white position-absolute top-0 end-0 m-2">{{ _('On Sale!') }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ product.samplename }}</h5>
+                                <p class="card-text flex-grow-1">{{ product.description[:100] if product.description else '' }}...</p>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <div class="price-container">
+                                        {% if product.onSale %}
+                                            <span class="price text-danger fs-5">{{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
+                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '{:,.2f}'.format(product.price / 100.0) }}</del></span>
+                                        {% else %}
+                                            <span class="price fs-5">{{ '{:,.2f}'.format(product.price / 100.0) }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                <div class="card-footer text-center">
-                                    <a href="{{ url_for('main.goods_page', id=product.id) }}"
-                                       class="btn btn-primary">{{ _('View Details') }}</a>
-                                </div>
+                            </div>
+                            <div class="card-footer text-center">
+                                <a href="{{ url_for('main.product_page', product_id=product.id) }}"
+                                   class="btn btn-primary">{{ _('View Details') }}</a>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="alert alert-info" role="alert">
-                    <h4 class="alert-heading">{{ _('No Recommendations Available') }}</h4>
-                    <p>{{ _('We do not have enough information to provide personalized recommendations at the moment.') }}</p>
-                    <hr>
-                    <p class="mb-0">{{ _('Continue browsing and making purchases to receive tailored recommendations.') }}</p>
-                </div>
-            {% endif %}
-        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">{{ _('No Recommendations Available') }}</h4>
+                <p>{{ _('We do not have enough information to provide personalized recommendations at the moment.') }}</p>
+                <hr>
+                <p class="mb-0">{{ _('Continue browsing and making purchases to receive tailored recommendations.') }}</p>
+            </div>
+        {% endif %}
+    </div>
     </div>
 {% endblock %}

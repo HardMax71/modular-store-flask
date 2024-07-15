@@ -2,12 +2,12 @@
     background-color: #ffffff;
     border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
 .bento-box:hover {
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
 }
 
 .bento-title {
@@ -29,7 +29,6 @@
     display: flex;
     flex-direction: column;
 }
-
 
 
 .bento-select,
@@ -84,38 +83,26 @@
 }
 
 
-
-
 .product-card {
     position: relative;
     background: #fff;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: all 0.3s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-}
-
-.product-image {
-    position: relative;
-    height: 250px;
-    overflow: hidden;
-}
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
 }
 
 .product-card:hover .product-image img {
     transform: scale(1.1);
+    transition: all 0.3s ease;
 }
+
 
 .product-overlay {
     position: absolute;
@@ -123,16 +110,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
-}
-
-.product-card:hover .product-overlay {
-    opacity: 1;
 }
 
 .quick-view-btn {
@@ -186,7 +169,6 @@
     --percent: calc(var(--rating) / 5 * 100%);
     display: inline-block;
     font-size: 1.25rem;
-    font-family: Times;
     line-height: 1;
 }
 
@@ -269,10 +251,25 @@
     font-weight: 600;
 }
 
-.out-of-stock { color: #e74c3c; font-weight: 600; }
-.low-stock { color: #e67e22; font-weight: 600; }
-.limited-stock { color: #f39c12; font-weight: 600; }
-.in-stock { color: #1D8750; font-weight: 600; }
+.out-of-stock {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.low-stock {
+    color: #e67e22;
+    font-weight: 600;
+}
+
+.limited-stock {
+    color: #f39c12;
+    font-weight: 600;
+}
+
+.in-stock {
+    color: #1D8750;
+    font-weight: 600;
+}
 
 .view-details-btn {
     background-color: #2370a5;
@@ -286,7 +283,9 @@
 
 .view-details-btn:hover {
     background: #1c5a84;
+    color: #fff; /* Ensure the text color stays white */
 }
+
 
 .new-badge, .sale-badge {
     position: absolute;

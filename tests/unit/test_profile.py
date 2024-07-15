@@ -175,8 +175,8 @@ class TestProfileUtils(BaseTest):
             with patch('modules.profile.utils.flash') as mock_flash:
                 handle_social_login(mock_provider, name='facebook')
 
-                self.assertEqual(SocialAccount.query.count(), 1)
-                new_social_account = SocialAccount.query.first()
+                self.assertEqual(self.session.query(SocialAccount).count(), 1)
+                new_social_account = self.session.query(SocialAccount).first()
 
                 self.assertEqual(new_social_account.user_id, user.id)
                 self.assertEqual(new_social_account.provider, 'facebook')
@@ -211,7 +211,7 @@ class TestProfileUtils(BaseTest):
             with patch('modules.profile.utils.flash') as mock_flash:
                 handle_social_login(mock_provider, name='facebook')
 
-                self.assertEqual(SocialAccount.query.count(), 1)  # No new account should be created
+                self.assertEqual(self.session.query(SocialAccount).count(), 1)  # No new account should be created
 
                 mock_flash.assert_called_with('This Facebook account is already connected to your profile.', 'info')
                 mock_redirect.assert_called_with(url_for('profile.profile_info'))

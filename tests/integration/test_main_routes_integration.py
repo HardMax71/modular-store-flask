@@ -4,7 +4,8 @@ import unittest
 from flask import url_for
 from flask_login import login_user
 
-from modules.db.models import Goods, Category, Review, RecentlyViewedProduct, ComparisonHistory, Variant
+from modules.db.models import Product, Category, Review, RecentlyViewedProduct, ComparisonHistory, \
+    ProductSelectionOption
 from tests.base_test import BaseTest
 from tests.util import create_user
 
@@ -18,8 +19,8 @@ class TestMainIntegration(BaseTest):
     def setUp(self):
         super().setUp()
         self.category = Category(name='Test Category')
-        self.goods = Goods(samplename='Test Product', price=1000, category=self.category, stock=10)
-        self.session.add_all([self.category, self.goods])
+        self.product = Product(samplename='Test Product', price=1000, category=self.category, stock=10)
+        self.session.add_all([self.category, self.product])
         self.session.commit()
 
         self.user = create_user(self)
@@ -37,19 +38,19 @@ class TestMainIntegration(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Test Product', response.data)
 
-    def test_goods_page_route(self):
-        response = self.client.get(url_for('main.goods_page', id=self.goods.id))
+    def test_product_page_route(self):
+        response = self.client.get(url_for('main.product_page', product_id=self.product.id))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Test Product', response.data)
 
     def test_toggle_wishlist_route(self):
-        response = self.client.post(url_for('main.toggle_wishlist'), data={'goods_id': self.goods.id},
+        response = self.client.post(url_for('main.toggle_wishlist'), data={'product_id': self.product.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product added to your wishlist!', response.data)
 
         # Toggle again to remove
-        response = self.client.post(url_for('main.toggle_wishlist'), data={'goods_id': self.goods.id},
+        response = self.client.post(url_for('main.toggle_wishlist'), data={'product_id': self.product.id},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Product removed from your wishlist.', response.data)
@@ -90,45 +91,45 @@ class TestMainIntegration(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'User-agent', response.data)
 
-    def test_goods_page_with_reviews(self):
-        review = Review(user_id=self.user.id, goods_id=self.goods.id, rating=5, review='Great product!')
+    def test_product_page_with_reviews(self):
+        review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great product!')
         self.session.add(review)
         self.session.commit()
 
-        response = self.client.get(url_for('main.goods_page', id=self.goods.id))
+        response = self.client.get(url_for('main.product_page', product_id=self.product.id))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Great product!', response.data)
 
-    def test_goods_page_with_variants(self):
-        variant = Variant(goods_id=self.goods.id, name='Size', value='Large')
+    def test_product_page_with_variants(self):
+        variant = ProductSelectionOption(product_id=self.product.id, name='Size', value='Large')
         self.session.add(variant)
         self.session.commit()
 
-        response = self.client.get(url_for('main.goods_page', id=self.goods.id))
+        response = self.client.get(url_for('main.product_page', product_id=self.product.id))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Size', response.data)
         self.assertIn(b'Large', response.data)
 
-    def test_goods_page_with_comparison(self):
-        comparison = ComparisonHistory(user_id=self.user.id, product_ids=json.dumps([self.goods.id]))
+    def test_product_page_with_comparison(self):
+        comparison = ComparisonHistory(user_id=self.user.id, product_ids=json.dumps([self.product.id]))
         self.session.add(comparison)
         self.session.commit()
 
-        response = self.client.get(url_for('main.goods_page', id=self.goods.id))
+        response = self.client.get(url_for('main.product_page', product_id=self.product.id))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'remove-from-comparison', response.data)  # part of class name of button responsible for deleting
 
     def test_recently_viewed_products(self):
-        self.client.get(url_for('main.goods_page', id=self.goods.id))
+        self.client.get(url_for('main.product_page', product_id=self.product.id))
 
-        recently_viewed = RecentlyViewedProduct.query.filter_by(user_id=self.user.id,
-                                                                goods_id=self.goods.id).first()
+        recently_viewed = self.session.query(RecentlyViewedProduct).filter_by(user_id=self.user.id,
+                                                                              product_id=self.product.id).first()
         self.assertIsNotNone(recently_viewed)
 
     def test_pagination(self):
         # Add more products to test pagination
         for i in range(20):
-            product = Goods(samplename=f'Product {i}', price=10.0, category=self.category, stock=10)
+            product = Product(samplename=f'Product {i}', price=10, category=self.category, stock=10)
             self.session.add(product)
         self.session.commit()
 
@@ -142,13 +143,13 @@ class TestMainIntegration(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'No products found', response.data)
 
-    def test_goods_page_nonexistent_product(self):
-        response = self.client.get(url_for('main.goods_page', id=9999))
+    def test_product_page_nonexistent_product(self):
+        response = self.client.get(url_for('main.product_page', product_id=9999))
         self.assertEqual(response.status_code, 302)  # Redirect to index
         self.assertIn('Product not found', self.get_flashed_messages(with_categories=True)[0][1])
 
     def test_toggle_wishlist_nonexistent_product(self):
-        response = self.client.post(url_for('main.toggle_wishlist'), data={'goods_id': 9999}, follow_redirects=True)
+        response = self.client.post(url_for('main.toggle_wishlist'), data={'product_id': 9999}, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Invalid product ID', response.data)
 

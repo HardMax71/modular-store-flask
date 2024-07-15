@@ -11,7 +11,7 @@ from flask_login import current_user
 
 from config import AppConfig
 from modules.db.database import db
-from modules.db.models import Goods, Cart, Discount, UserDiscount, ShippingMethod, Purchase
+from modules.db.models import Product, Cart, Discount, UserDiscount, ShippingMethod, Purchase
 from modules.db.models import User
 from modules.email import send_order_confirmation_email
 from modules.purchase_history import save_purchase_history
@@ -71,7 +71,7 @@ def process_test_payment(cart_items: List[Cart], shipping_address_id: int, shipp
 def process_stripe_payment(cart_items: List[Cart], shipping_address_id: int,
                            shipping_method: ShippingMethod) -> ResponseValue:
     stripe.api_key = AppConfig.STRIPE_SECRET_KEY
-    customer: stripe.Customer = get_stripe_customer_for_user_by_id(current_user)
+    customer: stripe.Customer = get_stripe_acc_for_customer_by_stripe_customer_id(current_user)
 
     try:
         line_items = create_line_items_for_payment(cart_items, shipping_method)
@@ -84,7 +84,7 @@ def process_stripe_payment(cart_items: List[Cart], shipping_address_id: int,
     return redirect(checkout_session.url or url_for('carts.checkout'), code=303)
 
 
-def create_stripe_checkout_session(customer_id: str, line_items: List[dict[str, Any]], shipping_address_id: int,
+def create_stripe_checkout_session(customer_id: str, line_items: List[Dict[str, Any]], shipping_address_id: int,
                                    shipping_method_id: int) -> stripe.checkout.Session:
     return stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -101,7 +101,7 @@ def create_stripe_checkout_session(customer_id: str, line_items: List[dict[str, 
     )
 
 
-def get_stripe_customer_for_user_by_id(user: User) -> stripe.Customer:
+def get_stripe_acc_for_customer_by_stripe_customer_id(user: User) -> stripe.Customer:
     current_user_stripe_customer_id: Optional[str] = user.stripe_customer_id
     if not current_user_stripe_customer_id:
         # customer id is None
@@ -129,7 +129,7 @@ def create_line_items_for_payment(cart_items: List[Cart], shipping_method: Shipp
         'price_data': {
             'currency': 'usd',
             'product_data': {
-                'name': item.goods.samplename,
+                'name': item.product.samplename,
             },
             'unit_amount': item.price,
         },
@@ -158,41 +158,43 @@ def clear_cart() -> None:
 
 def update_cart(cart_item_id: int, quantity: int) -> bool:
     cart_item: Optional[Cart] = db.session.get(Cart, cart_item_id)
-    if cart_item and cart_item.user_id == current_user.id:
-        goods: Optional[Goods] = db.session.get(Goods, cart_item.goods_id)
-        if goods:
-            stock_difference: int = quantity - cart_item.quantity
+    if not (cart_item and cart_item.user_id == current_user.id):
+        return False
 
-            if goods.stock >= stock_difference:
-                if quantity > 0:
-                    cart_item.quantity = quantity
-                    goods.stock -= stock_difference
-                else:
-                    remove_from_cart(cart_item_id)
-                    goods.stock += cart_item.quantity
+    if product := db.session.get(Product, cart_item.product_id):
+        stock_difference: int = quantity - cart_item.quantity
 
-                db.session.commit()
-                return True
+        if product.stock >= stock_difference:
+            if quantity > 0:
+                cart_item.quantity = quantity
+                product.stock -= stock_difference
             else:
-                flash(_("Not enough stock available for this product."), "danger")
+                remove_from_cart(cart_item_id)
+                product.stock += cart_item.quantity
+
+            db.session.commit()
+            return True
+        else:
+            flash(_("Not enough stock available for this product."), "danger")
 
     return False
 
 
 def remove_from_cart(cart_item_id: int) -> bool:
     cart_item: Optional[Cart] = db.session.get(Cart, cart_item_id)
-    if cart_item and cart_item.user_id == current_user.id:
-        db.session.delete(cart_item)
-        db.session.commit()
-        return True
-    return False
+    if not (cart_item and cart_item.user_id == current_user.id):
+        return False
+
+    db.session.delete(cart_item)
+    db.session.commit()
+    return True
 
 
-def add_to_cart(goods: Goods, quantity: int, variant_options: Dict[str, str]) -> bool:
+def add_to_cart(product: Product, quantity: int, variant_options: Dict[str, str]) -> bool:
     """
     Add an item to the user's cart or update its quantity if it already exists.
 
-    :param goods: The Goods object to add to the cart
+    :param product: The Product object to add to the cart
     :param quantity: The quantity to add
     :param variant_options: A dictionary of variant options
     :return: True if the item was added successfully, False otherwise
@@ -201,17 +203,17 @@ def add_to_cart(goods: Goods, quantity: int, variant_options: Dict[str, str]) ->
         flash(_("Invalid quantity. Please select a positive number."), "danger")
         return False
 
-    if goods.stock < quantity:
+    if product.stock < quantity:
         flash(_("Not enough stock available for this product."), "danger")
         return False
 
     variant_options_str: str = json.dumps(variant_options)
-    price: int = goods.current_price
+    price: int = product.current_price
 
     cart_item: Optional[Cart] = (
         db.session.query(Cart)
         .with_for_update()
-        .filter_by(user_id=current_user.id, goods_id=goods.id, variant_options=variant_options_str)
+        .filter_by(user_id=current_user.id, product_id=product.id, variant_options=variant_options_str)
         .first()
     )
 
@@ -221,14 +223,14 @@ def add_to_cart(goods: Goods, quantity: int, variant_options: Dict[str, str]) ->
     else:
         cart_item = Cart(
             user_id=current_user.id,
-            goods_id=goods.id,
+            product_id=product.id,
             quantity=quantity,
             price=price,
             variant_options=variant_options_str
         )
         db.session.add(cart_item)
 
-    goods.stock -= quantity
+    product.stock -= quantity
     db.session.commit()
     flash(_("Item added to cart."), "success")
     return True

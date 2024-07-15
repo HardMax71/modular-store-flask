@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Any, Optional
+from typing import Callable, Any
 
 from flask import flash, redirect, request, url_for
 from flask_babel import gettext as _
@@ -29,8 +29,7 @@ def login_required_with_message(message: str = _("You must be logged in to view 
             if not current_user.is_authenticated:
                 flash(_(message), category)
                 if redirect_back:
-                    referrer: Optional[str] = request.headers.get("Referer", None)
-                    if referrer:
+                    if referrer := request.headers.get("Referer", None):
                         return redirect(referrer)
                 return redirect(url_for(default_route))
             return f(*args, **kwargs)

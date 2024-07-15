@@ -22,17 +22,14 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                                         alt="{{ product.samplename }}" class="img-thumbnail mr-3 img-fluid"
-                                         style="max-width: 100px; cursor: pointer;" data-toggle="modal"
-                                         data-target="#imageModal{{ product.id }}">
+                                    {{ product_carousel(product) }}
                                     <div>
                                         <h5 class="mb-1">{{ product.samplename }}</h5>
                                         <p class="mb-0">
                                             {% if product.description %}
                                                 {{ product.description[:50] }}{% if product.description|length > 50 %}
-                                                    {% endif %}
-                                            {% endif %}...
+                                                    ...{% endif %}
+                                            {% endif %}
                                         </p>
                                     </div>
                                 </div>
@@ -78,7 +75,7 @@
                                                 headers: {
                                                     'Content-Type': 'application/x-www-form-urlencoded',
                                                 },
-                                                body: `goods_id=${productId}&quantity=1`
+                                                body: `product_id=${productId}&quantity=1`
                                             })
                                                 .then(data => {
                                                     window.location.reload();
@@ -95,7 +92,7 @@
                                                 headers: {
                                                     'Content-Type': 'application/json',
                                                 },
-                                                body: JSON.stringify({goods_id: productId})
+                                                body: JSON.stringify({product_id: productId})
                                             })
                                                 .then(response => response.json())
                                                 .then(data => {
@@ -114,7 +111,7 @@
                                                 headers: {
                                                     'Content-Type': 'application/x-www-form-urlencoded',
                                                 },
-                                                body: `goods_id=${productId}`
+                                                body: `product_id=${productId}`
                                             }).then(data => {
                                                 window.location.reload();
                                             })
@@ -128,20 +125,16 @@
                         <!-- Image Modal -->
                         <div class="modal fade" id="imageModal{{ product.id }}" tabindex="-1" role="dialog"
                              aria-labelledby="imageModalLabel{{ product.id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                <div class="modal-content border-0">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"
-                                            id="imageModalLabel{{ product.id }}">{{ product.samplename }}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body d-flex justify-content-center align-items-center">
-                                        <img src="{{ url_for('static', filename='img/goods_pictures/' + product.image) }}"
-                                             alt="{{ product.samplename }}" class="img-fluid">
-                                    </div>
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content border-0">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"
+                                        id="imageModalLabel{{ product.id }}">{{ product.samplename }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
+                                {{ product_carousel(product) }}
                             </div>
                         </div>
                     {% endfor %}

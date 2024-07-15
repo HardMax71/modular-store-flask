@@ -5,79 +5,83 @@
 {% endblock %}
 
 {% block body %}
-<div class="container my-5">
-    <h2 class="mb-4">{{ _('Checkout') }}</h2>
-    <form method="POST" action="{{ url_for('carts.checkout') }}">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ _('Shipping Address') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        {% for address in addresses %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="shipping_address"
-                                       id="address-{{ address.id }}" value="{{ address.id }}" required>
-                                <label class="form-check-label" for="address-{{ address.id }}">
-                                    {{ address.address_line1 }}, {{ address.city }}, {{ address.state }} {{ address.zip_code }}, {{ address.country }}
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ _('Shipping Method') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        {% for method in shipping_methods %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="shipping_method"
-                                       id="shipping-{{ method.id }}" value="{{ method.id }}" required
-                                       data-price="{{ method.price / 100.0 }}" onchange="updateTotal()">
-                                <label class="form-check-label" for="shipping-{{ method.id }}">
-                                    {{ method.name }} - ${{ "%.2f"|format(method.price / 100.0) }}
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-lg">{{ _('Proceed to Payment') }}</button>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ _('Order Summary') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            {% for item in cart_items %}
-                                <li class="list-group-item">
-                                    {{ item.goods.samplename }}
-                                    - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}: ${{ "%.2f"|format(item.price / 100.0) }}
-                                </li>
+    <div class="container my-5">
+        <h2 class="mb-4">{{ _('Checkout') }}</h2>
+        <form method="POST" action="{{ url_for('carts.checkout') }}">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Shipping Address') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for address in addresses %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="shipping_address"
+                                           id="address-{{ address.id }}" value="{{ address.id }}" required>
+                                    <label class="form-check-label" for="address-{{ address.id }}">
+                                        {{ address.address_line1 }}, {{ address.city }}, {{ address.state }} {{ address.zip_code }}, {{ address.country }}
+                                    </label>
+                                </div>
                             {% endfor %}
-                        </ul>
-                        <div class="mt-3">
-                            <p>{{ _('Subtotal') }}: $<span id="subtotal">{{ "%.2f"|format(subtotal / 100.0) }}</span></p>
-                            <p>{{ _('Shipping cost') }}: $<span id="shipping-price">{{ "%.2f"|format(shipping_price / 100.0) }}</span></p>
-                            <h4>{{ _('Total price') }}: $<span id="total-price">{{ "%.2f"|format(total / 100.0) }}</span></h4>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Shipping Method') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for method in shipping_methods %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="shipping_method"
+                                           id="shipping-{{ method.id }}" value="{{ method.id }}" required
+                                           data-price="{{ method.price / 100.0 }}" onchange="updateTotal()">
+                                    <label class="form-check-label" for="shipping-{{ method.id }}">
+                                        {{ method.name }} - ${{ "%.2f"|format(method.price / 100.0) }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">{{ _('Proceed to Payment') }}</button>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ _('Order Summary') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                {% for item in cart_items %}
+                                    <li class="list-group-item">
+                                        {{ item.product.samplename }}
+                                        - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}:
+                                        ${{ "%.2f"|format(item.price / 100.0) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="mt-3">
+                                <p>{{ _('Subtotal') }}: $<span
+                                        id="subtotal">{{ "%.2f"|format(subtotal / 100.0) }}</span></p>
+                                <p>{{ _('Shipping cost') }}: $<span
+                                        id="shipping-price">{{ "%.2f"|format(shipping_price / 100.0) }}</span></p>
+                                <h4>{{ _('Total price') }}: $<span
+                                        id="total-price">{{ "%.2f"|format(total / 100.0) }}</span></h4>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
 
-<script>
-    function updateTotal() {
-        const shippingPrice = parseFloat(document.querySelector('input[name="shipping_method"]:checked').dataset.price);
-        const subtotal = parseFloat(document.getElementById('subtotal').textContent);
-        const total = shippingPrice + subtotal;
-        document.getElementById('shipping-price').textContent = shippingPrice.toFixed(2);
-        document.getElementById('total-price').textContent = total.toFixed(2);
-    }
-</script>
+    <script>
+        function updateTotal() {
+            const shippingPrice = parseFloat(document.querySelector('input[name="shipping_method"]:checked').dataset.price);
+            const subtotal = parseFloat(document.getElementById('subtotal').textContent);
+            const total = shippingPrice + subtotal;
+            document.getElementById('shipping-price').textContent = shippingPrice.toFixed(2);
+            document.getElementById('total-price').textContent = total.toFixed(2);
+        }
+    </script>
 {% endblock %}
