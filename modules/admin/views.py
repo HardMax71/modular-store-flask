@@ -17,17 +17,15 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.base import ViewArgs
 from flask_babel import gettext as _
 from flask_login import current_user
-from flask_wtf import FlaskForm
 from markupsafe import Markup
 from sqlalchemy import func, Integer
 from sqlalchemy import inspect, select, Table
 from sqlalchemy.orm import aliased
 from werkzeug.utils import secure_filename
-from wtforms import StringField, TextAreaField, SubmitField, FileField
-from wtforms.validators import DataRequired
 from ydata_profiling import ProfileReport  # type: ignore
 
 import config
+from forms.forms import EmailForm
 from modules.admin.utils import generate_csv, generate_json, generate_excel
 from modules.db.database import db, Base, Database
 from modules.db.models import RequestLog, Ticket, User, Product, Category, Purchase, Review, Wishlist, Tag, \
@@ -404,13 +402,6 @@ class ReportedReviewView(AdminView):
         view_args = super()._get_list_extra_args()
         view_args.extra_args["page_title"] = _('Reported Reviews')
         return view_args
-
-
-class EmailForm(FlaskForm):  # type: ignore
-    subject = StringField(_('Subject'), validators=[DataRequired()])
-    body = TextAreaField(_('Body'), validators=[DataRequired()])
-    attachments = FileField(_('Attachments'))
-    submit = SubmitField(_('Send Email'))
 
 
 class EmailView(BaseView):  # type: ignore

@@ -55,7 +55,8 @@
         <hr>
         <div class="row">
             <div class="col-md-6">
-                <p class="mb-0">&copy; <span id="currentYear"></span> {{ config.SHOP_NAME }}. {{ _('All rights reserved') }}.</p>
+                <p class="mb-0">&copy; <span
+                        id="currentYear"></span> {{ config.SHOP_NAME }}. {{ _('All rights reserved') }}.</p>
             </div>
             <div class="col-md-6 text-md-right">
                 <div class="d-flex justify-content-md-end align-items-center h-100">
@@ -71,7 +72,8 @@
         </div>
     </div>
 </footer>
-<button id="scrollToTopBtn" class="btn btn-dark btn-floating" onclick="scrollToTop()">
+<button id="scrollToTopBtn" class="btn btn-dark btn-floating" onclick="scrollToTop()"
+        aria-label="{{ _('Scroll to top') }}">
     <i class="fas fa-chevron-up"></i>
 </button>
 <style>

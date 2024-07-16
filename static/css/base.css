@@ -199,6 +199,10 @@ header {
     border-color: #0056b3;
 }
 
+a {
+    color: #0054AD;
+}
+
 tr {
     text-align: center;
 }
@@ -296,7 +300,7 @@ body {
 .bento-button {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background-color: #2370a5;
+    background-color: #1C5982;
     color: #ffffff;
     text-decoration: none;
     border-radius: 5px;
@@ -305,7 +309,7 @@ body {
 }
 
 .bento-button:hover {
-    background-color: #226c9c;
+    background-color: #1a5378;
 }
 
 .social-icons {

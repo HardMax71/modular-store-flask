@@ -14,28 +14,34 @@
             <form action="{{ url_for('auth.register') }}" class="auth-form" method="post">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
-                    {{ form.username(class="form-control", placeholder=_("Username"), required=True) }}
+                    <label for="username" class="sr-only">{{ _('Username') }}</label>
+                    {{ form.username(class="form-control", id="username", placeholder=_("Username"), required=True) }}
                 </div>
                 <div class="form-group">
-                    {{ form.email(class="form-control", placeholder=_("Email"), required=True) }}
+                    <label for="email" class="sr-only">{{ _('Email') }}</label>
+                    {{ form.email(class="form-control", id="email", placeholder=_("Email"), required=True) }}
                 </div>
                 <div class="form-group">
-                    {{ form.password(class="form-control", placeholder=_("Password"), required=True) }}
+                    <label for="password" class="sr-only">{{ _('Password') }}</label>
+                    {{ form.password(class="form-control", id="password", placeholder=_("Password"), required=True) }}
                 </div>
                 <div class="form-group">
-                    {{ form.confirm_password(class="form-control", placeholder=_("Confirm Password"), required=True) }}
+                    <label for="confirm_password" class="sr-only">{{ _('Confirm Password') }}</label>
+                    {{ form.confirm_password(class="form-control", id="confirm_password", placeholder=_("Confirm Password"), required=True) }}
                 </div>
                 <div class="form-group terms-checkbox">
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="terms" required>
-                        <label class="form-check-label" for="terms">{{ _('I agree to the') }} <a href="{{ url_for('main.terms') }}" class="auth-link">{{ _('Terms and Conditions') }}</a></label>
+                        <label class="form-check-label" for="terms">{{ _('I agree to the') }} <a
+                                href="{{ url_for('main.terms') }}" class="auth-link">{{ _('Terms and Conditions') }}</a></label>
                     </div>
                 </div>
                 <button type="submit" class="auth-button">{{ _('Register') }}</button>
             </form>
             <div class="auth-divider"></div>
             <div class="auth-footer">
-                <p>{{ _('Already have an account?') }} <a href="{{ url_for('auth.login') }}" class="auth-link">{{ _('Log in') }}</a></p>
+                <p>{{ _('Already have an account?') }} <a href="{{ url_for('auth.login') }}"
+                                                          class="auth-link">{{ _('Log in') }}</a></p>
             </div>
         </div>
     </div>

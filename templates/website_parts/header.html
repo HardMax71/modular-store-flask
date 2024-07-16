@@ -34,7 +34,8 @@
                                            placeholder="{{ _('Search products...') }}" aria-label="{{ _('Search') }}"
                                            aria-describedby="search-button" value="{{ request.args.get('query', '') }}">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-primary" type="submit" id="search-button">
+                                        <button class="btn btn-outline-primary" type="submit" id="search-button"
+                                                aria-label="{{ _('Search') }}">
                                             <i class="fas fa-search"></i>
                                         </button>
                                     </div>
