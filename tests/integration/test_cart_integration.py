@@ -3,7 +3,8 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
-from flask import url_for
+import stripe
+from flask import url_for, Flask
 from flask_login import login_user
 
 from modules.carts.utils import create_line_items_for_payment, get_stripe_acc_for_customer_by_stripe_customer_id
@@ -555,6 +556,99 @@ class TestCartIntegration(BaseTest):
         self.assertEqual(line_items[1]['quantity'], 1)
         self.assertEqual(line_items[2]['price_data']['product_data']['name'], 'Shipping: Standard')
         self.assertEqual(line_items[2]['price_data']['unit_amount'], 500)
+
+    def test_checkout_empty_cart(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.get(url_for('carts.checkout'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('cart', response.location)
+
+    def test_checkout_no_address(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            self.session.query(Address).filter_by(user_id=self.user.id).delete()
+            self.session.commit()
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=self.product.price)
+            self.session.add(cart_item)
+            self.session.commit()
+            response = self.client.get(url_for('carts.checkout'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('profile', response.location)
+
+    @patch('modules.carts.views.stripe.checkout.Session.retrieve')
+    @patch('modules.carts.views.process_successful_payment')
+    def test_payment_success_unpaid(self, mock_process_payment, mock_session_retrieve):
+        mock_session = MagicMock(payment_status='unpaid')
+        mock_session_retrieve.return_value = mock_session
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.get(url_for('carts.payment_success', session_id='test_session_id'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('checkout', response.location)
+        mock_process_payment.assert_not_called()
+
+    @patch('modules.carts.views.stripe.checkout.Session.retrieve')
+    def test_payment_success_stripe_error(self, mock_session_retrieve):
+        mock_session_retrieve.side_effect = stripe.StripeError("Test error")
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.get(url_for('carts.payment_success', session_id='test_session_id'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('checkout', response.location)
+
+    def test_order_confirmation_no_purchase(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            self.session.query(Purchase).filter_by(user_id=self.user.id).delete()
+            self.session.commit()
+            response = self.client.get(url_for('carts.order_confirmation'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('/', response.location)  # Redirect to home page
+
+    def test_from_json_filter_invalid_json(self):
+        with self.app.test_request_context():
+            result = self.app.jinja_env.filters['from_json']('invalid json')
+            self.assertIsNone(result)
+
+    def test_add_to_cart_nonexistent_product(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.post(url_for('carts.add_to_cart_route'), data={
+                'product_id': 9999,  # Non-existent product ID
+                'quantity': 1
+            })
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('/products/9999', response.location)
+
+    def test_update_cart_invalid_input(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.post(url_for('carts.update_cart_route'), data={
+                'cart_item_id': 'invalid',
+                'quantity': 'invalid'
+            })
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data)
+            self.assertFalse(data['status'])
+
+    @patch('modules.carts.views.stripe.checkout.Session.retrieve')
+    def test_payment_success_no_session_id(self, mock_session_retrieve):
+        with self.app.test_request_context():
+            login_user(self.user)
+            response = self.client.get(url_for('carts.payment_success'))
+            self.assertEqual(response.status_code, 302)  # Redirect
+            self.assertIn('checkout', response.location)
+
+    def test_init_cart(self):
+        app = Flask(__name__)
+        from modules.carts.views import init_cart
+        init_cart(app)
+        self.assertIn('carts', app.blueprints)
+
+    # Helper method to get flashed messages
+    def get_flashed_messages(self, response):
+        return response.data
 
 
 if __name__ == '__main__':

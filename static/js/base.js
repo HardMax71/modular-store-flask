@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    // Toast functionality
     $('.toast').toast({autohide: false});
     $('.toast').toast('show');
 
@@ -14,5 +15,21 @@ $(document).ready(function () {
 
     $('.toast').on('show.bs.toast', function () {
         $(this).addClass('animate__animated animate__fadeInRight');
+    });
+
+    // Scroll to top functionality
+    var scrollToTopBtn = $("#scroll-to-top");
+
+    $(window).scroll(function() {
+        if ($(window).scrollTop() > 300) {
+            scrollToTopBtn.addClass('visible');
+        } else {
+            scrollToTopBtn.removeClass('visible');
+        }
+    });
+
+    scrollToTopBtn.on('click', function(e) {
+        e.preventDefault();
+        $('html, body').animate({scrollTop:0}, '300');
     });
 });

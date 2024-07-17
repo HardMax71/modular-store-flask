@@ -4,6 +4,25 @@
 {% block head %}
     {{ super() }}
     <link href="{{ url_for('static', filename='css/tickets.css') }}" rel="stylesheet" type="text/css">
+    <style>
+        .online-badge, .offline-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .online-badge {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .offline-badge {
+            background-color: #ba1e1e;
+            color: white;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -12,7 +31,13 @@
             <div class="bento-box">
                 <h3 class="bento-title">{{ ticket.title }}</h3>
                 <div class="ticket-details">
-                    <p><strong>{{ _('User') }}:</strong> {{ ticket.user.username }}</p>
+                    <p><strong>{{ _('User') }}:</strong> {{ ticket.user.username }}
+                        {% if ticket.user.is_online() %}
+                            <span class="online-badge">{{ _('Online') }}</span>
+                        {% else %}
+                            <span class="offline-badge">{{ _('Offline') }}</span>
+                        {% endif %}
+                    </p>
                     <p><strong>{{ _('Status') }}:</strong> <span
                             class="ticket-status status-{{ ticket.status }}">{{ ticket.status }}</span></p>
                     <p><strong>{{ _('Priority') }}:</strong> <span
@@ -91,6 +116,11 @@
                         <div class="message-content">
                             <h5 class="message-author">
                                 {{ message.user.username }}
+                                {% if ticket.user.is_online() %}
+                                    <span class="online-badge">{{ _('Online') }}</span>
+                                {% else %}
+                                    <span class="offline-badge">{{ _('Offline') }}</span>
+                                {% endif %}
                                 {% if message.is_admin %}
                                     <span class="admin-badge">{{ _('Admin') }}</span>
                                 {% endif %}
@@ -108,7 +138,8 @@
                   class="message-form">
                 <div class="form-group">
                     <label for="message" class="form-label">{{ _('Send Message') }}</label>
-                    <textarea class="form-control" id="message" name="message" rows="3" placeholder="{{ _('Message') }}.." required></textarea>
+                    <textarea class="form-control" id="message" name="message" rows="3"
+                              placeholder="{{ _('Message') }}.." required></textarea>
                 </div>
                 <button type="submit" class="bento-button">{{ _('Send') }}</button>
             </form>

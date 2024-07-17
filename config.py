@@ -40,6 +40,8 @@ class AppConfig:
     WEBSITE_URL: str = 'https://monkfish-app-mbn3z.ondigitalocean.app/'
     PER_PAGE: int = 9  # Number of items per page shown in the shop
 
+    CHATRA_ID: str = 'BvCurTiHvuJFwPQ4x'
+
     TERMS_LAST_UPDATED: str = 'July 7, 2024'
     CONTACT_EMAIL: str = 'contact@example.com'
     CONTACT_PHONE: str = '123-456-7890'

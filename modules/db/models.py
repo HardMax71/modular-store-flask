@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import List, Optional
 from typing import Tuple
 
@@ -35,6 +35,7 @@ class User(Base, UserMixin):  # type: ignore
     email_notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_seen: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow())
 
     addresses: Mapped[List["Address"]] = relationship('Address', backref='user', lazy='select')
     cart_items: Mapped[List["Cart"]] = relationship('Cart', backref='user', lazy='select')
@@ -55,6 +56,11 @@ class User(Base, UserMixin):  # type: ignore
 
     def __str__(self) -> str:
         return self.username
+
+    def is_online(self, timeout=5):
+        if self.last_seen:
+            return datetime.utcnow() - self.last_seen < timedelta(minutes=timeout)
+        return False
 
     @hybrid_property
     def full_name(self) -> str:

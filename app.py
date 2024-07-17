@@ -68,6 +68,8 @@ def register_request_handlers(current_app: Flask) -> None:
             g.unread_notifications_count = db.session.query(Notification).filter_by(
                 user_id=current_user.id, read=False
             ).count()
+            current_user.last_active = datetime.now()
+            db.session.commit()
         else:
             g.mini_cart_items = []
             g.unread_notifications_count = 0
@@ -112,5 +114,5 @@ def register_request_handlers(current_app: Flask) -> None:
 
 
 if __name__ == "__main__":
-    app = create_app()  # was before init
+    app = create_app()
     app.run()

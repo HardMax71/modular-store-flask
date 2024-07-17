@@ -18,8 +18,11 @@ cart_bp = Blueprint('carts', __name__)
 
 
 @cart_bp.app_template_filter('from_json')
-def from_json(value: str) -> Any:
-    return json.loads(value)
+def from_json(value) -> Dict[str, Any] | None:
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return None
 
 
 @cart_bp.route("/add-to-cart", methods=["POST"])
@@ -145,8 +148,13 @@ def payment_success() -> str | ResponseValue:
 
     if current_app.config and current_app.config['TESTING']:
         order_id: Optional[int] = request.args.get('order_id', type=int)
-        flash(_("Purchase completed. Thank you for shopping with us!"), "success")
-        return render_template("cart/success.html", order=db.session.get(Purchase, order_id))
+        order = db.session.get(Purchase, order_id) if order_id else None
+        if order:
+            flash(_("Purchase completed. Thank you for shopping with us!"), "success")
+            return render_template("cart/success.html", order=order)
+        else:
+            flash(_("Order not found."), "danger")
+            return redirect(url_for('carts.checkout'))
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
@@ -167,13 +175,17 @@ def payment_cancel() -> str:
 
 @cart_bp.route("/order-confirmation")
 @login_required_with_message()
-def order_confirmation() -> str:
+def order_confirmation() -> ResponseValue:
     latest_purchase: Optional[Purchase] = (
         db.session.query(Purchase)
         .filter_by(user_id=current_user.id)
         .order_by(Purchase.id.desc())
         .first()
     )
+
+    if not latest_purchase:
+        flash(_("No recent purchase found."), "info")
+        return redirect(url_for('main.index'))
 
     total_amount: int = 0
     if latest_purchase:
