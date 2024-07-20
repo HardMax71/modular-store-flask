@@ -1,0 +1,83 @@
+SECRET_KEY: 'your_secret_key'
+
+DEFAULT_LIMIT_RATE: '100 per minute'
+LOW_STOCK_THRESHOLD: 5
+
+DB_PATH: './modular_store_backend/instance/data.db'
+BACKUP_DIR: './modular_store_backend/modules/db/backups' # Will be joined with PROJECT_ROOT
+SQLALCHEMY_DATABASE_URI: 'sqlite:///./modular_store_backend/instance/data.db'
+
+LIMITER_STORAGE_URI: 'memory://'
+
+PERMANENT_SESSION_LIFETIME: '15 minutes'
+SHOP_NAME: 'Modular Store'
+
+TEMPLATE_FOLDER: './modular_store_frontend/templates'
+STATIC_FOLDER: './modular_store_frontend/static'
+
+IMAGES_FOLDER: './modular_store_frontend/static/img'
+
+PROFILE_PICS_FOLDER: './modular_store_frontend/static/img/profile_pictures' # Will be joined with IMAGES_FOLDER
+DEFAULT_PROFILE_PIC: 'default_profile.png'
+
+REVIEW_PICS_FOLDER: './modular_store_frontend/static/img/review_pictures' # Will be joined with IMAGES_FOLDER
+DEFAULT_REVIEW_PIC: 'default_review.png'
+
+PRODUCTS_PICS_FOLDER: './modular_store_frontend/static/img/products_pictures' # Will be joined with IMAGES_FOLDER
+DEFAULT_PRODUCT_PIC: 'default_product.png'
+
+UPLOAD_FOLDER: './modular_store_frontend/static/img/uploads' # Will be joined with IMAGES_FOLDER
+MAX_CONTENT_LENGTH: 16777216 # 16 MB
+
+IMG_FORMATS:
+  - '.png'
+  - '.jpg'
+  - '.jpeg'
+  - '.bmp'
+
+MAIL_DEFAULT_SENDER: 'default'
+WEBSITE_URL: 'https://monkfish-app-mbn3z.ondigitalocean.app/'
+PER_PAGE: 9
+
+CHATRA_ID: 'BvCurTiHvuJFwPQ4x'
+
+TERMS_LAST_UPDATED: 'July 7, 2024'
+CONTACT_EMAIL: 'contact@example.com'
+CONTACT_PHONE: '123-456-7890'
+JURISDICTION: 'New York, NY'
+
+RETURN_POLICY_LAST_UPDATED: 'July 7, 2024'
+RETURN_WINDOW: 30
+RETURNS_EMAIL: 'return@example.com'
+REFUND_PROCESSING_DAYS: 7
+RETURNS_PHONE: '123-456-7890'
+
+MAIL_SERVER: 'your_mail_server'
+MAIL_PORT: 587
+MAIL_USE_TLS: true
+MAIL_USERNAME: 'your_email@example.com'
+MAIL_PASSWORD: 'your_email_password'
+
+STRIPE_PUBLIC_KEY: 'your_stripe_public_key'
+STRIPE_SECRET_KEY: 'your_stripe_secret_key'
+
+LOCALE_PATH: './translations/'
+GETTEXT_DOMAIN: 'messages'
+LANGUAGES:
+  - 'en'
+  - 'ru'
+LANGUAGE_NAMES:
+  en: 'English'
+  ru: 'Русский'
+DEFAULT_LANG: 'en'
+
+# Flask-Dance settings
+FACEBOOK_OAUTH_CLIENT_ID: 'your_facebook_app_id'
+FACEBOOK_OAUTH_CLIENT_SECRET: 'your_facebook_app_secret'
+GOOGLE_OAUTH_CLIENT_ID: 'your_google_client_id'
+GOOGLE_OAUTH_CLIENT_SECRET: 'your_google_client_secret'
+
+# Social media links
+FACEBOOK_URL: 'https://www.facebook.com/your_facebook_page'
+TWITTER_URL: 'https://twitter.com/your_twitter_page'
+INSTAGRAM_URL: 'https://www.instagram.com/your_instagram_page'

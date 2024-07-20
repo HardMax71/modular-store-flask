@@ -17,10 +17,10 @@ jobs:
         pip install -r requirements.txt
     - name: Run unit tests
       run: |
-        coverage run -m pytest tests/unit
+        coverage run -m pytest modular_store_backend/tests/unit
     - name: Run integration tests
       run: |
-        coverage run -a -m pytest tests/integration
+        coverage run -a -m pytest modular_store_backend/tests/integration
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4.0.1
       with:

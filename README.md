@@ -77,7 +77,7 @@ management.
 
 4. Run the application:
    ```
-   python app.py
+   python modular_store_backend/app.py
    ```
 
 Visit `http://localhost:5000` in your browser to see the application running.
@@ -117,77 +117,55 @@ Visit `http://localhost:5000` in your browser to see the application running.
 
 ## Project Structure
 
-Each module listed below is per se a package, with:
+The project follows a modular structure, with each module typically containing:
 
 - `__init__.py`: Initializes the module and registers routes and views (in a blueprint).
-
-Also, may contain any of the following files:
-
 - `views.py`: Contains the route definitions and view functions.
 - `utils.py`: Contains utility functions specific to the module.
-
+- 
 ```
 modular-store-flask/
 │
-├── app.py                 # Main application entry point
-├── config.py              # Configuration settings
-├── requirements.txt       # Project dependencies
-|
-├── README.md              # Project overview and instructions
-├── LICENSE.md             # License information
-├── .gitignore             # Files and directories to ignore in Git
+├── modular_store_backend/     # Backend package
+│   ├── forms/                 # Form definitions
+│   ├── instance/              # Folder for database instance
+│   ├── modules/               # Application modules
+│   ├── tests/                 # Backend tests
+│   ├── app.py                 # Application factory
+│   └── config.yaml            # Configuration settings
 │
-├── forms/                 # Form classes for user input validation
+├── modular_store_frontend/    # Frontend package
+│   ├── static/                # Static files
+│   │   ├── css/               # CSS files
+│   │   ├── img/               # Image files
+│   │   ├── js/                # JavaScript files
+│   │   └── robots.txt         # Robots file for search engines
+│   │
+│   └── templates/             # HTML templates
+│       ├── admin/             # Admin-related templates
+│       ├── auth/              # Authentication templates
+│       ├── cart/              # Shopping cart templates
+│       ├── tickets/           # Support ticket templates
+│       ├── website_parts/     # Reusable website components
+│       ├── add_address.html
+│       ├── base.html
+│       ├── ...
+│       └── recommendations.html
 │
-├── instance/              # contains single file - data.db (SQLite database)
-│
-├── modules/               # Application modules
-│   ├── admin/             # Admin-related functionality
-│   ├── auth/              # Authentication module
-│   ├── carts/             # Shopping cart functionality
-│   ├── compare/           # Product comparison feature
-│   ├── db/                # Database models and operations
-│   ├── error_handlers/    # Error handling module
-│   ├── extensions/        # locale, mail, security, and other extensions
-│   ├── filter/            # Product filtering functionality
-│   ├── main/              # Main routes and views
-│   ├── profile/           # User profile management
-│   ├── purchase_history/  # Order history and tracking
-│   ├── recommendations/   # Product recommendation system
-│   ├── reviews/           # Product review functionality
-│   ├── tickets/           # Customer support ticket system
-│   ├── wishlists/         # Wishlist functionality
-│   └── ... (single .py files for other features, like caching, logging, ..)
-│
-├── static/                # Static files (CSS, JS, images)
-│   ├── css/
-│   ├── js/
-│   ├── img/
-│   └── robots.txt        # Robots file for search engine indexing
-│
-├── templates/             # HTML templates
-│   ├── admin/
-│   ├── auth/
-│   ├── cart/
-│   ├── error/
-│   └── tickets/
-│
-├── translations/          # Internationalization files
-│
-└── tests/                 # Unit and integration tests
-    ├── unit/
-    └── integration/
+├── translations/              # Internationalization files
+├── ...
+└── README.md                  # Project documentation
 ```
 
 This structure represents the main components of the Modular Store Flask project:
 
-- `app.py`: The main entry point of the application.
-- `config.py`: Contains configuration settings for different environments.
-- `modules/`: Houses the different functional modules of the application.
-- `static/`: Contains all static files like CSS, JavaScript, and images.
-- `templates/`: Holds all the HTML templates used in the application.
-- `translations/`: Contains files for internationalization support.
-- `instance/`: Stores instance-specific configurations (not version controlled).
+- `modular_store_backend/`: The main package containing the application code.
+- `modular_store_backend/app.py`: The application factory.
+- `modular_store_backend/config.yaml`: Contains configuration settings for different environments.
+- `modular_store_backend/modules/`: Houses the different functional modules of the application.
+- `modular_store_backend/static/`: Contains all static files like CSS, JavaScript, and images.
+- `modular_store_backend/templates/`: Holds all the HTML templates used in the application.
+- `modular_store_backend/translations/`: Contains files for internationalization support.
 - `tests/`: Contains all the unit and integration tests for the project.
 
 Each module in the `modules/` directory typically contains its own views, forms, and utility functions,
