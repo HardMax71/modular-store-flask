@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/HardMax71/modular-store-flask/main/static/img/icon.png" alt="Modular Store Flask Logo" width="100" height="100">
+  <img src="https://raw.githubusercontent.com/HardMax71/modular-store-flask/main/modular_store_frontend/static/img/icon.png" alt="Modular Store Flask Logo" width="100" height="100">
 
-# Modular Store Flask
+# Modular Store
 
 A comprehensive, feature-rich e-commerce platform built with Flask
 
@@ -122,7 +122,7 @@ The project follows a modular structure, with each module typically containing:
 - `__init__.py`: Initializes the module and registers routes and views (in a blueprint).
 - `views.py`: Contains the route definitions and view functions.
 - `utils.py`: Contains utility functions specific to the module.
-- 
+
 ```
 modular-store-flask/
 │

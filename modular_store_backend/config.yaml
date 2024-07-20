@@ -10,6 +10,8 @@ SQLALCHEMY_DATABASE_URI: 'sqlite:///./modular_store_backend/instance/data.db'
 LIMITER_STORAGE_URI: 'memory://'
 
 PERMANENT_SESSION_LIFETIME: '15 minutes'
+BACKUP_INTERVAL: 86400 # in seconds
+
 SHOP_NAME: 'Modular Store'
 
 TEMPLATE_FOLDER: './modular_store_frontend/templates'

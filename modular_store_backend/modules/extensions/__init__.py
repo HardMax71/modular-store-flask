@@ -28,7 +28,7 @@ def init_extensions(app: Flask) -> None:
     cache.init_app(app)
 
     # Set up scheduler
-    scheduler.add_job(backup_database, 'interval', minutes=30, args=[app])
+    scheduler.add_job(backup_database, 'interval', seconds=app.config['BACKUP_INTERVAL'], args=[app])
     if not scheduler.running:
         scheduler.start()
 
