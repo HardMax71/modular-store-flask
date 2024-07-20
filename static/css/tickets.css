@@ -82,19 +82,6 @@ body {
     }
 }
 
-.bento-button {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.bento-button:hover {
-    background-color: #226c9c;
-}
-
 .tickets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

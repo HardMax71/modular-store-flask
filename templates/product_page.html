@@ -148,19 +148,20 @@
                         <h5 class="font-weight-bold mb-3">{{ _('Share this product') }}:</h5>
                         <div class="d-flex justify-content-center">
                             <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank"
-                               class="btn btn-primary btn-sm mr-2">
+                               class="btn btn-facebook btn-sm mr-2">
                                 <i class="fab fa-facebook-f"></i> Facebook
                             </a>
                             <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ product.samplename }}"
-                               target="_blank" class="btn btn-info btn-sm mr-2">
+                               target="_blank" class="btn btn-twitter btn-sm mr-2">
                                 <i class="fab fa-twitter"></i> Twitter
                             </a>
                             <a href="https://www.linkedin.com/shareArticle?url={{ request.url }}&title={{ product.samplename }}"
-                               target="_blank" class="btn btn-secondary btn-sm">
+                               target="_blank" class="btn btn-linkedin btn-sm">
                                 <i class="fab fa-linkedin-in"></i> LinkedIn
                             </a>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -396,7 +397,7 @@
                                 </div>
                                 <div class="card-footer text-center"><a
                                         href="{{ url_for('main.product_page', product_id=product.id) }}"
-                                        class="btn btn-primary">{{ _('View Details') }}</a></div>
+                                        class="view-details-btn">{{ _('View Details') }}</a></div>
                             </div>
                         </div>
                     {% endfor %}

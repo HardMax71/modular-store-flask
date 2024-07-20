@@ -84,7 +84,7 @@ def send_wishlist_email(msg: Message) -> None:
         current_app.extensions['mail'].send(msg)
         flash(_("Wishlist notifications sent successfully."), "success")
     except BadHeaderError:
-        flash(_("Invalid email header in wishlist notification"), "danger")
+        flash(_("Invalid email header"), "danger")
     except SMTPException as e:
         flash(_("SMTP error sending wishlist notification: {}").format(str(e)), "danger")
     except Exception as e:
@@ -111,7 +111,7 @@ def send_order_confirmation_email(email: str, name: str) -> None:
         current_app.extensions['mail'].send(msg)
         flash(_("Order confirmation email sent successfully"), "success")
     except BadHeaderError:
-        flash(_("Invalid email header in order confirmation"), "danger")
+        flash(_("Invalid email header"), "danger")
     except SMTPException as e:
         flash(_("SMTP error sending order confirmation: {}").format(str(e)), "danger")
     except Exception as e:

@@ -151,13 +151,13 @@
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    max-width: 100%;
+    max-width: 50%;
     height: auto;
 }
 
 /* Style for the img-fluid class */
 .img-fluid {
-    max-width: 100%;
+    max-width: 50%;
     height: auto;
 }
 
@@ -438,6 +438,53 @@ body {
 
 /* Improve focus visibility for accessibility */
 a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
+}
+
+/* Stock status styles for accessibility */
+.stock-status {
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+/* Out of Stock */
+.out-of-stock {
+    color: #dc3545; /* Red for out of stock */
+    background-color: #f8d7da;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* Low Stock */
+.low-stock {
+    color: #ffc107; /* Yellow for low stock */
+    background-color: #fff3cd;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* Limited Stock */
+.limited-stock {
+    color: #fd7e14; /* Orange for limited stock */
+    background-color: #ffe5b4;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* In Stock */
+.in-stock {
+    color: #28a745; /* Green for in stock */
+    background-color: #d4edda;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* Focus visibility for accessibility */
+.out-of-stock:focus,
+.low-stock:focus,
+.limited-stock:focus,
+.in-stock:focus {
     outline: 3px solid #207AB6;
     outline-offset: 2px;
 }

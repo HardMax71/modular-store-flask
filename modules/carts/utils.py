@@ -236,36 +236,40 @@ def add_to_cart(product: Product, quantity: int, variant_options: Dict[str, str]
     return True
 
 
+# Maybe refactor and add FSM/Enum/..?
 def apply_discount_code(discount_code: str) -> str:
     discount: Optional[Discount] = (
         db.session.query(Discount)
         .filter_by(code=discount_code)
         .first()
     )
-    if discount:
-        current_date = datetime.now().date()
-        if discount.start_date <= current_date <= discount.end_date:  # type: ignore
-            user_discount: Optional[UserDiscount] = (
-                db.session.query(UserDiscount)
-                .filter_by(user_id=current_user.id, discount_id=discount.id)
-                .first()
-            )
-            if user_discount:
-                return "already_used"
 
-            cart_items: List[Cart] = (
-                db.session.query(Cart)
-                .filter_by(user_id=current_user.id)
-                .all()
-            )
-            for item in cart_items:
-                discounted_price = int(
-                    item.price - (item.price * discount.percentage / 100.0))  # percentage: int in [0..100]
-                item.price = discounted_price
-            new_user_discount = UserDiscount(user_id=current_user.id, discount_id=discount.id)
-            db.session.add(new_user_discount)
-            db.session.commit()
-            return "success"
+    if not discount:
+        return "invalid"
+
+    current_date = datetime.now().date()
+    if discount.start_date <= current_date <= discount.end_date:  # type: ignore
+        user_discount: Optional[UserDiscount] = (
+            db.session.query(UserDiscount)
+            .filter_by(user_id=current_user.id, discount_id=discount.id)
+            .first()
+        )
+        if user_discount:
+            return "already_used"
+
+        cart_items: List[Cart] = (
+            db.session.query(Cart)
+            .filter_by(user_id=current_user.id)
+            .all()
+        )
+        for item in cart_items:
+            discounted_price = int(
+                item.price - (item.price * discount.percentage / 100.0))  # percentage: int in [0..100]
+            item.price = discounted_price
+        new_user_discount = UserDiscount(user_id=current_user.id, discount_id=discount.id)
+        db.session.add(new_user_discount)
+        db.session.commit()
+        return "success"
     return "invalid"
 
 

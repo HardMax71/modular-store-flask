@@ -2,10 +2,9 @@
     background-color: #ffffff;
     border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
-
 
 
 .card {
@@ -194,4 +193,83 @@
 .custom-file-input:focus ~ .custom-file-label {
     border-color: #80bdff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Social Sharing Styles for Accessibility */
+.social-sharing {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.social-sharing h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.social-sharing .btn {
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.social-sharing .btn i {
+    margin-right: 0.5rem;
+}
+
+/* Facebook */
+.social-sharing .btn-facebook {
+    background-color: #3b5998;
+    border-color: #3b5998;
+}
+
+.social-sharing .btn-facebook:hover,
+.social-sharing .btn-facebook:focus {
+    background-color: #2d4373;
+    border-color: #2d4373;
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
+    transform: translateY(-2px);
+}
+
+/* Twitter */
+.social-sharing .btn-twitter {
+    background-color: #1da1f2;
+    border-color: #1da1f2;
+}
+
+.social-sharing .btn-twitter:hover,
+.social-sharing .btn-twitter:focus {
+    background-color: #0d95e8;
+    border-color: #0d95e8;
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
+    transform: translateY(-2px);
+}
+
+/* LinkedIn */
+.social-sharing .btn-linkedin {
+    background-color: #0077b5;
+    border-color: #0077b5;
+}
+
+.social-sharing .btn-linkedin:hover,
+.social-sharing .btn-linkedin:focus {
+    background-color: #005582;
+    border-color: #005582;
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
+    transform: translateY(-2px);
+}
+
+/* General focus styles for accessibility */
+.social-sharing .btn:focus {
+    outline: 3px solid #207AB6;
+    outline-offset: 2px;
 }

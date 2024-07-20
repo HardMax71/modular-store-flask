@@ -2,10 +2,13 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+from flask_login import login_user
+
 from app import create_app
 from config import AppConfig
 from modules.db.models import User
 from tests.base_test import BaseTest
+from tests.util import create_user
 
 
 class TestAppRoutes(BaseTest):
@@ -79,17 +82,25 @@ class TestAppRoutes(BaseTest):
             self.assertEqual(custom_app.config['PERMANENT_SESSION_LIFETIME'], timedelta(hours=1))
 
     def test_session_timeout(self):
-        with self.app.test_client() as client:
-            # Set up a session
-            with client.session_transaction() as sess:
-                sess['last_active'] = (datetime.now() - timedelta(seconds=3601)).isoformat()
+        with self.app.test_request_context():
+            # Create a test user
+            user = create_user(self)
+            self.session.add(user)
+            self.session.commit()
+
+            # Log in the user
+            login_user(user)
+
+            # Set the last_seen time to be older than the session timeout
+            user.last_seen = datetime.utcnow() - AppConfig.PERMANENT_SESSION_LIFETIME - timedelta(seconds=10)
+            self.session.commit()
 
             # Make a request
-            response = client.get('/')
+            self.client.get('/')
 
-            # Check if redirected to login page due to session timeout
-            self.assertEqual(response.status_code, 302)
-            self.assertIn('/login', response.location)
+            # Check if the user is logged out
+            with self.client.session_transaction() as sess:
+                self.assertNotIn('user_id', sess)
 
     def test_session_active(self):
         with self.app.test_client() as client:

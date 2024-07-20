@@ -116,7 +116,7 @@
                         <div class="message-content">
                             <h5 class="message-author">
                                 {{ message.user.username }}
-                                {% if ticket.user.is_online() %}
+                                {% if message.user.is_online() %}
                                     <span class="online-badge">{{ _('Online') }}</span>
                                 {% else %}
                                     <span class="offline-badge">{{ _('Offline') }}</span>

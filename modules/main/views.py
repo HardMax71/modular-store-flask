@@ -65,8 +65,15 @@ def product_page(product_id: int) -> ResponseValue:
         flash(_("Product not found"), "danger")
         return redirect(url_for('main.index'))
 
-    reviews = db.session.query(Review, User).join(User).filter(Review.product_id == product_id).order_by(
-        desc(Review.date)).limit(3).all()
+    reviews = (
+        db.session.query(Review, User)
+        .join(User, Review.user_id == User.id)
+        .filter(Review.product_id == product_id)
+        .order_by(Review.date.desc())
+        .limit(3)
+        .all()
+    )
+
     selection_options: List[ProductSelectionOption] = (
         db.session.query(ProductSelectionOption)
         .filter_by(product_id=product_id)

@@ -125,51 +125,6 @@
     content: '$';
 }
 
-/* Button styles */
-.bento-button {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    cursor: pointer;
-    border: none;
-}
-
-.bento-button:hover {
-    transform: translateY(-2px);
-}
-
-.bento-button-primary {
-    background-color: #2370a5;
-    color: #ffffff;
-}
-
-.bento-button-primary:hover {
-    background-color: #226c9c;
-}
-
-.bento-button-secondary {
-    background-color: #6c757d;
-    color: #ffffff;
-}
-
-.bento-button-secondary:hover {
-    background-color: #5a6268;
-}
-
-.bento-button-danger {
-    background-color: #dc3545;
-    color: #ffffff;
-}
-
-.bento-button-danger:hover {
-    background-color: #c82333;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .bento-grid {
@@ -187,7 +142,6 @@
 }
 
 /* Accessibility improvements */
-.bento-button:focus,
 .purchase-table th:focus,
 .purchase-table td:focus {
     outline: 3px solid #207AB6;
@@ -196,7 +150,6 @@
 
 /* High contrast mode adjustments */
 @media (forced-colors: active) {
-    .bento-button,
     .purchase-status,
     .purchase-details-header {
         border: 2px solid currentColor;
