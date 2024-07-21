@@ -37,7 +37,7 @@
                                            id="shipping-{{ method.id }}" value="{{ method.id }}" required
                                            data-price="{{ method.price / 100.0 }}" onchange="updateTotal()">
                                     <label class="form-check-label" for="shipping-{{ method.id }}">
-                                        {{ method.name }} - ${{ "%.2f"|format(method.price / 100.0) }}
+                                        {{ method.name }} - {{ format_price(method.price) }}
                                     </label>
                                 </div>
                             {% endfor %}
@@ -56,17 +56,14 @@
                                     <li class="list-group-item">
                                         {{ item.product.samplename }}
                                         - {{ _('Quantity') }}: {{ item.quantity }}, {{ _('Price') }}:
-                                        ${{ "%.2f"|format(item.price / 100.0) }}
+                                        {{ format_price(item.price) }}
                                     </li>
                                 {% endfor %}
                             </ul>
                             <div class="mt-3">
-                                <p>{{ _('Subtotal') }}: $<span
-                                        id="subtotal">{{ "%.2f"|format(subtotal / 100.0) }}</span></p>
-                                <p>{{ _('Shipping cost') }}: $<span
-                                        id="shipping-price">{{ "%.2f"|format(shipping_price / 100.0) }}</span></p>
-                                <h4>{{ _('Total price') }}: $<span
-                                        id="total-price">{{ "%.2f"|format(total / 100.0) }}</span></h4>
+                                <p>{{ _('Subtotal') }}: <span id="subtotal">{{ format_price(subtotal) }}</span></p>
+                                <p>{{ _('Shipping cost') }}: <span id="shipping-price">{{ format_price(shipping_price) }}</span></p>
+                                <h4>{{ _('Total price') }}: <span id="total-price">{{ format_price(total) }}</span></h4>
                             </div>
                         </div>
                     </div>

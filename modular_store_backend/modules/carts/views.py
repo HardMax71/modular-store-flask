@@ -18,7 +18,7 @@ cart_bp = Blueprint('carts', __name__)
 
 
 @cart_bp.app_template_filter('from_json')
-def from_json(value) -> Dict[str, Any] | None:
+def from_json(value: str) -> Any:
     try:
         return json.loads(value)
     except json.JSONDecodeError:

@@ -11,7 +11,8 @@
                             <div class="font-weight-bold"
                                  id="header-total-items">{{ total_items|default(0, true) }} {{ _('item(s)') }}</div>
                             <div class="font-weight-bold" id="header-total-price">
-                                ${{ '{:,.2f}'.format(total_amount/100.0|default(0, true)) }}</div>
+                                {{ format_price(total_amount|default(0, true)) }}
+                            </div>
                         </div>
                     </a>
                 {% endif %}

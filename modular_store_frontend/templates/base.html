@@ -34,6 +34,8 @@
     <!-- /Chatra {/literal} -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>{% block title %}{% endblock %}</title>
+    {% from "website_parts/_macros.html" import format_price, format_discount_percentage %}
+
     {% block head %}{% endblock %}
 </head>
 <body>

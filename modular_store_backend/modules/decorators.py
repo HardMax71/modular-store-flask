@@ -27,7 +27,7 @@ def login_required_with_message(message: str = _("You must be logged in to view 
         @wraps(f)
         def decorated_function(*args: Any, **kwargs: Any):  # type: ignore
             if not current_user.is_authenticated:
-                flash(_(message), category)
+                flash(message, category)
                 if redirect_back:
                     if referrer := request.headers.get("Referer", None):
                         return redirect(referrer)

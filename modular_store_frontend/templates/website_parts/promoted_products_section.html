@@ -22,11 +22,13 @@
                         </div>
                         <div class="product-price">
                             {% if product.onSale %}
-                                <span class="sale-price">${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
-                                <span class="original-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
-                                <span class="discount-percentage">-{{ ((product.price - product.onSalePrice) / product.price * 100)|round|int }}%</span>
+                                <span class="sale-price">{{ format_price(product.onSalePrice) }}</span>
+                                <span class="original-price">{{ format_price(product.price) }}</span>
+                                <span class="discount-percentage">
+                                    {{ format_discount_percentage(product.price, product.onSalePrice) }}
+                                </span>
                             {% else %}
-                                <span class="regular-price">${{ '{:,.2f}'.format(product.price / 100.0) }}</span>
+                                <span class="regular-price">{{ format_price(product.price) }}</span>
                             {% endif %}
                         </div>
                         <div class="product-description">

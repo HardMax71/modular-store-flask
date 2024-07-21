@@ -34,7 +34,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ '%.2f'|format(product.current_price / 100.0) }}$</td>
+                            <td>{{ format_price(product.current_price) }}</td>
                             <td>{{ product.category.name }}</td>
                             <td>
                                 <div class="d-flex align-items-center">

@@ -74,15 +74,15 @@
                     <div class="bento-item">
                         {% set items_subtotal = purchase.items_subtotal %}
                         <p><strong>{{ _('Subtotal') }}:</strong> <span
-                                class="price">{{ '%.2f' | format(items_subtotal / 100.0) }}</span></p>
+                                class="price">{{ format_price(items_subtotal) }}</span></p>
                         <p><strong>{{ _('Discount') }}:</strong> <span
-                                class="price">{{ '%.2f' | format(purchase.discount_amount / 100.0) }}</span></p>
+                                class="price">{{ format_price(purchase.discount_amount) }}</span></p>
                         <p><strong>{{ _('Delivery Fee') }}:</strong> <span
-                                class="price">{{ '%.2f' | format(purchase.delivery_fee / 100.0) }}</span></p>
+                                class="price">{{ format_price(purchase.delivery_fee) }}</span></p>
                     </div>
                     <div class="bento-item text-right">
                         <h4><strong>{{ _('Total Price') }}:</strong> <span
-                                class="price">{{ '%.2f' | format(purchase.total_price / 100.0) }}</span>
+                                class="price">{{ format_price(purchase.total_price) }}</span>
                         </h4>
                     </div>
                 </div>

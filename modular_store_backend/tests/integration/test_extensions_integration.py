@@ -19,6 +19,7 @@ class TestExtensionsIntegration(unittest.TestCase):
         self.app.config['GOOGLE_OAUTH_CLIENT_ID'] = 'fake_google_id'
         self.app.config['GOOGLE_OAUTH_CLIENT_SECRET'] = 'fake_google_secret'
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app.config['BACKUP_INTERVAL'] = 86400
 
     def test_init_extensions(self):
         init_extensions(self.app)

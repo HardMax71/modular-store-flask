@@ -20,10 +20,10 @@
                     <div class="d-flex align-items-center mb-3">
                         {% if product.onSale %}
                             <h4 class="text-danger font-weight-bold mb-0 mr-3">
-                                ${{ '{:,.2f}'.format(product.onSalePrice / 100.0) }}</h4>
+                                {{ format_price(product.onSalePrice) }}</h4>
                             <span class="badge badge-danger">{{ _('On Sale!') }}</span>
                         {% else %}
-                            <h4 class="font-weight-bold mb-0">${{ '{:,.2f}'.format(product.price / 100.0) }}</h4>
+                            <h4 class="font-weight-bold mb-0">{{ format_price(product.price) }}</h4>
                         {% endif %}
                     </div>
                     <div class="mb-4">
@@ -388,10 +388,10 @@
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div class="price-container"> {% if product.onSale %}
                                             <span
-                                                    class="price text-danger fs-5">{{ '${:,.2f}'.format(product.onSalePrice / 100.0) }}</span>
-                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ '${:,.2f}'.format(product.price / 100.0) }}</del></span> {% else %}
+                                                    class="price text-danger fs-5">{{ format_price(product.onSalePrice) }}</span>
+                                            <span class="original-price text-muted ms-2 fs-6"><del>{{ format_price(product.price) }}</del></span> {% else %}
                                             <span
-                                                    class="price fs-5">{{ '${:,.2f}'.format(product.price / 100.0) }}</span> {% endif %}
+                                                    class="price fs-5">{{ format_price(product.price) }}</span> {% endif %}
                                         </div>
                                     </div>
                                 </div>

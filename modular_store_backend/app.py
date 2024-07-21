@@ -19,7 +19,7 @@ from modular_store_backend.modules.extensions import init_extensions
 from modular_store_backend.modules.logger import DatabaseLogger
 
 
-def load_config(config_path):
+def load_config(config_path: str) -> Any:
     with open(config_path, 'r', encoding='utf-8') as config_file:
         config = yaml.safe_load(config_file)
 
@@ -31,7 +31,7 @@ def load_config(config_path):
     return config
 
 
-def create_app(config_path='./modular_store_backend/config.yaml', config=None) -> Flask:
+def create_app(config_path: str = './modular_store_backend/config.yaml', config: Any = None) -> Flask:
     if config is None:
         config = load_config(config_path)
 

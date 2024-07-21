@@ -63,9 +63,9 @@ class User(Base, UserMixin):  # type: ignore
             return True
         return datetime.utcnow() - self.last_seen > expiration_time
 
-    def is_online(self, timeout=5):
+    def is_online(self, timout_in_minutes: int = 5) -> bool:
         if self.last_seen:
-            return datetime.utcnow() - self.last_seen < timedelta(minutes=timeout)
+            return datetime.utcnow() - self.last_seen < timedelta(minutes=timout_in_minutes)
         return False
 
     @hybrid_property
@@ -81,7 +81,7 @@ class User(Base, UserMixin):  # type: ignore
         image_path = os.path.join(current_app.config['PROFILE_PICS_FOLDER'], self._profile_picture)
 
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return current_app.config['DEFAULT_PROFILE_PIC']
+            return str(current_app.config['DEFAULT_PROFILE_PIC'])
 
         return str(self._profile_picture)
 
@@ -326,7 +326,7 @@ class ProductImage(Base):
         image_path = os.path.join(current_app.config['PRODUCTS_PICS_FOLDER'], self._image)
 
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return current_app.config['DEFAULT_PRODUCT_PIC']
+            return str(current_app.config['DEFAULT_PRODUCT_PIC'])
 
         return str(self._image)
 
@@ -489,7 +489,7 @@ class ReviewImage(Base):
         image_path = os.path.join(current_app.config['REVIEW_PICS_FOLDER'], self._image)
 
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
-            return current_app.config['DEFAULT_REVIEW_PIC']
+            return str(current_app.config['DEFAULT_REVIEW_PIC'])
 
         return str(self._image)
 

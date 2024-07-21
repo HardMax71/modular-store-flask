@@ -1,0 +1,8 @@
+{% macro format_price(price_in_cents, currency='$') %}
+    {{ currency }}{{ "%.2f"|format(price_in_cents / 100.0) }}
+{% endmacro %}
+
+{% macro format_discount_percentage(original_price, sale_price) %}
+    {% set discount_percentage = ((original_price - sale_price) / original_price * 100)|round|int %}
+    -{{ discount_percentage }}%
+{% endmacro %}
