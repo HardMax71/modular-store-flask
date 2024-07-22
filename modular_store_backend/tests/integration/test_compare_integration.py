@@ -100,7 +100,7 @@ class TestCompareIntegration(BaseTest):
         response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': 4},
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'You can only compare up to 3 products at a time', response.data)
+        self.assertIn(b'You can&#39;t compare so many products at a time.', response.data)
 
     def test_add_to_comparison_nonexistent_product(self):
         response = self.client.post(url_for('compare.add_to_comparison'), data={'product_id': 999},

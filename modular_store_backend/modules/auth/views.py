@@ -13,8 +13,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from modular_store_backend.forms.forms import RegistrationForm, LoginForm
 from modular_store_backend.modules.db.database import db
-from modular_store_backend.modules.db.models import User
+from modular_store_backend.modules.db.models import User, SocialAccount
 from modular_store_backend.modules.decorators import login_required_with_message
+from modular_store_backend.modules.oauth_login import oauth
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -82,7 +83,8 @@ def reset_password() -> ResponseValue:
                 return redirect(url_for('auth.reset_password'))
 
             # Generate password reset token
-            s = Serializer(current_app.config['SECRET_KEY'], str(1800))  # Token valid for 30 minutes
+            s = Serializer(current_app.config['SECRET_KEY'],
+                           str(current_app.config['PASSWORD_RESET_TIMEOUT']))
             token = s.dumps({'user_id': user.id})
 
             # Send password reset email
@@ -138,6 +140,60 @@ def reset_password_token(token: str) -> ResponseValue:
             flash(_('Passwords do not match.'), 'danger')
 
     return render_template('auth/reset_password_token.html')
+
+
+@auth_bp.route('/login/google')
+def google_login():
+    google = oauth.create_client('google')
+    redirect_uri = url_for('auth.google_authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@auth_bp.route('/login/google/authorize')
+def google_authorize():
+    google = oauth.create_client('google')
+    token = google.authorize_access_token()
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+    user_info = resp.json()
+
+    # Check if user already exists by social_id
+    social_account = db.session.query(SocialAccount).filter_by(provider='google', social_id=user_info['sub']).first()
+
+    if social_account:
+        user = social_account.user
+    else:
+        # Check if a user with this email already exists
+        user = db.session.query(User).filter_by(email=user_info['email']).first()
+
+        if not user:
+            # Create new user
+            password = str(Serializer(current_app.config['SECRET_KEY']).dumps({'google_id': user_info['sub']}))[:8]
+            user = User(
+                username=user_info['email'],
+                email=user_info['email'],
+                fname=user_info.get('given_name'),
+                lname=user_info.get('family_name'),
+                password=generate_password_hash(password),
+                _profile_picture=user_info.get('picture', 'user-icon.png')
+            )
+            db.session.add(user)
+            db.session.flush()
+
+            flash(_(f"Your account has been created.\nPassword: {password}"), "warning")
+
+        # Create social account
+        social_account = SocialAccount(
+            user_id=user.id,
+            provider='google',
+            social_id=user_info['sub'],
+            access_token=token['access_token']
+        )
+        db.session.add(social_account)
+
+    db.session.commit()
+    login_user(user)
+    flash(_("Login with Google successful."), "success")
+    return redirect(url_for('main.index'))
 
 
 def init_auth(app: Flask, limiter: Limiter) -> None:

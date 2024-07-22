@@ -2,7 +2,7 @@ import unittest
 
 from modular_store_backend.modules.db.models import Wishlist, Product
 from modular_store_backend.modules.wishlists.utils import (
-    get_product_selection_options, wishlist_exists, remove_from_wishlist, add_wishlist_item
+    get_product_selection_options, item_exists_in_wishlist, remove_item_from_wishlist, add_item_to_wishlist
 )
 from modular_store_backend.tests.base_test import BaseTest
 from modular_store_backend.tests.util import create_user
@@ -35,14 +35,14 @@ class TestWishlistsUnit(BaseTest):
         self.session.add(wishlist_item)
         self.session.commit()
 
-        result = wishlist_exists(user.id, product.id)
+        result = item_exists_in_wishlist(user.id, product.id)
         self.assertIsNotNone(result)
 
     def test_is_wishlist_item_not_exists(self):
         user = create_user(self)
         product = self.create_product()
 
-        result = wishlist_exists(user.id, product.id)
+        result = item_exists_in_wishlist(user.id, product.id)
         self.assertIsNone(result)
 
     def test_remove_from_wishlist(self):
@@ -52,7 +52,7 @@ class TestWishlistsUnit(BaseTest):
         self.session.add(wishlist_item)
         self.session.commit()
 
-        remove_from_wishlist(user.id, product.id)
+        remove_item_from_wishlist(user.id, product.id)
         result = self.session.query(Wishlist).filter_by(user_id=user.id, product_id=product.id).first()
         self.assertIsNone(result)
 
@@ -61,7 +61,7 @@ class TestWishlistsUnit(BaseTest):
         product = self.create_product()
         variant_options = {"size": "L", "color": "red"}
 
-        add_wishlist_item(user.id, product.id, variant_options)
+        add_item_to_wishlist(user.id, product.id, variant_options)
         result = self.session.query(Wishlist).filter_by(user_id=user.id, product_id=product.id).first()
         self.assertIsNotNone(result)
         self.assertEqual(result.variant_options, '{"size": "L", "color": "red"}')

@@ -106,15 +106,6 @@ def handle_change_phone() -> bool:
 
 
 def validate_phone(phone: str) -> bool:
-    """
-    Validate the phone number format.
-
-    Args:
-        phone: The phone number to validate.
-
-    Returns:
-        bool: True if the phone number is valid, False otherwise.
-    """
     try:
         phone_number: phonenumbers.PhoneNumber = phonenumbers.parse(phone, None)
         if not phonenumbers.is_valid_number(phone_number):

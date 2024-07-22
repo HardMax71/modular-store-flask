@@ -13,7 +13,6 @@ error_explanations: Dict[int, str] = {
     403: "Access to the requested resource is forbidden.",
     404: "The server cannot find the requested page.",
     429: "Too many requests. Please try again later.",
-    491: "The server cannot handle the request due to a temporary overloading or maintenance of the server.",
     500: "The server has encountered a situation it doesn't know how to handle."
 }
 
@@ -58,7 +57,7 @@ def init_error_handlers(app: Flask) -> None:
     Args:
         app (Flask): The Flask application instance.
     """
-    for error_code in [400, 401, 403, 404, 429, 500]:
+    for error_code in error_explanations.keys():
         app.register_error_handler(error_code, handle_error)
 
     app.register_blueprint(error_handlers_bp)

@@ -23,18 +23,18 @@ def get_product_selection_options(selection_options_json: Optional[str]) -> Dict
     return {}
 
 
-def wishlist_exists(user_id: int, product_id: int) -> Optional[Wishlist]:
+def item_exists_in_wishlist(user_id: int, product_id: int) -> Optional[Wishlist]:
     return db.session.query(Wishlist).filter_by(user_id=user_id, product_id=product_id).first()
 
 
-def remove_from_wishlist(user_id: int, product_id: int) -> None:
+def remove_item_from_wishlist(user_id: int, product_id: int) -> None:
     wishlist_item = db.session.query(Wishlist).filter_by(user_id=user_id, product_id=product_id).first()
     if wishlist_item:
         db.session.delete(wishlist_item)
         db.session.commit()
 
 
-def add_wishlist_item(user_id: int, product_id: int, variant_options: Dict[str, str]) -> None:
+def add_item_to_wishlist(user_id: int, product_id: int, variant_options: Dict[str, str]) -> None:
     variant_options_str = json.dumps(variant_options)
     new_wishlist_item = Wishlist(user_id=user_id, product_id=product_id, variant_options=variant_options_str)
     db.session.add(new_wishlist_item)

@@ -44,6 +44,7 @@
     border: 1px solid #ced4da;
     padding: 0.75rem 1rem;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
 }
 
 .form-control:focus {
@@ -63,6 +64,10 @@
     border-radius: 10px;
     transition: background-color 0.3s ease, transform 0.3s ease;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
 }
 
 .auth-button:hover {
@@ -82,13 +87,45 @@
 }
 
 .auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
     margin: 1.5rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
     border-top: 1px solid #e9ecef;
+}
+
+.auth-divider span {
+    padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
 }
 
 .auth-footer {
     text-align: center;
     margin-top: 1rem;
+}
+
+/* Google login button styles */
+.google-button {
+    background-color: #ffffff;
+    color: #757575;
+    border: 1px solid #ced4da;
+}
+
+.google-button:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.google-icon {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
 }
 
 /* Specific styles for the register page */

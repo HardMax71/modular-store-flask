@@ -69,7 +69,7 @@ def get_filter_options() -> Dict[str, Any]:
     :return: Dictionary containing filter options
     """
     categories = get_categories()
-    tags = get_tags()
+    tags = get_all_tags()
     sort_options = [{'value': option.key, 'label': option.label} for option in SortOptions.get_all()]
 
     filter_options = {
@@ -86,14 +86,9 @@ def get_categories() -> List[Dict[str, Any]]:
             categories_query]
 
 
-def get_tags() -> List[Dict[str, Any]]:
-    """
-    Get a list of all tags.
-
-    :return: List of tags with their details
-    """
-    tags_query = db.session.query(Tag).all()
-    return [{'id': tag.id, 'name': tag.name} for tag in tags_query]
+def get_all_tags() -> List[Dict[str, Any]]:
+    """Get a list of all tags."""
+    return [{'id': tag.id, 'name': tag.name} for tag in db.session.query(Tag).all()]
 
 
 def get_promoted_products(products_query: Optional[Query[Product]] = None) -> List[Product]:

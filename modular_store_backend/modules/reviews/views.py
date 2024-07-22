@@ -9,7 +9,7 @@ from modular_store_backend.modules.db.database import db
 from modular_store_backend.modules.db.models import Review, ReportedReview
 from modular_store_backend.modules.decorators import login_required_with_message, admin_required
 from modular_store_backend.modules.reviews.utils import (
-    get_review, report_review_in_db, add_review_to_db, has_already_reviewed, has_purchased
+    get_review, report_review_with_explanation, add_review_to_db, has_already_reviewed, has_purchased
 )
 
 reviews_bp = Blueprint('reviews', __name__)
@@ -28,7 +28,7 @@ def report_review(review_id: int) -> tuple[int, str] | ResponseValue:
         flash(_("Please provide an explanation for reporting the review."), "danger")
         return redirect(url_for("main.product_page", product_id=review.product_id))
 
-    report_review_in_db(review.id, current_user.id, explanation)
+    report_review_with_explanation(review.id, current_user.id, explanation)
     flash(_("Review reported. Thank you for your feedback."), "success")
     return redirect(url_for("main.product_page", product_id=review.product_id))
 
@@ -68,18 +68,17 @@ def add_review() -> ResponseValue:
 
 
 @reviews_bp.route('/admin/reported-reviews')
-@login_required_with_message()
 @admin_required()
 def reported_reviews() -> ResponseValue:
     all_reported_reviews: List[ReportedReview] = (
         db.session.query(ReportedReview)
         .all()
     )
-    return render_template('admin/reported_reviews.html', reported_reviews=all_reported_reviews)
+    return render_template('admin/reported_reviews.html',
+                           reported_reviews=all_reported_reviews)
 
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>')
-@login_required_with_message()
 @admin_required()
 def reported_review_detail(review_id: int) -> ResponseValue:
     reported_review: Optional[ReportedReview] = (
@@ -99,7 +98,6 @@ def reported_review_detail(review_id: int) -> ResponseValue:
 
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>/leave', methods=['POST'])
-@login_required_with_message()
 @admin_required()
 def leave_review(review_id: int) -> ResponseValue:
     reports_to_delete: List[ReportedReview] = (
@@ -115,7 +113,6 @@ def leave_review(review_id: int) -> ResponseValue:
 
 
 @reviews_bp.route('/admin/reported-review/<int:review_id>/delete', methods=['POST'])
-@login_required_with_message()
 @admin_required()
 def delete_review(review_id: int) -> ResponseValue:
     review: Optional[Review] = db.session.get(Review, review_id)

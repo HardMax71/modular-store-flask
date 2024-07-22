@@ -32,27 +32,45 @@
                                 <i class="fas fa-globe"></i> {{ _('Apply') }}
                             </button>
                         </form>
-                        <div class="social-login">
+                        <div class="social-login bento-item">
+                            <h5 class="mb-3">{{ _('Connected Social Accounts') }}</h5>
                             {% if user.social_accounts %}
                                 {% for social_account in user.social_accounts %}
-                                    <div class="mb-2">
-                                        {% if social_account.provider == 'facebook' %}
-                                            <i class="fab fa-facebook-f"></i> Facebook
-                                        {% elif social_account.provider == 'google' %}
-                                            <i class="fab fa-google"></i> Google
-                                        {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>
+                    {% if social_account.provider == 'facebook' %}
+                        <i class="fab fa-facebook-f mr-2"></i> Facebook
+                    {% elif social_account.provider == 'google' %}
+                        <i class="fab fa-google mr-2"></i> Google
+                    {% endif %}
+                </span>
+                                        <form action="{{ url_for('profile.disconnect_social', provider=social_account.provider) }}"
+                                              method="POST" class="d-inline">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">{{ _('Disconnect') }}</button>
+                                        </form>
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                <p>{{ _('No social media accounts connected.') }}</p>
+                                <p class="text-muted">{{ _('No social media accounts connected.') }}</p>
                             {% endif %}
+
+                            <div class="mt-3">
+                                {% if not user.social_accounts|selectattr('provider', 'equalto', 'facebook')|list %}
+                                    <a href="{{ url_for('profile.connect_facebook') }}"
+                                       class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fab fa-facebook-f mr-2"></i> {{ _('Connect Facebook account') }}
+                                    </a>
+                                {% endif %}
+
+                                {% if not user.social_accounts|selectattr('provider', 'equalto', 'google')|list %}
+                                    <a href="{{ url_for('profile.connect_google') }}"
+                                       class="btn btn-outline-danger btn-block">
+                                        <i class="fab fa-google mr-2"></i> {{ _('Connect Google account') }}
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
-                        <a href="{{ url_for('profile.facebook_login') }}" class="btn btn-primary btn-block">
-                            <i class="fab fa-facebook-f"></i> {{ _('Connect Facebook account') }}
-                        </a>
-                        <a href="{{ url_for('profile.google_login') }}" class="btn btn-danger btn-block">
-                            <i class="fab fa-google"></i> {{ _('Connect Google account') }}
-                        </a>
                     </div>
                 </div>
             </div>

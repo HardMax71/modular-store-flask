@@ -5,6 +5,7 @@
 {% block head %}
     {{ super() }}
     <link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block body %}
@@ -23,10 +24,16 @@
                 </div>
                 <button type="submit" class="auth-button">{{ _('Log In') }}</button>
             </form>
-            <div class="auth-divider"></div>
             <div class="auth-footer">
                 <a href="{{ url_for('auth.reset_password') }}" class="auth-link">{{ _('Forgot your password?') }}</a>
             </div>
+            <div class="auth-divider">
+                <span>{{ _('or') }}</span>
+            </div>
+            <a href="{{ url_for('auth.google_login') }}" class="auth-button google-button">
+                <i class="fab fa-google google-icon"></i>
+                <span>{{ _('Log in with Google') }}</span>
+            </a>
         </div>
     </div>
 {% endblock %}

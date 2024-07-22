@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 from modular_store_backend.modules.db.models import Review, ReportedReview, Purchase, PurchaseItem, ReviewImage
 from modular_store_backend.modules.reviews.utils import (
-    get_review, report_review_in_db, has_purchased, has_already_reviewed,
+    get_review, report_review_with_explanation, has_purchased, has_already_reviewed,
     handle_uploaded_images, add_review_to_db
 )
 from modular_store_backend.tests.base_test import BaseTest
@@ -39,7 +39,7 @@ class TestReviewUtils(BaseTest):
         self.assertEqual(result, mock_review)
 
     def test_report_review_in_db(self) -> None:
-        report_review_in_db(1, 1, "Test explanation")
+        report_review_with_explanation(1, 1, "Test explanation")
         reported_review = self.session.query(ReportedReview).first()
         self.assertIsNotNone(reported_review)
         self.assertEqual(reported_review.review_id, 1)

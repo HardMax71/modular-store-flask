@@ -4,7 +4,7 @@ from modular_store_backend.modules.filter.utils import (
     filter_products,
     get_filter_options,
     get_categories,
-    get_tags,
+    get_all_tags,
     get_promoted_products,
     paginate_query
 )
@@ -21,7 +21,7 @@ __all__ = [
     'filter_products',
     'get_filter_options',
     'get_categories',
-    'get_tags',
+    'get_all_tags',
     'get_promoted_products',
     'paginate_query'
 ]

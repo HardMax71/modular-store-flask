@@ -71,7 +71,7 @@ def product_page(product_id: int) -> ResponseValue:
         .join(User, Review.user_id == User.id)
         .filter(Review.product_id == product_id)
         .order_by(Review.date.desc())
-        .limit(3)
+        .limit(current_app.config['MAX_REVIEWS_TO_DISPLAY_ON_PRODUCT_PAGE'])
         .all()
     )
 
@@ -115,7 +115,7 @@ def product_page(product_id: int) -> ResponseValue:
             Product.id != product.id,
             Product.stock > 0
         )
-        .limit(3)
+        .limit(current_app.config['MAX_RELATED_PRODUCTS_TO_DISPLAY'])
         .all()
     )
 
@@ -163,7 +163,7 @@ def recommendations() -> ResponseValue:
         db.session.query(RecentlyViewedProduct)
         .filter_by(user_id=user_id)
         .order_by(desc(RecentlyViewedProduct.timestamp))
-        .limit(4)
+        .limit(current_app.config['MAX_RECENTLY_VIEWED_PRODUCTS_TO_DISPLAY'])
         .all()
     )
     recs = get_recommended_products(user_id)

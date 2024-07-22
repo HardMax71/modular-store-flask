@@ -2,6 +2,11 @@ SECRET_KEY: 'your_secret_key'
 
 DEFAULT_LIMIT_RATE: '100 per minute'
 LOW_STOCK_THRESHOLD: 5
+MAX_COMPARE_STOCK_THRESHOLD: 3
+
+MAX_REVIEWS_TO_DISPLAY_ON_PRODUCT_PAGE: 5
+MAX_RELATED_PRODUCTS_TO_DISPLAY: 3
+MAX_RECENTLY_VIEWED_PRODUCTS_TO_DISPLAY: 3
 
 DB_PATH: './modular_store_backend/instance/data.db'
 BACKUP_DIR: './modular_store_backend/modules/db/backups' # Will be joined with PROJECT_ROOT
@@ -11,6 +16,7 @@ LIMITER_STORAGE_URI: 'memory://'
 
 PERMANENT_SESSION_LIFETIME: '15 minutes'
 BACKUP_INTERVAL: 86400 # in seconds
+PASSWORD_RESET_TIMEOUT: 1800 # in seconds
 
 SHOP_NAME: 'Modular Store'
 
@@ -73,9 +79,10 @@ LANGUAGE_NAMES:
   ru: 'Русский'
 DEFAULT_LANG: 'en'
 
-# Flask-Dance settings
+# Oauth login settings
 FACEBOOK_OAUTH_CLIENT_ID: 'your_facebook_app_id'
 FACEBOOK_OAUTH_CLIENT_SECRET: 'your_facebook_app_secret'
+# if using localhost to test login - use 127.0.0.1 in allowed URIs instead of localhost
 GOOGLE_OAUTH_CLIENT_ID: 'your_google_client_id'
 GOOGLE_OAUTH_CLIENT_SECRET: 'your_google_client_secret'
 

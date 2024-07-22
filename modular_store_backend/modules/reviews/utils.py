@@ -14,7 +14,7 @@ def get_review(review_id: int) -> Optional[Review]:
     return db.session.get(Review, review_id)
 
 
-def report_review_in_db(review_id: int, user_id: int, explanation: str) -> None:
+def report_review_with_explanation(review_id: int, user_id: int, explanation: str) -> None:
     reported_review = ReportedReview(review_id=review_id, user_id=user_id, explanation=explanation)
     db.session.add(reported_review)
     db.session.commit()

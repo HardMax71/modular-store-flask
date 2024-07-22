@@ -131,3 +131,34 @@
     position: static;
   }
 }
+
+.social-login {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.social-login h5 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.social-login .btn-outline-primary,
+.social-login .btn-outline-danger {
+    text-align: left;
+    padding: 0.5rem 1rem;
+}
+
+.social-login .btn-outline-primary:hover,
+.social-login .btn-outline-danger:hover {
+    color: #fff;
+}
+
+.social-login .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}

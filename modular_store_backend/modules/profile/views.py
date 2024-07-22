@@ -1,14 +1,13 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask, current_app
 from flask.typing import ResponseValue
 from flask_babel import gettext as _
-from flask_dance.contrib.facebook import facebook
-from flask_dance.contrib.google import google
 from flask_login import current_user, login_required
 
 from modular_store_backend.modules.db.database import db
-from modular_store_backend.modules.db.models import Address, Notification
+from modular_store_backend.modules.db.models import Address, Notification, SocialAccount
 from modular_store_backend.modules.decorators import login_required_with_message
-from modular_store_backend.modules.profile.utils import handle_profile_update, handle_social_login
+from modular_store_backend.modules.oauth_login import oauth
+from modular_store_backend.modules.profile.utils import handle_profile_update
 
 profile_bp = Blueprint('profile', __name__)
 
@@ -124,18 +123,90 @@ def delete_address(address_id: int) -> ResponseValue:
     return redirect(url_for('profile.profile_info'))
 
 
-@profile_bp.route('/facebook-login')
-def facebook_login() -> ResponseValue:
-    """Handle login via Facebook."""
-    return handle_social_login(facebook, name='facebook')
+@profile_bp.route('/connect/google')
+@login_required
+def connect_google():
+    google = oauth.create_client('google')
+    redirect_uri = url_for('profile.google_authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
 
 
-@profile_bp.route('/google-login')
-def google_login() -> ResponseValue:
-    """Handle login via Google."""
-    return handle_social_login(google, name='google')
+@profile_bp.route('/connect/google/authorize')
+@login_required
+def google_authorize():
+    google = oauth.create_client('google')
+    token = google.authorize_access_token()
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+    user_info = resp.json()
+
+    existing_account = db.session.query(SocialAccount).filter_by(provider='google', social_id=user_info['sub']).first()
+    if existing_account:
+        if existing_account.user_id == current_user.id:
+            flash(_('This Google account is already connected to your profile.'), 'info')
+        else:
+            flash(_('This Google account is already connected to another user.'), 'danger')
+    else:
+        new_social_account = SocialAccount(
+            user_id=current_user.id,
+            provider='google',
+            social_id=user_info['sub'],
+            access_token=token['access_token']
+        )
+        db.session.add(new_social_account)
+        db.session.commit()
+        flash(_('Google account successfully connected.'), 'success')
+
+    return redirect(url_for('profile.profile_info'))
+
+
+@profile_bp.route('/connect/facebook')
+@login_required
+def connect_facebook():
+    facebook = oauth.create_client('facebook')
+    redirect_uri = url_for('profile.authorize_facebook', _external=True)
+    return facebook.authorize_redirect(redirect_uri)
+
+
+@profile_bp.route('/connect/facebook/callback')
+@login_required
+def authorize_facebook():
+    facebook = oauth.create_client('facebook')
+    token = facebook.authorize_access_token()
+    resp = facebook.get('me?fields=id,name,email')
+    user_info = resp.json()
+
+    existing_account = db.session.query(SocialAccount).filter_by(provider='facebook', social_id=user_info['id']).first()
+    if existing_account:
+        if existing_account.user_id == current_user.id:
+            flash(_('This Facebook account is already connected to your profile.'), 'info')
+        else:
+            flash(_('This Facebook account is already connected to another user.'), 'danger')
+    else:
+        new_social_account = SocialAccount(
+            user_id=current_user.id,
+            provider='facebook',
+            social_id=user_info['id'],
+            access_token=token['access_token']
+        )
+        db.session.add(new_social_account)
+        db.session.commit()
+        flash(_('Facebook account successfully connected.'), 'success')
+
+    return redirect(url_for('profile.profile_info'))
+
+
+@profile_bp.route('/disconnect/<provider>', methods=['POST'])
+@login_required
+def disconnect_social(provider):
+    social_account = db.session.query(SocialAccount).filter_by(user_id=current_user.id, provider=provider).first()
+    if social_account:
+        db.session.delete(social_account)
+        db.session.commit()
+        flash(_('Social account disconnected successfully.'), 'success')
+    else:
+        flash(_('No such social account connected.'), 'danger')
+    return redirect(url_for('profile.profile_info'))
 
 
 def init_profile(app: Flask) -> None:
-    """Initialize the profile blueprint."""
     app.register_blueprint(profile_bp, url_prefix='/profile')
