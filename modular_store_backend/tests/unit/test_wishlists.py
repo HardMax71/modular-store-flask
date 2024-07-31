@@ -1,3 +1,4 @@
+# /modular_store_backend/tests/unit/test_wishlists.py
 import unittest
 
 from modular_store_backend.modules.db.models import Wishlist, Product

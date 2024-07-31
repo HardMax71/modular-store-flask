@@ -2262,4 +2262,3 @@ msgstr "Выделенные"
 
 #~ msgid "Invalid email header in wishlist notification"
 #~ msgstr "Неверный заголовок электронного письма"
-

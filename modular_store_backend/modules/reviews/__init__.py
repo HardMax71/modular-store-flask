@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/reviews/__init__.py
 from flask import Flask
 
 from modular_store_backend.modules.reviews.utils import has_purchased

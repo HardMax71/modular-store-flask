@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/auth/views.py
 from typing import Optional
 
 from flask import Blueprint, redirect, render_template, request, flash, url_for, current_app

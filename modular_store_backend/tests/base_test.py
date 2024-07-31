@@ -1,4 +1,4 @@
-# tests/base_test.py
+# /modular_store_backend/tests/base_test.py
 import unittest
 
 from flask_login import LoginManager
@@ -67,3 +67,12 @@ class BaseTest(unittest.TestCase):
         self.session.remove()
         Base.metadata.drop_all(bind=db.engine)
         Base.metadata.create_all(bind=db.engine)
+
+    # used in integration tests
+    def get_flashed_messages_from_session(self):
+        with self.client.session_transaction() as session:
+            return session.get('_flashes', [])
+
+    # used in unit tests
+    def get_flashed_messages_from_djinja_globals(self):
+        return [str(message) for message in self.app.jinja_env.globals['get_flashed_messages']()]

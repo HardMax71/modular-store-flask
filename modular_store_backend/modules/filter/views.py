@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/filter/views.py
 from typing import Optional
 
 from flask import Blueprint, render_template, request, Flask

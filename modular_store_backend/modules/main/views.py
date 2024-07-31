@@ -1,6 +1,7 @@
+# /modular_store_backend/modules/main/views.py
 import json
 from math import ceil
-from typing import Optional, List, Dict
+from typing import Optional
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app
 from flask import send_from_directory, Flask
@@ -48,7 +49,7 @@ def search_route() -> ResponseValue:
     search_query = filter_products(name_query=query)
     total: int = search_query.count()
     offset: int = (page - 1) * per_page
-    paginated_products: List[Product] = search_query.offset(offset).limit(per_page).all()
+    paginated_products: list[Product] = search_query.offset(offset).limit(per_page).all()
     total_pages: int = ceil(total / per_page)
 
     return render_template("index.html", products=paginated_products, query=query,
@@ -75,12 +76,12 @@ def product_page(product_id: int) -> ResponseValue:
         .all()
     )
 
-    selection_options: List[ProductSelectionOption] = (
+    selection_options: list[ProductSelectionOption] = (
         db.session.query(ProductSelectionOption)
         .filter_by(product_id=product_id)
         .all()
     )
-    variant_options: Dict[str, List[str]] = {
+    variant_options: dict[str, list[str]] = {
         variant.name: [v.value for v in selection_options if v.name == variant.name] for
         variant in selection_options}
 
@@ -108,7 +109,7 @@ def product_page(product_id: int) -> ResponseValue:
         if comparison_history:
             product_in_comparison = product_id in json.loads(comparison_history.product_ids)
 
-    related_products: List[Product] = (
+    related_products: list[Product] = (
         db.session.query(Product)
         .filter(
             Product.category_id == product.category_id,
@@ -159,7 +160,7 @@ def toggle_wishlist() -> ResponseValue:
 @login_required_with_message(redirect_back=True)
 def recommendations() -> ResponseValue:
     user_id: int = current_user.id
-    recently_viewed_products: List[RecentlyViewedProduct] = (
+    recently_viewed_products: list[RecentlyViewedProduct] = (
         db.session.query(RecentlyViewedProduct)
         .filter_by(user_id=user_id)
         .order_by(desc(RecentlyViewedProduct.timestamp))

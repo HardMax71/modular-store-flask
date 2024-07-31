@@ -1,5 +1,6 @@
+# /modular_store_backend/modules/reviews/utils.py
 import os
-from typing import List, Optional
+from typing import Optional
 
 from flask import current_app
 from sqlalchemy import and_
@@ -43,7 +44,7 @@ def has_already_reviewed(user_id: int, product_id: int) -> bool:
     return existing_review is not None
 
 
-def handle_uploaded_images(files: List[FileStorage], upload_folder: str) -> List[str]:
+def handle_uploaded_images(files: list[FileStorage], upload_folder: str) -> list[str]:
     images = []
     for file in files:
         if file and file.filename and allowed_file(file.filename):
@@ -61,7 +62,7 @@ def allowed_file(filename: str) -> bool:
     return False
 
 
-def add_review_to_db(review_data: dict[str, int | str], images: List[FileStorage]) -> None:
+def add_review_to_db(review_data: dict[str, int | str], images: list[FileStorage]) -> None:
     new_review = Review(
         user_id=review_data['user_id'],
         product_id=review_data['product_id'],

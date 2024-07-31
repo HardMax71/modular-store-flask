@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/purchase_history/views.py
 from flask import Blueprint, redirect, url_for, flash, render_template, Flask
 from flask.typing import ResponseValue
 from flask_babel import gettext as _

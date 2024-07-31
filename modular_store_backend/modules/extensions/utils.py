@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/extensions/utils.py
 from typing import Optional
 
 from flask import request, current_app

@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/wishlists/views.py
 from typing import Optional
 
 from flask import Blueprint, redirect, request, flash, url_for, Flask

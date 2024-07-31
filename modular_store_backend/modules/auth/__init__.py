@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/auth/__init__.py
 from flask import Flask
 from flask_limiter import Limiter
 

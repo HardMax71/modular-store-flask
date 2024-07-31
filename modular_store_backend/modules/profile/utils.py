@@ -1,5 +1,6 @@
+# //modular_store_backend/modules/profile/utils.py
 import os
-from typing import Dict, Callable, Any, Optional
+from typing import Callable, Optional
 
 import phonenumbers
 from flask import request, flash, redirect, url_for, current_app
@@ -19,7 +20,7 @@ def handle_profile_update() -> None:
     Handle various profile update actions based on the submitted form.
     This function delegates to specific handlers for each type of update.
     """
-    form_actions: Dict[str, Callable[[], Any]] = {
+    form_actions: dict[str, Callable[[], any]] = {
         'change_email': handle_change_email,
         'change_password': handle_change_password,
         'change_phone': handle_change_phone,
@@ -170,7 +171,7 @@ def handle_update_notification_settings() -> None:
     flash(_('Notification settings updated successfully.'), 'success')
 
 
-def handle_social_login(provider: Any, name: str = "facebook") -> Response:
+def handle_social_login(provider: any, name: str = "facebook") -> Response:
     """
     Handle social login process for various providers.
     Connects the social account to the user's profile if not already connected.
@@ -185,12 +186,12 @@ def handle_social_login(provider: Any, name: str = "facebook") -> Response:
     if not provider.authorized:
         return redirect(url_for(f'{name}.login'))
 
-    resp: Any = provider.get('/me?fields=id,name,email')
+    resp: any = provider.get('/me?fields=id,name,email')
     if not resp.ok:
         flash(f'Failed to fetch user info from {name.capitalize()}', 'error')
         return redirect(url_for('profile.profile_info'))
 
-    account_info: Dict[str, Any] = resp.json()
+    account_info: dict[str, any] = resp.json()
     social_id: str = account_info['id']
 
     existing_social_account: Optional[SocialAccount] = db.session.query(SocialAccount).filter_by(

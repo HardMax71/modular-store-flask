@@ -1,4 +1,5 @@
-from typing import Optional, Any, List
+# /modular_store_backend/modules/filter/sort_options.py
+from typing import Optional
 
 from flask_babel import gettext as _
 from sqlalchemy import func
@@ -8,7 +9,7 @@ from modular_store_backend.modules.db.models import Product, Review
 
 
 class SortOption:
-    def __init__(self, key: str, label: str, field: Any, order: str = 'asc') -> None:
+    def __init__(self, key: str, label: str, field: any, order: str = 'asc') -> None:
         """
         Initialize a sort option.
 
@@ -41,11 +42,11 @@ class SortOptions:
     AVG_RATING_DESC = SortOption('rating', _('Rating: High to Low'), func.coalesce(func.avg(Review.rating), 0), 'desc')
 
     @classmethod
-    def get_all(cls) -> List[SortOption]:
+    def get_all(cls) -> list[SortOption]:
         """
         Get all sort options.
 
-        :return: List of all sort options
+        :return: list of all sort options
         """
         return [getattr(cls, attr) for attr in dir(cls) if isinstance(getattr(cls, attr), SortOption)]
 

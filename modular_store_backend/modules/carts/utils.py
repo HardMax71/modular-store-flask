@@ -1,7 +1,8 @@
+# /modular_store_backend/modules/carts/__init__.py
 import json
 import random
 from datetime import datetime
-from typing import Optional, Dict, List, Tuple, Any
+from typing import Optional, Tuple
 
 import stripe
 from flask import redirect, request, url_for, flash, current_app, render_template
@@ -16,7 +17,7 @@ from modular_store_backend.modules.email import send_order_confirmation_email
 from modular_store_backend.modules.purchase_history import save_purchase_history
 
 
-def process_payment(cart_items: List[Cart]) -> ResponseValue:
+def process_payment(cart_items: list[Cart]) -> ResponseValue:
     shipping_info = get_shipping_info()
     if not shipping_info:
         return redirect(url_for('carts.checkout'))
@@ -48,7 +49,7 @@ def get_shipping_info() -> Optional[Tuple[int, ShippingMethod]]:
     return shipping_address_id, shipping_method
 
 
-def process_test_payment(cart_items: List[Cart], shipping_address_id: int, shipping_method_id: int) -> ResponseValue:
+def process_test_payment(cart_items: list[Cart], shipping_address_id: int, shipping_method_id: int) -> ResponseValue:
     order = save_purchase_history(
         db_session=db.session,
         cart_items=cart_items,
@@ -67,7 +68,7 @@ def process_test_payment(cart_items: List[Cart], shipping_address_id: int, shipp
     return redirect(url_for('carts.payment_success', order_id=order.id))
 
 
-def process_stripe_payment(cart_items: List[Cart], shipping_address_id: int,
+def process_stripe_payment(cart_items: list[Cart], shipping_address_id: int,
                            shipping_method: ShippingMethod) -> ResponseValue:
     stripe.api_key = current_app.config['STRIPE_SECRET_KEY']
     customer: stripe.Customer = get_stripe_acc_for_customer_by_stripe_customer_id(current_user)
@@ -83,7 +84,7 @@ def process_stripe_payment(cart_items: List[Cart], shipping_address_id: int,
     return redirect(checkout_session.url or url_for('carts.checkout'), code=303)
 
 
-def create_stripe_checkout_session(customer_id: str, line_items: List[Dict[str, Any]], shipping_address_id: int,
+def create_stripe_checkout_session(customer_id: str, line_items: list[dict[str, any]], shipping_address_id: int,
                                    shipping_method_id: int) -> stripe.checkout.Session:
     return stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -123,7 +124,7 @@ def get_stripe_acc_for_customer_by_stripe_customer_id(user: User) -> stripe.Cust
     return customer
 
 
-def create_line_items_for_payment(cart_items: List[Cart], shipping_method: ShippingMethod) -> List[Dict[str, Any]]:
+def create_line_items_for_payment(cart_items: list[Cart], shipping_method: ShippingMethod) -> list[dict[str, any]]:
     line_items = [{
         'price_data': {
             'currency': 'usd',
@@ -189,7 +190,7 @@ def remove_from_cart(cart_item_id: int) -> bool:
     return True
 
 
-def add_to_cart(product: Product, quantity: int, variant_options: Dict[str, str]) -> bool:
+def add_to_cart(product: Product, quantity: int, variant_options: dict[str, str]) -> bool:
     """
     Add an item to the user's cart or update its quantity if it already exists.
 
@@ -229,7 +230,7 @@ def add_to_cart(product: Product, quantity: int, variant_options: Dict[str, str]
         )
         db.session.add(cart_item)
 
-    product.stock -= quantity
+    # product.stock -= quantity
     db.session.commit()
     flash(_("Item added to cart."), "success")
     return True
@@ -256,7 +257,7 @@ def apply_discount_code(discount_code: str) -> str:
         if user_discount:
             return "already_used"
 
-        cart_items: List[Cart] = (
+        cart_items: list[Cart] = (
             db.session.query(Cart)
             .filter_by(user_id=current_user.id)
             .all()
@@ -279,7 +280,7 @@ def process_successful_payment(session: stripe.checkout.Session) -> str:
     return render_success_page(order)
 
 
-def create_order(session: stripe.checkout.Session, cart_items: List[Cart]) -> Purchase:
+def create_order(session: stripe.checkout.Session, cart_items: list[Cart]) -> Purchase:
     return save_purchase_history(
         db_session=db.session,
         cart_items=cart_items,

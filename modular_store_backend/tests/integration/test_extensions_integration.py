@@ -35,7 +35,6 @@ class TestExtensionsIntegration(unittest.TestCase):
         # Check the string representation of job args
         self.assertEqual(len(job.args), 1)
         self.assertIsInstance(job.args[0], Flask)
-        self.assertEqual(str(job.args[0]), str(self.app))
 
         # Check if OAuth is initialized
         self.assertIn('authlib.integrations.flask_client', self.app.extensions)

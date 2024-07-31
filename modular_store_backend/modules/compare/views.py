@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/compare/views.py
 import json
 from typing import Optional
 

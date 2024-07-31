@@ -1,0 +1,18 @@
+repos:
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+    -   id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^modular_store_backend/
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: trailing-whitespace
+        files: ^modular_store_backend/
+    -   id: end-of-file-fixer
+        files: ^modular_store_backend/
+    -   id: check-yaml
+        files: ^modular_store_backend/
+    -   id: check-added-large-files
+        files: ^modular_store_backend/

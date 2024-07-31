@@ -1,3 +1,5 @@
+# /modular_store_backend/modules/db/backup.py
+import logging
 import os
 import shutil
 from datetime import datetime
@@ -22,9 +24,9 @@ def backup_database(app: Flask) -> None:
     try:
         # Copy the database file to the backup directory with the specified backup filename
         shutil.copyfile(app.config['DB_PATH'], backup_path)
-        print(f"Database backup created: {backup_path}")
+        logging.info(f"Database backup created: {backup_path}")
     except Exception as e:
-        print(f"Error creating database backup: {str(e)}")
+        logging.error(f"Error creating database backup: {str(e)}")
 
 # Run the backup function
 # backup_database()

@@ -1,4 +1,5 @@
-from typing import List, Optional
+# /modular_store_backend/modules/reviews/views.py
+from typing import Optional
 
 from flask import Blueprint, redirect, request, url_for, flash, render_template, Flask
 from flask.typing import ResponseValue
@@ -70,7 +71,7 @@ def add_review() -> ResponseValue:
 @reviews_bp.route('/admin/reported-reviews')
 @admin_required()
 def reported_reviews() -> ResponseValue:
-    all_reported_reviews: List[ReportedReview] = (
+    all_reported_reviews: list[ReportedReview] = (
         db.session.query(ReportedReview)
         .all()
     )
@@ -100,7 +101,7 @@ def reported_review_detail(review_id: int) -> ResponseValue:
 @reviews_bp.route('/admin/reported-review/<int:review_id>/leave', methods=['POST'])
 @admin_required()
 def leave_review(review_id: int) -> ResponseValue:
-    reports_to_delete: List[ReportedReview] = (
+    reports_to_delete: list[ReportedReview] = (
         db.session.query(ReportedReview)
         .filter_by(review_id=review_id)
         .all()
@@ -116,7 +117,7 @@ def leave_review(review_id: int) -> ResponseValue:
 @admin_required()
 def delete_review(review_id: int) -> ResponseValue:
     review: Optional[Review] = db.session.get(Review, review_id)
-    reports_to_delete: List[ReportedReview] = (
+    reports_to_delete: list[ReportedReview] = (
         db.session.query(ReportedReview)
         .filter_by(review_id=review_id)
         .all()

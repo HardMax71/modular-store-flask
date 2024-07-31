@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/email.py
 import os
 from smtplib import SMTPException
 from typing import List, Optional
