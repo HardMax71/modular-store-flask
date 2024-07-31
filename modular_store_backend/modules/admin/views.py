@@ -423,38 +423,49 @@ class EmailView(BaseView):  # type: ignore
     def index(self, cls=None):  # type: ignore
         form = EmailForm()
         if form.validate_on_submit():
-            if not form.subject.data or not form.body.data:
-                flash(_('Subject and body are required'), 'danger')
+            if not self._validate_email_form(form):
                 return redirect(url_for('admin.send_emails'))
 
-            subject: str = form.subject.data
-            body: str = form.body.data
-
-            attachments = []
-            try:
-                for file in request.files.getlist('attachments'):
-                    if file.filename:
-                        filename = secure_filename(file.filename)
-                        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                        file.save(file_path)
-                        attachments.append(file_path)
-            except Exception as e:
-                current_app.logger.error(f"Error handling file upload: {e}")
-                flash(_('Error handling file upload: %(error)', error=str(e)), 'danger')
+            attachments = self._handle_attachments()
+            if attachments is None:
                 return redirect(url_for('admin.send_emails'))
 
-            users = db.session.query(User).filter_by(email_notifications_enabled=True).all()
-            try:
-                for user in users:
-                    if user.email:
-                        send_email(user.email, subject, body, attachments)
-                flash(_('Emails sent successfully'), 'success')
-            except Exception as e:
-                current_app.logger.error(f"Error sending emails: {e}")
-                flash(_('Error sending emails: %(error)', error=str(e)), 'danger')
-            finally:
-                return redirect(url_for('admin.index'))
+            self._send_emails(form.subject.data, form.body.data, attachments)
+            return redirect(url_for('admin.index'))
+
         return self.render('admin/send_email.html', form=form)
+
+    def _validate_email_form(self, form):
+        if not form.subject.data or not form.body.data:
+            flash(_('Subject and body are required'), 'danger')
+            return False
+        return True
+
+    def _handle_attachments(self):
+        attachments = []
+        try:
+            for file in request.files.getlist('attachments'):
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    attachments.append(file_path)
+            return attachments
+        except Exception as e:
+            current_app.logger.error(f"Error handling file upload: {e}")
+            flash(_('Error handling file upload: %(error)', error=str(e)), 'danger')
+            return None
+
+    def _send_emails(self, subject, body, attachments):
+        users = db.session.query(User).filter_by(email_notifications_enabled=True).all()
+        try:
+            for user in users:
+                if user.email:
+                    send_email(user.email, subject, body, attachments)
+            flash(_('Emails sent successfully'), 'success')
+        except Exception as e:
+            current_app.logger.error(f"Error sending emails: {e}")
+            flash(_('Error sending emails: %(error)', error=str(e)), 'danger')
 
 
 ############

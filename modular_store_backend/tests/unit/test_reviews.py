@@ -115,7 +115,7 @@ class TestReviewUtils(BaseTest):
         for key, value in review_data.items():
             self.assertEqual(getattr(added_review, key), value)
 
-        review_images: list [ReviewImage] = self.session.query(ReviewImage).filter_by(review_id=added_review.id).all()
+        review_images: list[ReviewImage] = self.session.query(ReviewImage).filter_by(review_id=added_review.id).all()
         self.assertEqual(len(review_images), 2)
         self.assertEqual(review_images[0]._image, 'image1.jpg')
         self.assertEqual(review_images[1]._image, 'image2.jpg')

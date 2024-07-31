@@ -16,3 +16,8 @@ repos:
         files: ^modular_store_backend/
     -   id: check-added-large-files
         files: ^modular_store_backend/
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+    -   id: flake8
+        files: ^modular_store_backend/
