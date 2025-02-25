@@ -1,10 +1,10 @@
 import json
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, patch
 
 import stripe
-from flask import url_for, Flask, render_template_string
+from flask import url_for, Flask
 from flask_login import login_user
 
 from modular_store_backend.modules.carts.utils import create_line_items_for_payment, \

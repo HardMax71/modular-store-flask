@@ -1,11 +1,8 @@
-import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from modular_store_backend.modules.db.models import (
-    User, Product, ProductImage, SocialAccount, ComparisonHistory,
-    Purchase, PurchaseItem, ReportedReview, Review, ReviewImage,
-    Address, Category, ShippingAddress, Wishlist, ProductSelectionOption,
-    Discount, Notification, Tag, ProductPromotion, Ticket, TicketMessage
+    User, Product, ProductImage, SocialAccount, ReviewImage,
+    Discount, Notification, Tag
 )
 from modular_store_backend.tests.base_test import BaseTest
 from werkzeug.security import generate_password_hash

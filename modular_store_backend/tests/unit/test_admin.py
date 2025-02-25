@@ -1,10 +1,10 @@
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, patch
 
 from flask import redirect
 from flask_login import login_user
 
 from modular_store_backend.modules.admin.utils import generate_excel, generate_json
-from modular_store_backend.modules.admin.views import _number_formatter, get_table_names, AdminView
+from modular_store_backend.modules.admin.views import _number_formatter, get_table_names
 from modular_store_backend.modules.decorators import admin_required
 from modular_store_backend.tests.base_test import BaseTest
 from modular_store_backend.tests.util import create_user

@@ -2,12 +2,11 @@
 import random
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 
-from flask import url_for, redirect
+from flask import url_for
 from flask_login import login_user
 
-from modular_store_backend.modules.admin.views import ProductsViews, EmailView
 from modular_store_backend.modules.db.models import (
     Product, Category, Ticket, RequestLog, Review,
     ShippingMethod,
