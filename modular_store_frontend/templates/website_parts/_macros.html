@@ -1,4 +1,4 @@
-{% macro format_price(price_in_cents, currency='$') %}
+{% macro format_price(price_in_cents, currency=config.DEFAULT_CURRENCY) %}
     {{ currency }}{{ "%.2f"|format(price_in_cents / 100.0) }}
 {% endmacro %}
 

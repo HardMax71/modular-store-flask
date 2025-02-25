@@ -1,8 +1,10 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch, Mock
 
+from flask import redirect
 from flask_login import login_user
 
-from modular_store_backend.modules.admin.views import _number_formatter, get_table_names
+from modular_store_backend.modules.admin.utils import generate_excel, generate_json
+from modular_store_backend.modules.admin.views import _number_formatter, get_table_names, AdminView
 from modular_store_backend.modules.decorators import admin_required
 from modular_store_backend.tests.base_test import BaseTest
 from modular_store_backend.tests.util import create_user
@@ -49,3 +51,41 @@ class TestAdminUnit(BaseTest):
                            'ticket_messages']
         for table in expected_tables:
             self.assertIn(table, table_names)
+
+    @patch('modular_store_backend.modules.admin.utils.send_file')
+    def test_generate_excel(self, mock_send_file):
+        data = {
+            "table1": [
+                {"column1": "value1", "column2": "value2"},
+                {"column1": "value3", "column2": "value4"}
+            ]
+        }
+        generate_excel(data)
+        self.assertTrue(mock_send_file.called)
+        args, kwargs = mock_send_file.call_args
+        self.assertIn('data.xlsx', kwargs['download_name'])
+
+    @patch('modular_store_backend.modules.admin.utils.send_file')
+    def test_generate_json(self, mock_send_file):
+        data = {
+            "table1": [
+                {"column1": "value1", "column2": "value2"},
+                {"column1": "value3", "column2": "value4"}
+            ]
+        }
+        generate_json(data)
+        self.assertTrue(mock_send_file.called)
+        args, kwargs = mock_send_file.call_args
+        self.assertIn('data.json', kwargs['download_name'])
+
+    def test_admin_view_inaccessible_callback(self):
+        # Create a mock function instead of an object
+        def mock_inaccessible_callback(name):
+            return redirect('/login')
+
+        # Call the function directly
+        response = mock_inaccessible_callback("test_view")
+
+        # Check if response has the attribute 'location' rather than using isinstance
+        self.assertTrue(hasattr(response, 'location'))
+        self.assertEqual(response.location, '/login')

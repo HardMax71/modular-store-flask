@@ -1,10 +1,10 @@
 import json
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, Mock
 
 import stripe
-from flask import url_for, Flask
+from flask import url_for, Flask, render_template_string
 from flask_login import login_user
 
 from modular_store_backend.modules.carts.utils import create_line_items_for_payment, \
@@ -651,6 +651,15 @@ class TestCartIntegration(BaseTest):
     # Helper method to get flashed messages
     def get_flashed_messages(self, response):
         return response.data
+
+    def test_payment_cancel(self):
+        user = create_user(self)
+        with self.app.test_request_context():
+            login_user(user)
+
+        response = self.client.get('/payment_cancel')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Payment was cancelled", response.data)
 
 
 if __name__ == '__main__':

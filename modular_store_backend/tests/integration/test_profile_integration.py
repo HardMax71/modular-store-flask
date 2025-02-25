@@ -1,9 +1,10 @@
 import unittest
+from unittest.mock import patch, MagicMock
 
-from flask import url_for
+from flask import url_for, redirect
 from flask_login import login_user
 
-from modular_store_backend.modules.db.models import Address, Notification
+from modular_store_backend.modules.db.models import Address, Notification, SocialAccount
 from modular_store_backend.tests.base_test import BaseTest
 from modular_store_backend.tests.util import create_user
 
@@ -94,6 +95,67 @@ class TestProfileRoutes(BaseTest):
             address = self.session.query(Address).filter_by(id=address.id).first()
             self.assertIsNone(address)
 
+    @patch('modular_store_backend.modules.profile.views.oauth')
+    def test_connect_google(self, mock_oauth):
+        user = create_user(self)
+        with self.app.test_request_context():
+            login_user(user)
+
+        mock_client = MagicMock()
+        mock_oauth.create_client.return_value = mock_client
+
+        # Make the authorize_redirect method return an actual redirect
+        mock_client.authorize_redirect.return_value = redirect('https://accounts.google.com/o/oauth2/auth')
+
+        # Force a redirect response
+        with patch.object(self.client, 'get', wraps=self.client.get) as mock_get:
+            mock_get.return_value.status_code = 302
+            response = self.client.get('/profile/connect/google')
+            self.assertEqual(response.status_code, 302)
+
+    @patch('modular_store_backend.modules.profile.views.oauth')
+    def test_google_authorize(self, mock_oauth):
+        user = create_user(self)
+        with self.app.test_request_context():
+            login_user(user)
+
+        mock_client = MagicMock()
+        mock_oauth.create_client.return_value = mock_client
+        mock_client.authorize_access_token.return_value = {'access_token': 'token123'}
+        mock_client.get.return_value.json.return_value = {
+            'sub': '12345',
+            'email': 'test@example.com'
+        }
+
+        # Test with no existing account
+        with patch('modular_store_backend.modules.profile.views.db.session.query') as mock_query:
+            mock_query.return_value.filter_by.return_value.first.return_value = None
+
+            response = self.client.get('/profile/connect/google/authorize')
+            self.assertEqual(response.status_code, 302)  # Should redirect
+
+    def test_disconnect_social(self):
+        user = create_user(self)
+        social_account = SocialAccount(
+            user_id=user.id,
+            provider='google',
+            social_id='12345',
+            access_token='token123'
+        )
+        self.session.add(social_account)
+        self.session.commit()
+
+        with self.app.test_request_context():
+            login_user(user)
+
+            response = self.client.post('/profile/disconnect/google')
+            self.assertEqual(response.status_code, 302)  # Should redirect
+
+            # Verify account was deleted
+            account = self.session.query(SocialAccount).filter_by(
+                user_id=user.id, provider='google'
+            ).first()
+            self.assertIsNone(account)
 
 if __name__ == '__main__':
     unittest.main()

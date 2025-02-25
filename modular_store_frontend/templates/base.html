@@ -18,20 +18,22 @@
             crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-    <!-- Chatra {literal} -->
-    <script>
-        (function (d, w, c) {
-            w.ChatraID = '{{ config.CHATRA_ID }}';
-            var s = d.createElement('script');
-            w[c] = w[c] || function () {
-                (w[c].q = w[c].q || []).push(arguments);
-            };
-            s.async = true;
-            s.src = 'https://call.chatra.io/chatra.js';
-            if (d.head) d.head.appendChild(s);
-        })(document, window, 'Chatra');
-    </script>
-    <!-- /Chatra {/literal} -->
+    {% if config.ENABLE_CHATRA %}
+        <!-- Chatra {literal} -->
+        <script>
+            (function (d, w, c) {
+                w.ChatraID = '{{ config.CHATRA_ID }}';
+                var s = d.createElement('script');
+                w[c] = w[c] || function () {
+                    (w[c].q = w[c].q || []).push(arguments);
+                };
+                s.async = true;
+                s.src = 'https://call.chatra.io/chatra.js';
+                if (d.head) d.head.appendChild(s);
+            })(document, window, 'Chatra');
+        </script>
+        <!-- /Chatra {/literal} -->
+    {% endif %}
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>{% block title %}{% endblock %}</title>
     {% from "website_parts/_macros.html" import format_price, format_discount_percentage %}

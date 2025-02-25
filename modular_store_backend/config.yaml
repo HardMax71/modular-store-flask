@@ -66,6 +66,9 @@ MAIL_USE_TLS: true
 MAIL_USERNAME: 'your_email@example.com'
 MAIL_PASSWORD: 'your_email_password'
 
+ENABLE_CHATRA: false
+DEFAULT_CURRENCY: '$'  # Currency symbol to be used throughout the site
+
 STRIPE_PUBLIC_KEY: 'your_stripe_public_key'
 STRIPE_SECRET_KEY: 'your_stripe_secret_key'
 
