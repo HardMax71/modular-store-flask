@@ -1,8 +1,9 @@
+import os
 import unittest
 from unittest.mock import patch, MagicMock
-import os
 
 from modular_store_backend.modules.db.backup import backup_database
+
 
 class TestBackup(unittest.TestCase):
     def setUp(self):
@@ -27,7 +28,7 @@ class TestBackup(unittest.TestCase):
             mock_exists.assert_called_once_with('/tmp/backups')
             mock_makedirs.assert_called_once_with('/tmp/backups')
             mock_copyfile.assert_called_once_with('/tmp/test.db',
-                os.path.join('/tmp/backups', 'database_backup_20250225_144524.db'))
+                                                  os.path.join('/tmp/backups', 'database_backup_20250225_144524.db'))
 
             # Verify logging.info is called with the correct message
             expected_path = os.path.normpath('/tmp/backups/database_backup_20250225_144524.db')
