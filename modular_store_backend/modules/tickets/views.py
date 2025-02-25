@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/tickets/__init__.py
 from typing import Optional
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask

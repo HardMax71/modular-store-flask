@@ -1,12 +1,13 @@
+# /modular_store_backend/modules/decorators.py
 from functools import wraps
-from typing import Callable, Any
+from typing import Callable
 
 from flask import flash, redirect, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user
 
 # Type alias for a route handler
-RouteHandler = Callable[..., Any]
+RouteHandler = Callable[..., any]
 
 
 def login_required_with_message(message: str = _("You must be logged in to view this page."),
@@ -25,7 +26,7 @@ def login_required_with_message(message: str = _("You must be logged in to view 
 
     def decorator(f: RouteHandler) -> RouteHandler:
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any):  # type: ignore
+        def decorated_function(*args: any, **kwargs: any):  # type: ignore
             if not current_user.is_authenticated:
                 flash(message, category)
                 if redirect_back:
@@ -49,7 +50,7 @@ def admin_required(default_route: str = "main.index") -> Callable[[RouteHandler]
 
     def decorator(f: RouteHandler) -> RouteHandler:
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Any:
+        def decorated_function(*args: any, **kwargs: any) -> any:
             if not current_user.is_authenticated or not current_user.is_admin:
                 flash(_("You don't have permission to access this page."), "warning")
                 return redirect(url_for(default_route))

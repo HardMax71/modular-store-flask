@@ -1,5 +1,6 @@
+# /modular_store_backend/modules/carts/views.py
 import json
-from typing import Optional, Dict, Any, List
+from typing import Optional
 
 import stripe
 from flask import Blueprint, jsonify, redirect, request, url_for, flash, render_template, Flask, current_app
@@ -18,7 +19,7 @@ cart_bp = Blueprint('carts', __name__)
 
 
 @cart_bp.app_template_filter('from_json')
-def from_json(value: str) -> Any:
+def from_json(value: str) -> any:
     try:
         return json.loads(value)
     except json.JSONDecodeError:
@@ -31,7 +32,7 @@ def add_to_cart_route() -> ResponseValue:
     quantity: int = request.form.get('quantity', type=int, default=1)
     product_id: Optional[int] = request.form.get('product_id', type=int)
 
-    variant_options: Dict[str, str] = {
+    variant_options: dict[str, str] = {
         key.split('variant_')[1]: value
         for key, value in request.form.items() if key.startswith('variant_')
     }
@@ -48,7 +49,7 @@ def add_to_cart_route() -> ResponseValue:
 @cart_bp.route("/cart")
 @login_required_with_message(redirect_back=True)
 def cart() -> str:
-    cart_items: List[Cart] = (
+    cart_items: list[Cart] = (
         db.session.query(Cart)
         .filter_by(user_id=current_user.id)
         .all()
@@ -102,7 +103,7 @@ def remove_from_cart_route(cart_item_id: int) -> ResponseValue:
 @cart_bp.route("/checkout", methods=["GET", "POST"])
 @login_required_with_message()
 def checkout() -> ResponseValue:
-    cart_items: List[Cart] = (
+    cart_items: list[Cart] = (
         db.session.query(Cart)
         .filter_by(user_id=current_user.id)
         .all()
@@ -115,7 +116,7 @@ def checkout() -> ResponseValue:
         flash(_("Please add an address before proceeding to checkout."), "warning")
         return redirect(url_for('profile.profile_info'))
 
-    shipping_methods: List[ShippingMethod] = db.session.query(ShippingMethod).all()
+    shipping_methods: list[ShippingMethod] = db.session.query(ShippingMethod).all()
     addresses = current_user.addresses
 
     subtotal: int = Cart.subtotal()

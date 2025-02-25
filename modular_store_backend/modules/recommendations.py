@@ -1,5 +1,5 @@
+# /modular_store_backend/modules/recommendations.py
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import desc
 
@@ -17,7 +17,7 @@ def update_recently_viewed_products(user_id: int, product_id: int) -> None:
     db.session.commit()
 
 
-def get_related_products(user_id: int, product_id: int) -> List[Product]:
+def get_related_products(user_id: int, product_id: int) -> list[Product]:
     """Get related products based on user preferences."""
     subquery = (
         db.session.query(UserPreference.category_id, UserPreference.interest_level)
@@ -35,7 +35,7 @@ def get_related_products(user_id: int, product_id: int) -> List[Product]:
     )
 
 
-def get_recommended_products(user_id: int) -> List[Product]:
+def get_recommended_products(user_id: int) -> list[Product]:
     """Get recommended products based on user preferences."""
     subquery = (
         db.session.query(UserPreference.category_id, UserPreference.interest_level)

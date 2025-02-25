@@ -1,11 +1,12 @@
+# /modular_store_backend/modules/wishlists/utils.py
 import json
-from typing import Dict, Optional
+from typing import Optional
 
 from modular_store_backend.modules.db.database import db
 from modular_store_backend.modules.db.models import Wishlist
 
 
-def get_product_selection_options(selection_options_json: Optional[str]) -> Dict[str, str]:
+def get_product_selection_options(selection_options_json: Optional[str]) -> dict[str, str]:
     """
     Parse JSON-encoded variant options into a dictionary.
 
@@ -13,7 +14,7 @@ def get_product_selection_options(selection_options_json: Optional[str]) -> Dict
         selection_options_json (Optional[str]): JSON-encoded string of variant options.
 
     Returns:
-        Dict[str, str]: A dictionary of variant options, or an empty dict if input is None or invalid.
+        dict[str, str]: A dictionary of variant options, or an empty dict if input is None or invalid.
     """
     if selection_options_json:
         try:
@@ -34,7 +35,7 @@ def remove_item_from_wishlist(user_id: int, product_id: int) -> None:
         db.session.commit()
 
 
-def add_item_to_wishlist(user_id: int, product_id: int, variant_options: Dict[str, str]) -> None:
+def add_item_to_wishlist(user_id: int, product_id: int, variant_options: dict[str, str]) -> None:
     variant_options_str = json.dumps(variant_options)
     new_wishlist_item = Wishlist(user_id=user_id, product_id=product_id, variant_options=variant_options_str)
     db.session.add(new_wishlist_item)

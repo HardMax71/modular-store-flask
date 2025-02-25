@@ -1,4 +1,5 @@
-from typing import Dict, Union, Optional
+# /modular_store_backend/modules/error_handlers/handlers.py
+from typing import Union, Optional
 
 from flask import Blueprint, request, session, render_template
 from flask import Flask
@@ -6,8 +7,8 @@ from werkzeug.exceptions import HTTPException
 
 error_handlers_bp = Blueprint('error_handlers', __name__)
 
-# Dictionary mapping error codes to their explanations
-error_explanations: Dict[int, str] = {
+# dictionary mapping error codes to their explanations
+error_explanations: dict[int, str] = {
     400: "The server could not understand the request due to invalid syntax.",
     401: "The request has not been applied because it lacks valid authentication credentials for the target resource.",
     403: "Access to the requested resource is forbidden.",

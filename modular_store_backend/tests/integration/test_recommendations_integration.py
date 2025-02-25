@@ -1,3 +1,4 @@
+# /modular_store_backend/tests/integration/test_recommendations_integration.py
 import unittest
 
 from modular_store_backend.modules.db.models import RecentlyViewedProduct, Product, UserPreference, Category, Review

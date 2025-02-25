@@ -1,8 +1,9 @@
+# /modular_store_backend/app.py
 import logging
 import os
 from datetime import datetime
 from datetime import timedelta
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 from flask import Flask, redirect, url_for, g, flash
@@ -20,15 +21,21 @@ from modular_store_backend.modules.logger import DatabaseLogger
 
 
 def load_config(config_path: str) -> Any:
-    with open(config_path, 'r', encoding='utf-8') as config_file:
-        config = yaml.safe_load(config_file)
+    try:
+        with open(config_path, 'r', encoding='utf-8') as config_file:
+            config = yaml.safe_load(config_file)
 
-    # Convert string durations to timedelta objects
-    if 'PERMANENT_SESSION_LIFETIME' in config:
-        minutes = int(config['PERMANENT_SESSION_LIFETIME'].split()[0])
-        config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=minutes)
+        if 'PERMANENT_SESSION_LIFETIME' in config:
+            minutes = int(config['PERMANENT_SESSION_LIFETIME'].split()[0])
+            config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=minutes)
 
-    return config
+        return config
+    except FileNotFoundError:
+        logging.error(f"Configuration file not found: {config_path}")
+        raise
+    except yaml.YAMLError as e:
+        logging.error(f"Error parsing YAML configuration: {e}")
+        raise
 
 
 def create_app(config_path: str = './modular_store_backend/config.yaml', config: Any = None) -> Flask:
@@ -78,7 +85,7 @@ def register_request_handlers(current_app: Flask) -> None:
             g.unread_notifications_count = 0
 
     @current_app.context_processor
-    def inject_cart_info() -> Dict[str, Any]:
+    def inject_cart_info() -> dict[str, Any]:
         return {
             "total_items": g.get('total_items', 0),
             "total_amount": g.get('total_amount', 0),

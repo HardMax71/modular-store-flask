@@ -1,10 +1,11 @@
+# /modular_store_backend/modules/admin/views.py
 import io
 import os
 import tempfile
 import zipfile
 from datetime import datetime, time
 from pathlib import Path
-from typing import List, Dict, Any, Union
+from typing import Union
 
 import pandas as pd
 from flask import Blueprint, Flask
@@ -37,14 +38,14 @@ from modular_store_backend.modules.email import send_email
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
-def get_table_names() -> List[str]:
+def get_table_names() -> list[str]:
     inspector = inspect(db.session.bind)
     if not inspector:
         return []
     return inspector.get_table_names()  # type: ignore
 
 
-def _number_formatter(view: Any, context: Any, model: Any, name: str) -> str:
+def _number_formatter(view: any, context: any, model: any, name: str) -> str:
     value = getattr(model, name)
     if value is not None:
         return '{:.2f}'.format(value)
@@ -55,7 +56,7 @@ class AdminView(ModelView):  # type: ignore
     def is_accessible(self) -> bool:
         return (current_user.is_authenticated and current_user.is_admin) or False
 
-    def inaccessible_callback(self, name: str, **kwargs: Any) -> ResponseValue:
+    def inaccessible_callback(self, name: str, **kwargs: any) -> ResponseValue:
         return redirect(url_for('login', next=request.url))
 
 
@@ -138,37 +139,42 @@ class StatisticsView(BaseView):  # type: ignore
             data_percentage = int(request.form.get('data_percentage', 100))
 
             memory_file = io.BytesIO()
-            with zipfile.ZipFile(memory_file, 'w') as zf:
-                for table_name in tables:
-                    if table_name in table_names:
-                        table = Table(table_name, db.metadata, autoload_with=db.engine)
-                        aliased_table = aliased(table)
+            try:
+                with zipfile.ZipFile(memory_file, 'w') as zf:
+                    for table_name in tables:
+                        if table_name in table_names:
+                            table = Table(table_name, db.metadata, autoload_with=db.engine)
+                            aliased_table = aliased(table)
 
-                        count_subq = select(func.count()).select_from(table).scalar_subquery()
-                        limit = select(func.cast(count_subq * (data_percentage / 100.0), Integer)).scalar_subquery()
+                            count_subq = select(func.count()).select_from(table).scalar_subquery()
+                            limit = select(func.cast(count_subq * (data_percentage / 100.0), Integer)).scalar_subquery()
 
-                        query = (
-                            select(aliased_table)
-                            .order_by(aliased_table.c.id.desc())
-                            .limit(limit)
-                        )
+                            query = (
+                                select(aliased_table)
+                                .order_by(aliased_table.c.id.desc())
+                                .limit(limit)
+                            )
 
-                        df = pd.read_sql(query, db.engine)
-                        profile = ProfileReport(df, title=f"{table_name.capitalize()} Dataset")
+                            df = pd.read_sql(query, db.engine)
+                            profile = ProfileReport(df, title=f"{table_name.capitalize()} Dataset")
 
-                        with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as tmp:
-                            profile.to_file(tmp.name)
-                        with open(tmp.name, 'rb') as f:
-                            zf.writestr(f"{table_name}_report.html", f.read())
-                        Path(tmp.name).unlink()
+                            with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as tmp:
+                                profile.to_file(tmp.name)
+                            with open(tmp.name, 'rb') as f:
+                                zf.writestr(f"{table_name}_report.html", f.read())
+                            Path(tmp.name).unlink()
 
-            memory_file.seek(0)
-            return send_file(
-                memory_file,
-                mimetype='application/zip',
-                as_attachment=True,
-                download_name='statistics_reports.zip'
-            )
+                memory_file.seek(0)
+                return send_file(
+                    memory_file,
+                    mimetype='application/zip',
+                    as_attachment=True,
+                    download_name='statistics_reports.zip'
+                )
+            except Exception as e:
+                current_app.logger.error(f"Error generating statistics reports: {e}")
+                flash(_('Error generating statistics reports: %(error)', error=str(e)), 'danger')
+                return redirect(url_for('admin.statistics'))
 
         return self.render('admin/statistics.html', table_names=table_names)  # type: ignore
 
@@ -187,16 +193,21 @@ class ReportsView(BaseView):  # type: ignore
 
             data = self.fetch_data(tables)
 
-            if file_format == 'csv':
-                return generate_csv(data)
-            elif file_format == 'json':
-                return generate_json(data)
-            elif file_format == 'excel':
-                return generate_excel(data)
+            try:
+                if file_format == 'csv':
+                    return generate_csv(data)
+                elif file_format == 'json':
+                    return generate_json(data)
+                elif file_format == 'excel':
+                    return generate_excel(data)
+            except Exception as e:
+                current_app.logger.error(f"Error generating report: {e}")
+                flash(_('Error generating report: %(error)', error=str(e)), 'danger')
+                return redirect(url_for('admin.reports'))
 
         return self.render('admin/reports.html', table_names=table_names)  # type: ignore
 
-    def fetch_data(self, tables: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+    def fetch_data(self, tables: list[str]) -> dict[str, list[dict[str, any]]]:
         inspector = inspect(db.engine)
         all_table_names = inspector.get_table_names()
         data = {}
@@ -216,7 +227,7 @@ class ReportsView(BaseView):  # type: ignore
         return data
 
     @staticmethod
-    def decode_if_bytes(value: Any) -> Any:
+    def decode_if_bytes(value: any) -> any:
         return value.decode('utf-8') if isinstance(value, bytes) else value
 
 
@@ -248,13 +259,14 @@ class ProductsViews(AdminView):
         'onSalePrice': _number_formatter,
     }
 
-    def on_model_change(self, form: Any, model: Product, is_created: bool) -> None:
+    def on_model_change(self, form: any, model: Product, is_created: bool) -> None:
         if not is_created and model.stock <= current_app.config['LOW_STOCK_THRESHOLD']:
             product_name: str = model.samplename or 'Unknown Product'
             notification_message = _(f"Low stock alert: {product_name} is running low on stock.")
 
             # Flash a message to the current admin user
             flash(notification_message, "info")
+            current_app.logger.info(notification_message)
 
 
 class CategoryView(AdminView):
@@ -293,11 +305,11 @@ class AnalyticsView(BaseView):  # type: ignore
             )
 
             total_requests: int = request_logs_query.count()
-            request_logs: List[RequestLog] = request_logs_query.limit(10).all()
+            request_logs: list[RequestLog] = request_logs_query.limit(10).all()
 
             # Calculate analytics metrics for all logs in the selected range
             average_execution_time: Union[int, str] = 0
-            status_code_counts: Dict[int, int] = {}
+            status_code_counts: dict[int, int] = {}
 
             if total_requests > 0:
                 # Calculate average execution time
@@ -411,32 +423,49 @@ class EmailView(BaseView):  # type: ignore
     def index(self, cls=None):  # type: ignore
         form = EmailForm()
         if form.validate_on_submit():
-            if not form.subject.data or not form.body.data:
-                flash(_('Subject and body are required'), 'danger')
+            if not self._validate_email_form(form):
                 return redirect(url_for('admin.send_emails'))
 
-            subject: str = form.subject.data
-            body: str = form.body.data
+            attachments = self._handle_attachments()
+            if attachments is None:
+                return redirect(url_for('admin.send_emails'))
 
-            attachments = []
+            self._send_emails(form.subject.data, form.body.data, attachments)
+            return redirect(url_for('admin.index'))
+
+        return self.render('admin/send_email.html', form=form)
+
+    def _validate_email_form(self, form):
+        if not form.subject.data or not form.body.data:
+            flash(_('Subject and body are required'), 'danger')
+            return False
+        return True
+
+    def _handle_attachments(self):
+        attachments = []
+        try:
             for file in request.files.getlist('attachments'):
                 if file.filename:
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                     file.save(file_path)
                     attachments.append(file_path)
+            return attachments
+        except Exception as e:
+            current_app.logger.error(f"Error handling file upload: {e}")
+            flash(_('Error handling file upload: %(error)', error=str(e)), 'danger')
+            return None
 
-            users = db.session.query(User).filter_by(email_notifications_enabled=True).all()
-            try:
-                for user in users:
-                    if user.email:
-                        send_email(user.email, subject, body, attachments)
-                flash(_('Emails sent successfully'), 'success')
-            except Exception as e:
-                flash(_('Error sending emails: %(error)', error=str(e)), 'danger')
-            finally:
-                return redirect(url_for('admin.index'))
-        return self.render('admin/send_email.html', form=form)
+    def _send_emails(self, subject, body, attachments):
+        users = db.session.query(User).filter_by(email_notifications_enabled=True).all()
+        try:
+            for user in users:
+                if user.email:
+                    send_email(user.email, subject, body, attachments)
+            flash(_('Emails sent successfully'), 'success')
+        except Exception as e:
+            current_app.logger.error(f"Error sending emails: {e}")
+            flash(_('Error sending emails: %(error)', error=str(e)), 'danger')
 
 
 ############

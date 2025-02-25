@@ -6,13 +6,12 @@
 A comprehensive, feature-rich e-commerce platform built with Flask
 
 [![codecov](https://codecov.io/gh/HardMax71/modular-store-flask/branch/main/graph/badge.svg)](https://codecov.io/gh/HardMax71/modular-store-flask)
-[![Flake8 Lint](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml/badge.svg)](https://github.com/HardMax71/modular-store-flask/actions/workflows/python-lint.yml)
+[![WAVE accessibility checker](https://img.shields.io/badge/WAVE_accessibility_report-here-blue)](https://wave.webaim.org/report#/https://monkfish-app-mbn3z.ondigitalocean.app)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub last commit](https://img.shields.io/github/last-commit/HardMax71/modular-store-flask.svg)](https://github.com/HardMax71/modular-store-flask/commits/main)
 [![Live Demo](https://img.shields.io/uptimerobot/status/m797201826-b0375adddc1703a4a8c79126)](https://monkfish-app-mbn3z.ondigitalocean.app/)
-[![WAVE accessibility checker](https://img.shields.io/badge/WAVE_accessibility_report-here-blue)](https://wave.webaim.org/report#/https://monkfish-app-mbn3z.ondigitalocean.app)
 
 [Demo](https://monkfish-app-mbn3z.ondigitalocean.app/) | [Report Bug](https://github.com/HardMax71/modular-store-flask/issues) | [Request Feature](https://github.com/HardMax71/modular-store-flask/issues)
 
@@ -177,9 +176,13 @@ Simplified database schema for the application:
 
 ![Database Schema](diagrams/plantuml_erd.png)
 
+<details>
+<summary>Click to view full database schema</summary>
+
+![Full Database Schema](diagrams/full_bd_diagram.png)
+
+</details>
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-
-

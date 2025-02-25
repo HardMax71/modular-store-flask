@@ -2170,4 +2170,3 @@ msgstr ""
 #: templates/website_parts/promoted_products_section.html:62
 msgid "Featured"
 msgstr ""
-

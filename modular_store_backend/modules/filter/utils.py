@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple, Dict, Any
+from typing import Tuple
 from typing import Optional
 
 from flask import current_app
@@ -62,11 +62,11 @@ def filter_products(
     return query
 
 
-def get_filter_options() -> Dict[str, Any]:
+def get_filter_options() -> dict[str, any]:
     """
     Get filter options for categories, tags, and sorting.
 
-    :return: Dictionary containing filter options
+    :return: dictionary containing filter options
     """
     categories = get_categories()
     tags = get_all_tags()
@@ -80,23 +80,23 @@ def get_filter_options() -> Dict[str, Any]:
     return filter_options
 
 
-def get_categories() -> List[Dict[str, Any]]:
+def get_categories() -> list[dict[str, any]]:
     categories_query = db.session.query(Category).all()
     return [{'id': category.id, 'name': category.name, 'parent_id': category.parent_id} for category in
             categories_query]
 
 
-def get_all_tags() -> List[Dict[str, Any]]:
+def get_all_tags() -> list[dict[str, any]]:
     """Get a list of all tags."""
     return [{'id': tag.id, 'name': tag.name} for tag in db.session.query(Tag).all()]
 
 
-def get_promoted_products(products_query: Optional[Query[Product]] = None) -> List[Product]:
+def get_promoted_products(products_query: Optional[Query[Product]] = None) -> list[Product]:
     """
     Get a list of promoted products.
 
     :param products_query: Initial query to apply promotions on
-    :return: List of promoted products
+    :return: list of promoted products
     """
     if products_query is None:
         products_query = db.session.query(Product).filter(Product.stock > 0)
@@ -108,7 +108,7 @@ def get_promoted_products(products_query: Optional[Query[Product]] = None) -> Li
     ).all()
 
 
-def paginate_query(query: Query[Product], page: int) -> Tuple[List[Product], int, int, int]:
+def paginate_query(query: Query[Product], page: int) -> Tuple[list[Product], int, int, int]:
     """
     Paginate a query.
 

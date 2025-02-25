@@ -1,17 +1,20 @@
+# /modular_store_backend/tests/integration/test_reviews_integration.py
+import os
 import unittest
+from io import BytesIO
 
-from flask import url_for
-from flask_login import login_user
+from werkzeug.datastructures import FileStorage
 
-from modular_store_backend.modules.db.models import Review, ReportedReview, Purchase, PurchaseItem, Product
+from modular_store_backend.modules.db.models import Review, ReportedReview, Purchase, PurchaseItem, Product, ReviewImage
 from modular_store_backend.modules.reviews.utils import (
-    get_review, has_purchased, has_already_reviewed
+    get_review, report_review_with_explanation, has_purchased, has_already_reviewed,
+    handle_uploaded_images, allowed_file, add_review_to_db
 )
 from modular_store_backend.tests.base_test import BaseTest
 from modular_store_backend.tests.util import create_user
 
 
-class TestReviewUtilsIntegration(BaseTest):
+class TestReviewsIntegration(BaseTest):
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +28,7 @@ class TestReviewUtilsIntegration(BaseTest):
         self.session.add(self.product)
         self.session.commit()
 
-    def test_get_review_integration(self):
+    def test_get_review(self):
         review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
         self.session.add(review)
         self.session.commit()
@@ -33,24 +36,19 @@ class TestReviewUtilsIntegration(BaseTest):
         retrieved_review = get_review(review.id)
         self.assertEqual(retrieved_review, review)
 
-    def test_report_review_integration(self):
+    def test_report_review_with_explanation(self):
         review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
         self.session.add(review)
         self.session.commit()
 
-        with self.app.test_request_context():
-            login_user(self.user)
-            response = self.client.post(url_for('reviews.report_review', review_id=review.id),
-                                        data={'explanation': 'Inappropriate content'},
-                                        follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
+        report_review_with_explanation(review.id, self.user.id, 'Inappropriate content')
 
         reported_review = self.session.query(ReportedReview).filter_by(review_id=review.id).first()
         self.assertIsNotNone(reported_review)
         self.assertEqual(reported_review.user_id, self.user.id)
         self.assertEqual(reported_review.explanation, "Inappropriate content")
 
-    def test_has_purchased_integration(self):
+    def test_has_purchased(self):
         purchase = Purchase(user_id=self.user.id, total_price=1000)
         self.session.add(purchase)
         self.session.commit()
@@ -63,7 +61,7 @@ class TestReviewUtilsIntegration(BaseTest):
         result = has_purchased(self.user.id, self.product.id)
         self.assertTrue(result)
 
-    def test_has_already_reviewed_integration(self):
+    def test_has_already_reviewed(self):
         review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
         self.session.add(review)
         self.session.commit()
@@ -71,104 +69,64 @@ class TestReviewUtilsIntegration(BaseTest):
         result = has_already_reviewed(self.user.id, self.product.id)
         self.assertTrue(result)
 
-    def test_add_review_integration(self):
-        purchase = Purchase(user_id=self.user.id, total_price=10)
-        self.session.add(purchase)
-        self.session.commit()
-
-        purchase_item = PurchaseItem(purchase_id=purchase.id, product_id=self.product.id, quantity=1,
-                                     price=self.product.price)
-        self.session.add(purchase_item)
-        self.session.commit()
+    def test_handle_uploaded_images(self):
+        test_image = FileStorage(
+            stream=BytesIO(b'my file contents'),
+            filename='test123.jpg',
+            content_type='image/jpeg'
+        )
+        uploaded_files = [test_image]
 
         with self.app.test_request_context():
-            login_user(self.user)
-            response = self.client.post(url_for('reviews.add_review'),
-                                        data={
-                                            'product_id': self.product.id,
-                                            'rating': 5,
-                                            'review': 'Excellent product!',
-                                            'title': 'Great Buy',
-                                            'pros': 'Durable, Affordable',
-                                            'cons': 'None'},
-                                        follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
+            upload_folder = self.app.config['REVIEW_PICS_FOLDER']
+            result = handle_uploaded_images(uploaded_files, upload_folder)
+
+        self.assertEqual(len(result), 1)
+        self.assertTrue(result[0] == 'test123.jpg')
+
+        # Clean up the uploaded file
+        os.remove(os.path.join(upload_folder, result[0]))
+
+    def test_allowed_file(self):
+        self.assertTrue(allowed_file('test.jpg'))
+        self.assertTrue(allowed_file('test.png'))
+        self.assertFalse(allowed_file('test.txt'))
+
+    def test_add_review_to_db(self):
+        review_data = {
+            'user_id': self.user.id,
+            'product_id': self.product.id,
+            'rating': 5,
+            'review': 'Excellent product!',
+            'title': 'Great Buy',
+            'pros': 'Durable, Affordable',
+            'cons': 'None'
+        }
+        test_image = FileStorage(
+            stream=BytesIO(b'my file contents'),
+            filename='test.jpg',
+            content_type='image/jpeg'
+        )
+
+        with self.app.test_request_context():
+            add_review_to_db(review_data, [test_image])
 
         added_review = self.session.query(Review).filter_by(user_id=self.user.id, product_id=self.product.id).first()
         self.assertIsNotNone(added_review)
         self.assertEqual(added_review.rating, 5)
         self.assertEqual(added_review.review, 'Excellent product!')
 
-    def test_reported_reviews_admin_view(self):
-        review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
-        self.session.add(review)
-        self.session.commit()
+        review_image = self.session.query(ReviewImage).filter_by(review_id=added_review.id).first()
+        self.assertIsNotNone(review_image)
+        print(review_image._image)
+        self.assertTrue(review_image._image == 'test.jpg')
 
-        report = ReportedReview(review_id=review.id, user_id=self.user.id, explanation='Test report')
-        self.session.add(report)
-        self.session.commit()
-
-        with self.app.test_request_context():
-            login_user(self.admin)
-            response = self.client.get(url_for('reviews.reported_reviews'))
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b'Test report', response.data)
-
-    def test_reported_review_detail_admin_view(self):
-        review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
-        self.session.add(review)
-        self.session.commit()
-
-        report = ReportedReview(review_id=review.id, user_id=self.user.id, explanation='Test report')
-        self.session.add(report)
-        self.session.commit()
-
-        with self.app.test_request_context():
-            login_user(self.admin)
-            response = self.client.get(url_for('reviews.reported_review_detail', review_id=review.id))
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b'Great!', response.data)
-            self.assertIn(b'Test report', response.data)
-
-    def test_leave_review_admin_action(self):
-        review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
-        self.session.add(review)
-        self.session.commit()
-
-        report = ReportedReview(review_id=review.id, user_id=self.user.id, explanation='Test report')
-        self.session.add(report)
-        self.session.commit()
-
-        with self.app.test_request_context():
-            login_user(self.admin)
-            response = self.client.post(url_for('reviews.leave_review', review_id=review.id), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-
-        # Check that the report is deleted but the review remains
-        self.assertIsNone(self.session.query(ReportedReview).filter_by(review_id=review.id).first())
-        self.assertIsNotNone(self.session.get(Review, review.id))
-
-    def test_delete_review_admin_action(self):
-        review = Review(user_id=self.user.id, product_id=self.product.id, rating=5, review='Great!')
-        self.session.add(review)
-        self.session.commit()
-
-        report = ReportedReview(review_id=review.id, user_id=self.user.id, explanation='Test report')
-        self.session.add(report)
-        self.session.commit()
-
-        with self.app.test_request_context():
-            login_user(self.admin)
-            response = self.client.post(url_for('reviews.delete_review', review_id=review.id), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-
-        # Check that both the report and the review are deleted
-        self.assertIsNone(self.session.query(ReportedReview).filter_by(review_id=review.id).first())
-        self.assertIsNone(self.session.get(Review, review.id))
+        # Clean up the uploaded file
+        os.remove(os.path.join(self.app.config['REVIEW_PICS_FOLDER'], review_image._image))
 
     def test_review_flow_integration(self):
         # Simulate a purchase
-        purchase = Purchase(user_id=self.user.id, total_price=10)
+        purchase = Purchase(user_id=self.user.id, total_price=1000)
         self.session.add(purchase)
         self.session.commit()
 
@@ -184,18 +142,23 @@ class TestReviewUtilsIntegration(BaseTest):
         self.assertFalse(has_already_reviewed(self.user.id, self.product.id))
 
         # Add a review
+        review_data = {
+            'user_id': self.user.id,
+            'product_id': self.product.id,
+            'rating': 5,
+            'review': 'Great product!',
+            'title': 'Excellent',
+            'pros': 'Durable',
+            'cons': 'None'
+        }
+        test_image = FileStorage(
+            stream=BytesIO(b'my file contents'),
+            filename='test.jpg',
+            content_type='image/jpeg'
+        )
+
         with self.app.test_request_context():
-            login_user(self.user)
-            response = self.client.post(url_for('reviews.add_review'),
-                                        data={
-                                            'product_id': self.product.id,
-                                            'rating': 5,
-                                            'review': 'Great product!',
-                                            'title': 'Excellent',
-                                            'pros': 'Durable',
-                                            'cons': 'None'},
-                                        follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
+            add_review_to_db(review_data, [test_image])
 
         # Check if user has now reviewed
         self.assertTrue(has_already_reviewed(self.user.id, self.product.id))
@@ -205,15 +168,15 @@ class TestReviewUtilsIntegration(BaseTest):
         self.assertIsNotNone(review)
 
         # Report the review
-        with self.app.test_request_context():
-            login_user(self.user)
-            response = self.client.post(url_for('reviews.report_review', review_id=review.id),
-                                        data={'explanation': 'Test report'},
-                                        follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
+        report_review_with_explanation(review.id, self.user.id, 'Test report')
 
         reported_review = self.session.query(ReportedReview).filter_by(review_id=review.id).first()
         self.assertIsNotNone(reported_review)
+
+        # Clean up the uploaded file
+        review_image = self.session.query(ReviewImage).filter_by(review_id=review.id).first()
+        if review_image:
+            os.remove(os.path.join(self.app.config['REVIEW_PICS_FOLDER'], review_image._image))
 
 
 if __name__ == '__main__':

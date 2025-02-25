@@ -149,16 +149,48 @@ class TestMainIntegration(BaseTest):
     def test_product_page_nonexistent_product(self):
         response = self.client.get(url_for('main.product_page', product_id=9999))
         self.assertEqual(response.status_code, 302)  # Redirect to index
-        self.assertIn('Product not found', self.get_flashed_messages(with_categories=True)[0][1])
+        self.assertIn('Product not found', self.get_flashed_messages_from_session()[0][1])
 
     def test_toggle_wishlist_nonexistent_product(self):
         response = self.client.post(url_for('main.toggle_wishlist'), data={'product_id': 9999}, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Invalid product ID', response.data)
 
-    def get_flashed_messages(self, with_categories=False):
-        with self.client.session_transaction() as session:
-            return session.get('_flashes', [])
+    def test_apply_discount_no_code(self):
+        response = self.client.post(url_for('main.apply_discount'), data={}, follow_redirects=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Please enter a discount code.', response.data)
+
+    @patch('modular_store_backend.modules.main.views.apply_discount_code')
+    def test_apply_discount_success(self, mock_apply_discount):
+        mock_apply_discount.return_value = "success"
+
+        response = self.client.post(url_for('main.apply_discount'), data={'discount_code': 'TESTCODE'},
+                                    follow_redirects=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Discount code applied successfully.', response.data)
+
+    @patch('modular_store_backend.modules.main.views.apply_discount_code')
+    def test_apply_discount_already_used(self, mock_apply_discount):
+        mock_apply_discount.return_value = "already_used"
+
+        response = self.client.post(url_for('main.apply_discount'), data={'discount_code': 'TESTCODE'},
+                                    follow_redirects=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'You have already used this discount code.', response.data)
+
+    @patch('modular_store_backend.modules.main.views.apply_discount_code')
+    def test_apply_discount_invalid(self, mock_apply_discount):
+        mock_apply_discount.return_value = "invalid"
+
+        response = self.client.post(url_for('main.apply_discount'), data={'discount_code': 'TESTCODE'},
+                                    follow_redirects=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Invalid discount code.', response.data)
 
 
 if __name__ == '__main__':

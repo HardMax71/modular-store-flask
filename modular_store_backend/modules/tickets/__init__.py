@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/tickets/__init__.py
 from flask import Flask
 
 from .views import init_tickets

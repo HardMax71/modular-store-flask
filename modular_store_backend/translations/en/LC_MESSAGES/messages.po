@@ -3355,4 +3355,3 @@ msgstr ""
 
 #~ msgid "Invalid email header in order confirmation"
 #~ msgstr ""
-

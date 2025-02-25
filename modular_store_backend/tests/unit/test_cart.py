@@ -1,8 +1,9 @@
+# /modular_store_backend/tests/unit/test_cart.py
 import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from flask import url_for
+from flask import url_for, redirect
 from flask_login import login_user
 
 from modular_store_backend.modules.carts.utils import (
@@ -139,25 +140,80 @@ class TestCartUtils(BaseTest):
             result = get_shipping_info()
             self.assertEqual(result, (self.address.id, self.shipping_method))
 
-    @patch('modular_store_backend.modules.carts.utils.stripe')
-    def test_process_stripe_payment(self, mock_stripe):
-        mock_stripe.Customer.create.return_value = MagicMock(id='cust_123')
-        mock_stripe.checkout.Session.create.return_value = MagicMock(url='https://stripe.com/checkout')
-
-        cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=1000)
-        self.session.add(cart_item)
-        self.session.commit()
-
-        with self.app.test_request_context():
-            login_user(self.user)
-            result = process_stripe_payment([cart_item], self.address.id, self.shipping_method)
-            self.assertEqual(result.location, 'https://stripe.com/checkout')
-
     @patch('modular_store_backend.modules.carts.utils.stripe.StripeError', Exception)
     def test_handle_stripe_error(self):
         with self.app.test_request_context():
             result = handle_stripe_error(Exception("Test error"))
             self.assertEqual(result.location, url_for('carts.checkout'))
+
+    def test_process_payment_stripe(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=1000)
+            self.session.add(cart_item)
+            self.session.commit()
+
+            with patch('modular_store_backend.modules.carts.utils.get_shipping_info') as mock_get_shipping_info, \
+                    patch(
+                        'modular_store_backend.modules.carts.utils.process_stripe_payment') as mock_process_stripe_payment:
+                mock_get_shipping_info.return_value = (self.address.id, self.shipping_method)
+                mock_process_stripe_payment.return_value = redirect('/payment_success?order_id=1')
+
+                result = process_payment([cart_item])
+                self.assertEqual(result.location, '/payment_success?order_id=1')
+
+    @patch('modular_store_backend.modules.carts.utils.stripe.checkout.Session.create')
+    def test_process_stripe_payment(self, mock_session_create):
+        mock_session_create.return_value = MagicMock(url='http://test.com')
+
+        with self.app.test_request_context():
+            login_user(self.user)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=1000)
+            self.session.add(cart_item)
+            self.session.commit()
+
+            with patch(
+                    'modular_store_backend.modules.carts.utils.get_stripe_acc_for_customer_by_stripe_customer_id') as mock_get_customer:
+                mock_get_customer.return_value = MagicMock(id='cus_test123')
+                result = process_stripe_payment([cart_item], self.address.id, self.shipping_method)
+                self.assertEqual(result.location, 'http://test.com')
+
+    @patch('modular_store_backend.modules.carts.utils.stripe.checkout.Session.create')
+    def test_process_stripe_payment_exception(self, mock_session_create):
+        mock_session_create.side_effect = Exception("Test exception")
+
+        with self.app.test_request_context():
+            login_user(self.user)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=1, price=1000)
+            self.session.add(cart_item)
+            self.session.commit()
+
+            with patch(
+                    'modular_store_backend.modules.carts.utils.get_stripe_acc_for_customer_by_stripe_customer_id') as mock_get_customer:
+                mock_get_customer.return_value = MagicMock(id='cus_test123')
+                result = process_stripe_payment([cart_item], self.address.id, self.shipping_method)
+                self.assertEqual(result.location, url_for('carts.checkout'))
+
+    def test_update_cart_remove_item(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            cart_item = Cart(user_id=self.user.id, product_id=self.product.id, quantity=2, price=1000)
+            self.session.add(cart_item)
+            self.session.commit()
+
+            initial_stock = self.product.stock
+            result = update_cart(cart_item.id, 0)
+            self.assertTrue(result)
+            self.assertEqual(self.product.stock, initial_stock + 2)
+            self.assertIsNone(self.session.get(Cart, cart_item.id))
+
+    def test_add_to_cart_invalid_quantity(self):
+        with self.app.test_request_context():
+            login_user(self.user)
+            result = add_to_cart(self.product, 0, {})
+            self.assertFalse(result)
+            self.assertIn("Invalid quantity. Please select a positive number.",
+                          self.app.jinja_env.globals['get_flashed_messages']())
 
 
 if __name__ == '__main__':

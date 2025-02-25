@@ -1,3 +1,4 @@
+# /modular_store_backend/modules/profile/views.py
 from flask import Blueprint, render_template, request, flash, redirect, url_for, Flask, current_app
 from flask.typing import ResponseValue
 from flask_babel import gettext as _
