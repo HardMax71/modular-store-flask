@@ -22,7 +22,7 @@ class TestEmail(BaseTest):
         mock_mail.reset_mock()
 
         # Test with attachments
-        with patch('modular_store_backend.modules.email.os') as mock_os:
+        with patch('modular_store_backend.modules.email.os') as _:
             # Mock file opening
             mock_file = MagicMock()
             mock_open = MagicMock(return_value=mock_file)

@@ -158,5 +158,6 @@ class TestProfileRoutes(BaseTest):
             ).first()
             self.assertIsNone(account)
 
+
 if __name__ == '__main__':
     unittest.main()
