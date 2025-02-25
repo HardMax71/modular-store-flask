@@ -24,7 +24,7 @@ def backup_database(app: Flask) -> None:
     try:
         # Copy the database file to the backup directory with the specified backup filename
         shutil.copyfile(app.config['DB_PATH'], backup_path)
-        logging.info(f"Database backup created: {backup_path}")
+        logging.info(f"Database backup created: {os.path.normpath(backup_path)}")
     except Exception as e:
         logging.error(f"Error creating database backup: {str(e)}")
 
